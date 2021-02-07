@@ -35,14 +35,12 @@ dependencies:
 
   # Adding model dependencies for inivigilators model
   equatable: ^1.2.5
-  # path packages
+  # path packages 
   path: ^1.7.0
   path_provider: ^1.6.24
-  image_gallery_saver: "^1.6.8"
-  permission_handler: ^5.1.0+2
-
-  # export packages
-  sqlitetoexcel: ^0.0.1
+  image_gallery_saver: '^1.6.8'
+  permission_handler: '^4.2.0+hotfix.2'
+  csv: ^4.0.3
 
 dev_dependencies:
   flutter_test:
