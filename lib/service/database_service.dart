@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -350,6 +352,56 @@ class DatabaseService {
   //   return await dbClient.update(PAYMENTS_TABLE, paymentModel.toMap(),
   //       where: '$PAYMENTS_ID = ?', whereArgs: [id]);
   // }
+
+  // --------------------------------------------------------------------------------
+  //                      EXPORT DATABASE INVIGILATORS DATA
+  // ---------------------------------------------------------------------------------
+  // generate csv file with data from invigilators table
+  Future<String> generateCSV() async {
+    List<InvigilatorsDetailsModel> invigilatorsDetails;
+
+    await getAllInvigilators()
+        .then((invigilators) => invigilatorsDetails = invigilators);
+
+    if (invigilatorsDetails.isEmpty) return null;
+
+    List<List<String>> csvData = [
+      <String>[
+        "PROFILE ID",
+        "NAME",
+        "SESSION",
+        "START TIME",
+        "END TIME",
+        "ROOM",
+        "DAY",
+        "DATE TIME"
+      ],
+      ...invigilatorsDetails.map((invigilator) => [
+            "${invigilator.id}",
+            invigilator.name,
+            invigilator.session,
+            invigilator.startTime,
+            invigilator.endTime,
+            invigilator.room,
+            invigilator.day,
+            invigilator.dateTime
+          ])
+    ];
+
+    String csv = const ListToCsvConverter().convert(csvData);
+
+    String reportDate = DateTime.now().toString();
+
+    final String dirPath = (await getExternalStorageDirectory()).path;
+    final String filePath = "$dirPath/invigilators-$reportDate.csv";
+
+    // create file
+    final File file = File(filePath);
+    // save csv file
+    await file.writeAsString(csv);
+
+    return filePath;
+  }
 
   // ---------------------------------------------------------------------------------
   //                      FINALLY CLOSE DATABASE
