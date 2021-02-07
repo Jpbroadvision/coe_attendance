@@ -22,10 +22,7 @@ class _RecordsState extends State<Records> {
 
     databaseService = DatabaseService();
 
-    setState(() {
-      _invigilatorsDetails = databaseService.getAllInvigilators();
-    });
-    _invigilatorsDetails.then((result) => print(result.map((i) => i.name)));
+    getListOfInvigilators();
   }
 
   listInvigilators() {
@@ -44,16 +41,31 @@ class _RecordsState extends State<Records> {
   Column buildInvigilatorsCard(List<InvigilatorsDetailsModel> invigilators) {
     return Column(
         children: invigilators
-            .map((invigilator) =>
-                InvigilatorCard(invigilatorsDetails: invigilator))
+            .map((invigilator) => InvigilatorCard(
+                  invigilatorsDetails: invigilator,
+                  deleteFunction: removeInvigilator,
+                ))
             .toList());
+  }
+
+  getListOfInvigilators() {
+    setState(() {
+      _invigilatorsDetails = databaseService.getAllInvigilators();
+    });
+  }
+
+  removeInvigilator(id) {
+    databaseService.deleteInivigilator(id);
+    // refresh list of invigilators
+    getListOfInvigilators();
+    toastMessage("Delete successful");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(_scaffoldKey),
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         leading: IconButton(
@@ -63,8 +75,31 @@ class _RecordsState extends State<Records> {
           },
         ),
         centerTitle: true,
-        title: Text('Record',
-            textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Record',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.file_download,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              String path = await databaseService.generateCSV();
+
+              String message = "Failed to generate CSV file";
+
+              if (path == null)
+                toastMessage(message, Colors.red);
+              else {
+                message = "File saved at $path";
+                toastMessage(message);
+              }
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -76,5 +111,17 @@ class _RecordsState extends State<Records> {
             children: <Widget>[listInvigilators()]),
       ),
     );
+  }
+
+  toastMessage(String message, [Color color]) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      backgroundColor: color == null ? Colors.green : color,
+      content: Center(
+        child: Text(
+          message,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    ));
   }
 }
