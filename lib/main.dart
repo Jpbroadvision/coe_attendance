@@ -1,3 +1,4 @@
+import 'package:coe_attendance/service/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/data_source.dart';
 import 'package:coe_attendance/components/drawer.dart';
@@ -52,6 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    PermissionService.getPermission();
+
     setState(() {
       _allocations = DataSource.getAllocations();
       _nameCtrl = TextEditingController(text: _invigilators);
@@ -64,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(_scaffoldKey),
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         leading: IconButton(
@@ -256,9 +260,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     room: _room,
                                     day: _selectedDay,
                                     dateTime: dateTime);
-
-                            print("$_room ");
-
                             // save details to database
                             try {
                               databaseService
