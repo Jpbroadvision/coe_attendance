@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class InvigilatorCard extends StatelessWidget {
   final InvigilatorsDetailsModel invigilatorsDetails;
+  final Function deleteFunction;
 
-  InvigilatorCard({@required this.invigilatorsDetails});
+  InvigilatorCard({@required this.invigilatorsDetails, this.deleteFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -79,29 +80,40 @@ class InvigilatorCard extends StatelessWidget {
   // title with arrow icon for expanded card
   Widget _buildTitle() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Container(
-          margin: EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image:
-                DecorationImage(image: AssetImage("assets/user-profile.png")),
-          ),
-          height: 50,
-          width: 50,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
           children: [
-            Text(
-              invigilatorsDetails.name,
-              style: TextStyle(fontSize: 20.0),
+            Container(
+              margin: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                    image: AssetImage("assets/user-profile.png")),
+              ),
+              height: 50,
+              width: 50,
             ),
-            Text(
-              '${invigilatorsDetails.day}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            )
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  invigilatorsDetails.name,
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                Text(
+                  '${invigilatorsDetails.day}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
           ],
+        ),
+        IconButton(
+          icon: Icon(Icons.delete, color: Colors.red),
+          onPressed: () {
+            deleteFunction(invigilatorsDetails.id);
+          },
         ),
       ],
     );
