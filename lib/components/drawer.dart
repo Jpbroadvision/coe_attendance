@@ -1,8 +1,14 @@
+import 'package:coe_attendance/service/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/main.dart';
 import 'package:coe_attendance/records.dart';
 
 class CustomDrawer extends StatelessWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final DatabaseService databaseService = DatabaseService();
+
+  CustomDrawer(this.scaffoldKey);
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -25,16 +31,33 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.group),
-            title: Text("Export Data"),
-            onTap: () {
-              // Navigator.push(
-              //     context, MaterialPageRoute(builder: (_) => ExportFile())
-              //     );
+            leading: Icon(Icons.file_download),
+            title: Text("Export to CSV"),
+            onTap: () async {
+              String path = await databaseService.generateCSV();
+
+              String message = "Failed to generate CSV file";
+
+              if (path == null)
+                toastMessage(message, Colors.red);
+              else {
+                message = "File saved at $path";
+                toastMessage(message);
+              }
             },
           )
         ],
       ),
     );
+  }
+
+  toastMessage(String message, [Color color]) {
+    scaffoldKey.currentState.showSnackBar(SnackBar(
+      backgroundColor: color == null ? Colors.green : color,
+      content: Text(
+        message,
+        style: TextStyle(color: Colors.white),
+      ),
+    ));
   }
 }
