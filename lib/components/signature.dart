@@ -8,30 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+class SignatureScreen extends StatefulWidget {
+  SignatureScreen({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _SignatureScreenState createState() => _SignatureScreenState();
 }
 
 class _WatermarkPaint extends CustomPainter {
@@ -42,7 +23,7 @@ class _WatermarkPaint extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 10.8, Paint()..color = Colors.blue);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2),0.0, Paint()..color = Colors.blue);
   }
 
   @override
@@ -57,10 +38,10 @@ class _WatermarkPaint extends CustomPainter {
   int get hashCode => price.hashCode ^ watermark.hashCode;
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SignatureScreenState extends State<SignatureScreen> {
   ByteData _img = ByteData(0);
-  var color = Colors.red;
-  var strokeWidth = 5.0;
+  var color = Colors.black;
+  var strokeWidth = 2.0;
   final _sign = GlobalKey<SignatureState>();
 
   @override
@@ -86,14 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black12,
             ),
           ),
-          _img.buffer.lengthInBytes == 0 ? Container() : LimitedBox(maxHeight: 200.0, child: Image.memory(_img.buffer.asUint8List())),
+          _img.buffer.lengthInBytes == 0 ? Container() : LimitedBox(maxHeight: 150.0, child: Image.memory(_img.buffer.asUint8List())),
           Column(
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MaterialButton(
-                      color: Colors.green,
+                      color: Colors.blueAccent,
                       onPressed: () async {
                         final sign = _sign.currentState;
                         //retrieve image data, do whatever you want with it (send to server, save locally...)
@@ -106,18 +87,22 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                         debugPrint("onPressed " + encoded);
                       },
-                      child: Text("Save")),
-                  MaterialButton(
-                      color: Colors.grey,
-                      onPressed: () {
-                        final sign = _sign.currentState;
-                        sign.clear();
-                        setState(() {
-                          _img = ByteData(0);
-                        });
-                        debugPrint("cleared");
-                      },
-                      child: Text("Clear")),
+                      child: Text("Save",style: TextStyle(color: Colors.white))),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: MaterialButton(
+                      
+                        color: Colors.redAccent,
+                        onPressed: () {
+                          final sign = _sign.currentState;
+                          sign.clear();
+                          setState(() {
+                            _img = ByteData(0);
+                          });
+                          debugPrint("cleared");
+                        },
+                        child: Text("Clear",style: TextStyle(color: Colors.white),)),
+                  ),
                 ],
               ),
               Row(
@@ -126,11 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialButton(
                       onPressed: () {
                         setState(() {
-                          color = color == Colors.green ? Colors.red : Colors.green;
+                          color = color == Colors.black ? Colors.blue : Colors.black;
                         });
                         debugPrint("change color");
                       },
-                      child: Text("Change color")),
+                      child: Text("Change color",textAlign: TextAlign.center, style: TextStyle(fontSize: 14.0))),
                   MaterialButton(
                       onPressed: () {
                         setState(() {
@@ -141,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           debugPrint("change stroke width to $selection");
                         });
                       },
-                      child: Text("Change stroke width")),
+                      child: Text("stroke width",textAlign: TextAlign.center, style: TextStyle(fontSize: 14.0))),
                 ],
               ),
             ],
