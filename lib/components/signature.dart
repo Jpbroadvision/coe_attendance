@@ -1,5 +1,5 @@
-  
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -7,6 +7,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SignatureScreen extends StatefulWidget {
   SignatureScreen({Key key}) : super(key: key);
@@ -23,7 +26,8 @@ class _WatermarkPaint extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2),0.0, Paint()..color = Colors.blue);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 0.0,
+        Paint()..color = Colors.blue);
   }
 
   @override
@@ -32,7 +36,12 @@ class _WatermarkPaint extends CustomPainter {
   }
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is _WatermarkPaint && runtimeType == other.runtimeType && price == other.price && watermark == other.watermark;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _WatermarkPaint &&
+          runtimeType == other.runtimeType &&
+          price == other.price &&
+          watermark == other.watermark;
 
   @override
   int get hashCode => price.hashCode ^ watermark.hashCode;
@@ -51,6 +60,8 @@ class _SignatureScreenState extends State<SignatureScreen> {
         children: <Widget>[
           Expanded(
             child: Container(
+              width: 50.0,
+              height: 50.0,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Signature(
@@ -67,7 +78,11 @@ class _SignatureScreenState extends State<SignatureScreen> {
               color: Colors.black12,
             ),
           ),
-          _img.buffer.lengthInBytes == 0 ? Container() : LimitedBox(maxHeight: 150.0, child: Image.memory(_img.buffer.asUint8List())),
+          _img.buffer.lengthInBytes == 0
+              ? Container()
+              : LimitedBox(
+                  maxHeight: 150.0,
+                  child: Image.memory(_img.buffer.asUint8List())),
           Column(
             children: <Widget>[
               Row(
@@ -79,19 +94,23 @@ class _SignatureScreenState extends State<SignatureScreen> {
                         final sign = _sign.currentState;
                         //retrieve image data, do whatever you want with it (send to server, save locally...)
                         final image = await sign.getData();
-                        var data = await image.toByteData(format: ui.ImageByteFormat.png);
+
+                        var data = await image.toByteData(
+                            format: ui.ImageByteFormat.png);
+                        // _save(data);
                         sign.clear();
-                        final encoded = base64.encode(data.buffer.asUint8List());
+                        final encoded =
+                            base64.encode(data.buffer.asUint8List());
                         setState(() {
                           _img = data;
                         });
                         debugPrint("onPressed " + encoded);
                       },
-                      child: Text("Save",style: TextStyle(color: Colors.white))),
+                      child:
+                          Text("Save", style: TextStyle(color: Colors.white))),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(
-                      
                         color: Colors.redAccent,
                         onPressed: () {
                           final sign = _sign.currentState;
@@ -101,7 +120,10 @@ class _SignatureScreenState extends State<SignatureScreen> {
                           });
                           debugPrint("cleared");
                         },
-                        child: Text("Clear",style: TextStyle(color: Colors.white),)),
+                        child: Text(
+                          "Clear",
+                          style: TextStyle(color: Colors.white),
+                        )),
                   ),
                 ],
               ),
@@ -111,11 +133,15 @@ class _SignatureScreenState extends State<SignatureScreen> {
                   MaterialButton(
                       onPressed: () {
                         setState(() {
-                          color = color == Colors.black ? Colors.blue : Colors.black;
+                          color = color == Colors.black
+                              ? Colors.blue
+                              : Colors.black;
                         });
                         debugPrint("change color");
                       },
-                      child: Text("Change color",textAlign: TextAlign.center, style: TextStyle(fontSize: 14.0))),
+                      child: Text("Change color",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14.0))),
                   MaterialButton(
                       onPressed: () {
                         setState(() {
@@ -126,7 +152,9 @@ class _SignatureScreenState extends State<SignatureScreen> {
                           debugPrint("change stroke width to $selection");
                         });
                       },
-                      child: Text("stroke width",textAlign: TextAlign.center, style: TextStyle(fontSize: 14.0))),
+                      child: Text("stroke width",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14.0))),
                 ],
               ),
             ],
@@ -135,4 +163,13 @@ class _SignatureScreenState extends State<SignatureScreen> {
       ),
     );
   }
+
+  // _save(ByteData imgData) async {
+  //   if(await _requestPermission(Permission))
+  //   final result = await ImageGallerySaver.saveImage(
+  //       Uint8List.fromList(imgData.buffer.asUint8List()),
+  //       quality: 60,
+  //       name: "hello");
+  //   print(result);
+  // }
 }

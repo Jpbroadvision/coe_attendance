@@ -45,8 +45,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+      
         backgroundColor: Colors.blueAccent,
-        title: Text('CoE INVIGILTORS ATTENDANCE', style: TextStyle(color: Colors.white)),
+        title: Text('CoE INVIGILTORS ATTENDANCE',textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -82,6 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChanged: (value) {
                           setState(() {
                             _day = value;
+                            print("The selected day is: " + _day);
                           });
                         },
                         value: _day,
@@ -113,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChanged: (value) {
                           setState(() {
                             _session = value;
+                            print("The selected session is " + _session);
                           });
                         },
                         value: _session,
@@ -154,12 +158,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChanged: (value) {
                           setState(() {
                             _room = value;
+                            print("The selected room is: " + _room);
                           });
                         },
                         value: _room,
                         style: TextStyle(
                             fontSize: 20.0,
-                            color:  Colors.black87,
+                            color: Colors.black87,
                             // fontWeight: FontWeight.w200,
                             fontFamily: "Roboto"),
                         items: <DropdownMenuItem<String>>[
@@ -180,57 +185,40 @@ class _MyHomePageState extends State<MyHomePage> {
                         keyboardType: TextInputType.name,
                         decoration: InputDecoration(
                           hintText: 'Enter Name',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Colors.black87),
-                              ), //shape: StadiumBorder(),
+                          hintStyle:
+                              Theme.of(context).textTheme.bodyText2.merge(
+                                    TextStyle(color: Colors.black87),
+                                  ), //shape: StadiumBorder(),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Colors.black12)),
+                              borderSide:
+                                  BorderSide(width: 2, color: Colors.black12)),
                           filled: false,
                           // fillColor: Theme.of(context).primaryColor,
                           contentPadding: EdgeInsets.all(12),
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                  width: 2,
-                                  color: Colors.yellowAccent)),
+                                  width: 2, color: Colors.yellowAccent)),
                         ),
                       ),
                       SizedBox(
                         height: 20.0,
                       ),
-                      
-                      IconButton(
-                        onPressed: () {
-                          // call the dialog
-                          // print("SIGN clicked");
-
-                          callSignatureDialog(context);
-                        },
-                        icon: Text(
-                          "Sign",
-                          style: TextStyle(
-                              fontSize: 20.0, color: Colors.redAccent),
-                        ),
-                      ),
+                      SignatureScreen(),
                       SizedBox(
                         height: 30.0,
                       ),
                       MaterialButton(
-                      color: Colors.blueAccent,
-                      onPressed: () {
-                          // call the dialog
-                          // print("SIGN clicked");
+                          color: Colors.blueAccent,
+                          onPressed: () {
+                            // call the dialog
+                            // print("SIGN clicked");
 
-                          // callSignatureDialog(context);
-                        },
-                      child: Text("SAVE DETAILS",style: TextStyle(color: Colors.white))),
-                      
+                            // callSignatureDialog(context);
+                          },
+                          child: Text("SAVE DETAILS",
+                              style: TextStyle(color: Colors.white))),
                       SizedBox(height: 20),
                       Footer()
                     ]),
@@ -256,8 +244,11 @@ class _MyHomePageState extends State<MyHomePage> {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               content: SignatureScreen(),
-                
-              title: Text('Kindly Sign And Save', textAlign: TextAlign.center, style: TextStyle(fontSize: 20.0),),
+              title: Text(
+                'Kindly Sign And Save',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20.0),
+              ),
               actions: <Widget>[
                 InkWell(
                   child: Padding(
