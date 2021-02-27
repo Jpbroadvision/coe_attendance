@@ -7,16 +7,21 @@ class Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          child: Text(
-              'Developed by JPbroadvision',
-              textAlign: TextAlign.center,
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              child: Text(
+                  'Developed by JPbroadvision',
+                  textAlign: TextAlign.center,
+                ),
             ),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
