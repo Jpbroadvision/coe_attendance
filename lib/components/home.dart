@@ -7,12 +7,24 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-
 class _HomeState extends State<Home> {
-  bool _showPassword = false;
+  var _daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  var _sessions = ['1', '2', '3', '4', '5', '6', '7'];
+  var _newSessionSelected = 'Select Session';
+  var _currentSelectedDay = 'Select Day';
+  String _value1;
+  String _value2;
 
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "CoE INVIGILTORS ATTENDANCE",
+          style: TextStyle(
+            color: Theme.of(context).accentColor,
+          ),
+        ),
+      ),
       backgroundColor: Theme.of(context).accentColor,
       body: SingleChildScrollView(
         child: Column(
@@ -35,261 +47,60 @@ class _HomeState extends State<Home> {
                   ),
                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: 'First Name',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
+                      DropdownButton<String>(
+                        // onChanged: selectedDayFunction,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Theme.of(context).accentColor,
                         ),
+                        value: _value1,
+                        items: _daysOfWeek.map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: _value1 = dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
+                        onChanged: (String newValueSelected) {
+                          /* call changed day function  */
+                          selectedDayFunction(newValueSelected);
+                        },
+                        // _value1: _currentSelectedDay,
                       ),
                       SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: 'Last Name',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
+                      DropdownButton<String>(
+                        // onChanged: selectedSessionFunction,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Theme.of(context).accentColor,
                         ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: 'Other Names',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: 'Country',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: 'User name',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          prefixIcon: Icon(
-                            Icons.person,
-                            color: Theme.of(context).accentColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.text,
-                        obscureText: !_showPassword,
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: Theme.of(context).accentColor,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _showPassword = !_showPassword;
-                              });
-                            },
-                            color:
-                                Theme.of(context).accentColor.withOpacity(0.4),
-                            icon: Icon(_showPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                        keyboardType: TextInputType.text,
-                        obscureText: !_showPassword,
-                        decoration: InputDecoration(
-                          hintText: 'Confirm Password',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .merge(
-                                TextStyle(color: Theme.of(context).accentColor),
-                              ),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          filled: false,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context).accentColor)),
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: Theme.of(context).accentColor,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _showPassword = !_showPassword;
-                              });
-                            },
-                            color:
-                                Theme.of(context).accentColor.withOpacity(0.4),
-                            icon: Icon(_showPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                          ),
-                        ),
+                          value: _value2,
+                        items: _sessions.map((String dropDownSessionItem) {
+                          return DropdownMenuItem<String>(
+                            value: _value2 = dropDownSessionItem,
+                            child: Text(dropDownSessionItem),
+                          );
+                        }).toList(),
+                        onChanged: (String newSessionSelected) {
+                          /* call changed day function  */
+                          selectedSessionFunction(newSessionSelected);
+                        },
+                        // value : _newSessionSelected,
                       ),
                       SizedBox(height: 20),
                       IconButton(
-                        icon: Icon(Icons.check_circle),
-                        iconSize: 50,
+                        icon: Icon(Icons.save),
+                        iconSize: 10,
                         onPressed: () {
-                          print("Sign-up is clicked");
+                          print("Save is clicked");
                         },
                         color: Theme.of(context).accentColor,
                       ),
                       SizedBox(height: 10),
-                      FlatButton(
-                        onPressed: () {
-                          print("Sign-in is clicked");
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            style: Theme.of(context).textTheme.bodyText2.merge(
-                                  TextStyle(
-                                      color: Theme.of(context).accentColor),
-                                ),
-                            children: [
-                              TextSpan(text: 'Already Registered?'),
-                              TextSpan(
-                                text: ' SIGN IN',
-                                // style:
-                                // TextStyle(fontWeight: FontWeight.w700)
-                              ),
-                            ],
-                          ),
-                        ),
+                      Text(
+                        "Save when done",
+                        style: Theme.of(context).textTheme.bodyText2.merge(
+                              TextStyle(color: Theme.of(context).accentColor),
+                            ),
                       ),
                       SizedBox(height: 20),
                       Footer()
@@ -303,6 +114,18 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  void selectedDayFunction(String newValueSelected) {
+    setState(() {
+      /*...Your codes..._daysOfWeek*/
+      this._currentSelectedDay = newValueSelected;
+    });
+  }
+
+  void selectedSessionFunction(String newSessionSelected) {
+    setState(() {
+      /*...Your codes..._daysOfWeek*/
+      this._newSessionSelected = newSessionSelected;
+    });
+  }
 }
-
-

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:user_profile_avatar/user_profile_avatar.dart';
 
 class Footer extends StatelessWidget {
   const Footer({
@@ -15,10 +14,6 @@ class Footer extends StatelessWidget {
           child: Text(
               'Developed by JPbroadvision',
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2
-                  .merge(TextStyle(color: Theme.of(context).accentColor)),
             ),
         ),
       ],
