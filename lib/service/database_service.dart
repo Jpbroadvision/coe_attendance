@@ -21,8 +21,8 @@ class DatabaseService {
   static const String START_TIME = 'startTime';
   static const String END_TIME = 'endTime';
   static const String ROOM = 'room';
-  static const String DATE = 'date';
-  static const String SIGNATUREIMG = 'signatureImg';
+  static const String DAY = 'day';
+  static const String DATETIME = 'dateTime';
 
   // get database
   Future<Database> get db async {
@@ -47,7 +47,7 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // creating various database tables
     await db.execute(
-        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DATE TEXT, $SIGNATUREIMG TEXT )");
+        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT )");
     // return db;
   }
 
@@ -104,8 +104,8 @@ class DatabaseService {
           START_TIME,
           END_TIME,
           ROOM,
-          DATE,
-          SIGNATUREIMG
+          DAY,
+          DATETIME
         ],
         orderBy: "$NAME ASC"); // similar to...
     // List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE");
@@ -236,8 +236,8 @@ class DatabaseService {
           START_TIME,
           END_TIME,
           ROOM,
-          DATE,
-          SIGNATUREIMG
+          DAY,
+          DATETIME
         ],
         where: '$PROFILE_ID = ?',
         whereArgs: [id]);

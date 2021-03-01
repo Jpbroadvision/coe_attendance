@@ -1,11 +1,10 @@
-import 'dart:convert';
-
-import 'package:coe_attendance/components/signature.dart';
 import 'package:flutter/material.dart';
+import 'package:coe_attendance/components/data_source.dart';
+import 'package:coe_attendance/components/drawer.dart';
 import 'package:coe_attendance/components/footer.dart';
-import 'package:coe_attendance/components/allocations.dart';
-import 'package:flutter_signature_pad/flutter_signature_pad.dart';
-import 'package:coe_attendance/components/callDialog.dart';
+import 'package:coe_attendance/components/signature.dart';
+import 'package:coe_attendance/models/inivigilators_details_model.dart';
+import 'package:coe_attendance/service/database_service.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,6 +21,7 @@ class MyApp extends StatelessWidget {
         canvasColor: const Color(0xFFECEFF1),
       ),
       home: MyHomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -33,22 +33,49 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _day = "Select Day";
-  String _session = "Select Session";
-  String _room = "Select Room";
+  List<String> _days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  String _selectedDay = "Monday";
+
+  List<String> _sessions = ['1', '2', '3', '4', '5', '6', '7'];
+  String _selectedSession = "1";
+
+  String _room = "LT";
+  String _invigilators = "Alfred Crabbe";
+  TextEditingController _nameCtrl;
+
+  Map<String, List<String>> _allocations;
+
+  DatabaseService databaseService;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _allocations = DataSource.getAllocations();
+      _nameCtrl = TextEditingController(text: _invigilators);
+    });
+
+    databaseService = DatabaseService();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //   String jsonString;
-    //       Map allocateMap = jsonDecode(jsonString);
-    // var allocate = Alocations.fromJson(allocateMap);
-
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: CustomDrawer(),
       appBar: AppBar(
-      
         backgroundColor: Colors.blueAccent,
-        title: Text('CoE INVIGILTORS ATTENDANCE',textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.white),
+          onPressed: () {
+            _scaffoldKey.currentState.openDrawer();
+          },
+        ),
+        centerTitle: true,
+        title: Text('CoE INVIGILTORS ATTENDANCE',
+            textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -80,73 +107,49 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 20.0,
                       ),
+                      Text("Select Day"),
                       DropdownButton<String>(
                         onChanged: (value) {
                           setState(() {
-                            _day = value;
-                            print("The selected day is: " + _day);
+                            _selectedDay = value;
+                            print("The selected day is: " + _selectedDay);
                           });
                         },
-                        value: _day,
+                        value: _selectedDay,
                         style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.black87,
                             fontFamily: "Roboto"),
-                        items: <DropdownMenuItem<String>>[
-                          const DropdownMenuItem<String>(
-                              value: "Select Day",
-                              child: const Text("Select Day")),
-                          const DropdownMenuItem<String>(
-                              value: "Monday", child: const Text("Monday")),
-                          const DropdownMenuItem<String>(
-                              value: "Tuesday", child: const Text("Tuesday")),
-                          const DropdownMenuItem<String>(
-                              value: "Wednesday",
-                              child: const Text("Wednesday")),
-                          const DropdownMenuItem<String>(
-                              value: "Thursday", child: const Text("Thursday")),
-                          const DropdownMenuItem<String>(
-                              value: "Friday", child: const Text("Friday")),
-                        ],
+                        items: _days.map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
                       ),
                       SizedBox(
                         height: 20.0,
                       ),
+                      Text("Select Session"),
                       DropdownButton<String>(
                         onChanged: (value) {
                           setState(() {
-                            _session = value;
-                            print("The selected session is " + _session);
+                            _selectedSession = value;
+                            print(
+                                "The selected session is " + _selectedSession);
                           });
                         },
-                        value: _session,
+                        value: _selectedSession,
                         style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.black87,
                             fontFamily: "Roboto"),
-                        items: <DropdownMenuItem<String>>[
-                          const DropdownMenuItem<String>(
-                              value: "Select Session",
-                              child: const Text("Select Session")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 1",
-                              child: const Text("Session 1")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 2",
-                              child: const Text("Session 2")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 4",
-                              child: const Text("Session 4")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 5",
-                              child: const Text("Session 5")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 6",
-                              child: const Text("Session 6")),
-                          const DropdownMenuItem<String>(
-                              value: "Session 7",
-                              child: const Text("Session 7")),
-                        ],
+                        items: _sessions.map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
                       ),
                       SizedBox(
                         height: 20.0,
@@ -154,11 +157,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 100.0,
                         ),
                       ),
+                      Text("Select Room"),
                       DropdownButton<String>(
                         onChanged: (value) {
                           setState(() {
                             _room = value;
-                            print("The selected room is: " + _room);
+                            _invigilators = _allocations[_room][0];
+                            _nameCtrl.text = _invigilators;
                           });
                         },
                         value: _room,
@@ -167,24 +172,50 @@ class _MyHomePageState extends State<MyHomePage> {
                             color: Colors.black87,
                             // fontWeight: FontWeight.w200,
                             fontFamily: "Roboto"),
-                        items: <DropdownMenuItem<String>>[
-                          const DropdownMenuItem<String>(
-                              value: "Select Room",
-                              child: const Text("Select Room")),
-                          const DropdownMenuItem<String>(
-                              value: "Child 2", child: const Text("Child 2")),
-                          const DropdownMenuItem<String>(
-                              value: "Child 3", child: const Text("Child 3")),
-                        ],
+                        items:
+                            _allocations.keys.map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
                       ),
                       SizedBox(
                         height: 20.0,
                       ),
+                      Text("Select Invigilator"),
+                      // get names per room
+                      DropdownButton<String>(
+                        onChanged: (value) {
+                          setState(() {
+                            _invigilators = value;
+                            _nameCtrl.text = _invigilators;
+                          });
+                        },
+                        value: _invigilators,
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.black87,
+                            // fontWeight: FontWeight.w200,
+                            fontFamily: "Roboto"),
+                        items: _allocations[_room]
+                            .map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
+                      ),
+
+                      SizedBox(
+                        height: 20.0,
+                      ),
                       TextField(
+                        controller: _nameCtrl,
                         style: TextStyle(color: null),
                         keyboardType: TextInputType.name,
                         decoration: InputDecoration(
-                          hintText: 'Enter Name',
+                          hintText: _invigilators,
                           hintStyle:
                               Theme.of(context).textTheme.bodyText2.merge(
                                     TextStyle(color: Colors.black87),
@@ -203,19 +234,49 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: 20.0,
-                      ),
-                      SignatureScreen(),
-                      SizedBox(
-                        height: 30.0,
+                        height: 50.0,
                       ),
                       MaterialButton(
                           color: Colors.blueAccent,
                           onPressed: () {
-                            // call the dialog
-                            // print("SIGN clicked");
+                            // get session value
+                            var session =
+                                DataSource.getSession(_selectedSession);
 
-                            // callSignatureDialog(context);
+                            String dateTime =
+                                DateTime.now().toString().split(" ")[0];
+
+                            // set Invigilators details to be save
+                            InvigilatorsDetailsModel invigilatorsDetails =
+                                InvigilatorsDetailsModel(
+                                    name: _nameCtrl.text,
+                                    session: _selectedSession,
+                                    startTime: session["startTime"],
+                                    endTime: session["endTime"],
+                                    room: _room,
+                                    day: _selectedDay,
+                                    dateTime: dateTime);
+
+                            print("$_room ");
+
+                            // save details to database
+                            try {
+                              databaseService
+                                  .insertInvigilatorsData(invigilatorsDetails);
+                            } catch (e) {
+                              _scaffoldKey.currentState.showSnackBar(SnackBar(
+                                content:
+                                    Text("Error occured while saving data."),
+                              ));
+                            }
+
+                            _scaffoldKey.currentState.showSnackBar(SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text(
+                                "Successfully saved data.",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ));
                           },
                           child: Text("SAVE DETAILS",
                               style: TextStyle(color: Colors.white))),
