@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:coe_attendance/components/signature.dart';
 
 class CallSignatureDialog extends StatefulWidget {
   @override
