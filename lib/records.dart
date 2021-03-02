@@ -25,7 +25,7 @@ class _RecordsState extends State<Records> {
     setState(() {
       _invigilatorsDetails = databaseService.getAllInvigilators();
     });
-    _invigilatorsDetails.then((result) => print(result.map((i)=>i.name)));
+    _invigilatorsDetails.then((result) => print(result.map((i) => i.name)));
   }
 
   listInvigilators() {
