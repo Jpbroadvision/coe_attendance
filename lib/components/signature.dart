@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -7,9 +6,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:path/path.dart';
+// import 'package:path_provider/path_provider.dart';
 
 class SignatureScreen extends StatefulWidget {
   SignatureScreen({Key key}) : super(key: key);
