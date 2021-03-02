@@ -6,6 +6,7 @@ class CallSignatureDialog extends StatefulWidget {
 }
 
 class _CallSignatureDialogState extends State<CallSignatureDialog> {
+  // ignore: unused_field
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // final TextEditingController _textEditingController = TextEditingController();
