@@ -241,7 +241,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50.0,
                       ),
                       // SIGNATURE
-                      SignatureScreen(),
+
+                      MaterialButton(
+                          color: Colors.amber,
+                          onPressed: () {
+                            callSignatureDialog(context);
+                          },
+                          child: Text("SAVE DETAILS",
+                              style: TextStyle(color: Colors.white))),
                       SizedBox(
                         height: 50.0,
                       ),
@@ -270,7 +277,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               databaseService
                                   .insertInvigilatorsData(invigilatorsDetails);
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content:
                                     Text("Error occured while saving data."),
                               ));
