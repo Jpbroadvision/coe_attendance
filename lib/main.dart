@@ -7,6 +7,12 @@ import 'package:coe_attendance/components/signature.dart';
 import 'package:coe_attendance/components/signatureMini.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,6 +40,37 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+// class for signature
+class _WatermarkPaint extends CustomPainter {
+  final String price;
+  final String watermark;
+
+  _WatermarkPaint(this.price, this.watermark);
+
+  @override
+  void paint(ui.Canvas canvas, ui.Size size) {
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 0.0,
+        Paint()..color = Colors.blue);
+  }
+
+  @override
+  bool shouldRepaint(_WatermarkPaint oldDelegate) {
+    return oldDelegate != this;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _WatermarkPaint &&
+          runtimeType == other.runtimeType &&
+          price == other.price &&
+          watermark == other.watermark;
+
+  @override
+  int get hashCode => price.hashCode ^ watermark.hashCode;
+}
+// class for signature ENDS
+
 class _MyHomePageState extends State<MyHomePage> {
   List<String> _days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   String _selectedDay = "Monday";
@@ -50,6 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
   DatabaseService databaseService;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // signatures parameters declarations
+  ByteData _img = ByteData(0);
+  var color = Colors.black;
+  var strokeWidth = 1.0;
+  final _sign = GlobalKey<SignatureState>();
+// signatures parameters declarations ENDS
 
   @override
   void initState() {
@@ -245,22 +289,66 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 10.0,
                       ),
-                      // SIGNATURE
-                        SignatureScreen(),
-                      // MaterialButton(
-                      //     color: Colors.amber,
-                      //     onPressed: () {
-                      //       callSignatureDialog(context);
-                      //     },
-                      //     child: Text("SAVE DETAILS",
-                      //         style: TextStyle(color: Colors.white))),
+                      // SIGNATURE implementations
+                      Column(
+                        children: [
+                          Container(
+                            // width: 100.0,
+                            height: 80.0,
+                            child: Expanded(
+                              child: Container(
+                                // width: 80.0,
+                                // height: 100.0,
+                                child: Signature(
+                                  color: color,
+                                  key: _sign,
+                                  onSign: () {
+                                    final sign = _sign.currentState;
+                                    debugPrint(
+                                        '${sign.points.length} points in the signature');
+                                  },
+                                  backgroundPainter:
+                                      _WatermarkPaint("2.0", "2.0"),
+                                  strokeWidth: strokeWidth,
+                                ),
+                                color: Colors.black12,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MaterialButton(
+                                  color: Colors.redAccent,
+                                  onPressed: () {
+                                    final sign = _sign.currentState;
+                                    sign.clear();
+                                    setState(() {
+                                      _img = ByteData(0);
+                                    });
+                                    debugPrint("cleared Signature");
+                                  },
+                                  child: Text(
+                                    "Clear Signature",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+
                       SizedBox(
                         height: 10.0,
                       ),
                       MaterialButton(
                           color: Colors.blueAccent,
                           onPressed: () {
+                            //Signature image saving
+
+                            //Signature image saving ENDS
+                            
                             // get session value
+
                             var session =
                                 DataSource.getSession(_selectedSession);
 
