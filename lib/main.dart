@@ -242,14 +242,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50.0,
                       ),
                       // SIGNATURE
-                      // Container(child: SizedBox(child: SignatureScreenMini())),
-                      MaterialButton(
-                          color: Colors.amber,
-                          onPressed: () {
-                            callSignatureDialog(context);
-                          },
-                          child: Text("SAVE DETAILS",
-                              style: TextStyle(color: Colors.white))),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            SignatureScreen(),
+                          ],
+                        ),
+                      ),
+                      // MaterialButton(
+                      //     color: Colors.amber,
+                      //     onPressed: () {
+                      //       callSignatureDialog(context);
+                      //     },
+                      //     child: Text("SAVE DETAILS",
+                      //         style: TextStyle(color: Colors.white))),
                       SizedBox(
                         height: 50.0,
                       ),

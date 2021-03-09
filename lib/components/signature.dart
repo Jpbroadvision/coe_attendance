@@ -54,13 +54,12 @@ class _SignatureScreenState extends State<SignatureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Expanded(
+    return Center(
+      child: Container(
+          child: Expanded(
             child: Container(
-              // width: 150.0,
-              // height: 50.0,
+              width: 80.0,
+              height: 100.0,
               child: Signature(
                 color: color,
                 key: _sign,
@@ -74,36 +73,36 @@ class _SignatureScreenState extends State<SignatureScreen> {
               color: Colors.black12,
             ),
           ),
-          _img.buffer.lengthInBytes == 0
-              ? Container()
-              : LimitedBox(
-                  // maxHeight: 150.0,
-                  child: Image.memory(_img.buffer.asUint8List())),
+          // _img.buffer.lengthInBytes == 0
+          //     ? Container()
+          //     : LimitedBox(
+          //         // maxHeight: 150.0,
+          //         child: Image.memory(_img.buffer.asUint8List())),
           Column(
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  MaterialButton(
-                      color: Colors.blueAccent,
-                      onPressed: () async {
-                        final sign = _sign.currentState;
-                        //retrieve image data, do whatever you want with it (send to server, save locally...)
-                        final image = await sign.getData();
+                  // MaterialButton(
+                  //     color: Colors.blueAccent,
+                  //     onPressed: () async {
+                  //       final sign = _sign.currentState;
+                  //       //retrieve image data, do whatever you want with it (send to server, save locally...)
+                  //       final image = await sign.getData();
 
-                        var data = await image.toByteData(
-                            format: ui.ImageByteFormat.png);
-                        // _save(data);
-                        sign.clear();
-                        final encoded =
-                            base64.encode(data.buffer.asUint8List());
-                        setState(() {
-                          _img = data;
-                        });
-                        debugPrint("onPressed " + encoded);
-                      },
-                      child:
-                          Text("Save", style: TextStyle(color: Colors.white))),
+                  //       var data = await image.toByteData(
+                  //           format: ui.ImageByteFormat.png);
+                  //       // _save(data);
+                  //       sign.clear();
+                  //       final encoded =
+                  //           base64.encode(data.buffer.asUint8List());
+                  //       setState(() {
+                  //         _img = data;
+                  //       });
+                  //       debugPrint("onPressed " + encoded);
+                  //     },
+                  //     child:
+                  //         Text("Save", style: TextStyle(color: Colors.white))),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(
@@ -126,37 +125,36 @@ class _SignatureScreenState extends State<SignatureScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  MaterialButton(
-                      onPressed: () {
-                        setState(() {
-                          color = color == Colors.black
-                              ? Colors.blue
-                              : Colors.black;
-                        });
-                        debugPrint("change color");
-                      },
-                      child: Text("Change color",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14.0))),
-                  MaterialButton(
-                      onPressed: () {
-                        setState(() {
-                          int min = 1;
-                          int max = 10;
-                          int selection = min + (Random().nextInt(max - min));
-                          strokeWidth = selection.roundToDouble();
-                          debugPrint("change stroke width to $selection");
-                        });
-                      },
-                      child: Text("stroke width",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14.0))),
+                  // MaterialButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         color = color == Colors.black
+                  //             ? Colors.blue
+                  //             : Colors.black;
+                  //       });
+                  //       debugPrint("change color");
+                  //     },
+                  //     child: Text("Change color",
+                  //         textAlign: TextAlign.center,
+                  //         style: TextStyle(fontSize: 14.0))),
+                  // MaterialButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         int min = 1;
+                  //         int max = 10;
+                  //         int selection = min + (Random().nextInt(max - min));
+                  //         strokeWidth = selection.roundToDouble();
+                  //         debugPrint("change stroke width to $selection");
+                  //       });
+                  //     },
+                  //     child: Text("stroke width",
+                  //         textAlign: TextAlign.center,
+                  //         style: TextStyle(fontSize: 14.0))),
                 ],
               ),
             ],
           )
-        ],
-      ),
+      )
     );
   }
 
