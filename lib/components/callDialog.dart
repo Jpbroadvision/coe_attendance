@@ -11,17 +11,14 @@ class _CallSignatureDialogState extends State<CallSignatureDialog> {
 
   // final TextEditingController _textEditingController = TextEditingController();
 
-  Future<void> showInformationDialog(BuildContext context){
-      }
+  Future<void> showInformationDialog(BuildContext context) {}
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         child: Center(
-          child: TextButton(style: TextStyle(fontStyle:  Colors.deepOrange,),
-              
+          child: TextButton(
               onPressed: () async {
                 await showInformationDialog(context);
               },

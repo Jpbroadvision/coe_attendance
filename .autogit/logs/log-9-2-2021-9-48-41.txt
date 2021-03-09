@@ -1,0 +1,18 @@
+-------------------- Auto-Git Log --------------------
+		Tue Mar 09 2021 09:48:41 GMT+0000 (Greenwich Mean Time)
+------------------------------------------------------
+
+Modified files:
+* lib/components/callDialog.dart
+* lib/main.dart
+* pubspec.lock
+
+
+Created files:
+* .autogit/autogit.json
+
+
+Deleted files:
+
+
+Renamed files:

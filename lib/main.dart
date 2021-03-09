@@ -240,6 +240,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 50.0,
                       ),
+                      // SIGNATURE
+                      SignatureScreen(),
+                      SizedBox(
+                        height: 50.0,
+                      ),
                       MaterialButton(
                           color: Colors.blueAccent,
                           onPressed: () {
