@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/data_source.dart';
 import 'package:coe_attendance/components/drawer.dart';
 import 'package:coe_attendance/components/footer.dart';
-import 'package:coe_attendance/components/signature.dart';
-import 'package:coe_attendance/components/signatureMini.dart';
+// import 'package:coe_attendance/components/signature.dart';
+// import 'package:coe_attendance/components/signatureMini.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'dart:convert';
@@ -414,38 +414,36 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void popupButtonSelected(String value) {}
+  // void ponButtonPressed() {}
 
-  void iconButtonPressed() {}
+  // Future<void> callSignatureDialog(BuildContext context) {
+  //   print("sAVE IS clicked");
 
-  Future<void> callSignatureDialog(BuildContext context) {
-    print("sAVE IS clicked");
-
-    return showDialog(
-        context: context,
-        builder: (context) {
-          // bool isChecked = false;
-          return StatefulBuilder(builder: (context, setState) {
-            return AlertDialog(
-              content: SignatureScreen(),
-              title: Text(
-                'Kindly Sign And Save',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.0),
-              ),
-              actions: <Widget>[
-                InkWell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('OK   '),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          });
-        });
-  }
+  //   return showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         // bool isChecked = false;
+  //         return StatefulBuilder(builder: (context, setState) {
+  //           return AlertDialog(
+  //             content: SignatureScreen(),
+  //             title: Text(
+  //               'Kindly Sign And Save',
+  //               textAlign: TextAlign.center,
+  //               style: TextStyle(fontSize: 20.0),
+  //             ),
+  //             actions: <Widget>[
+  //               InkWell(
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Text('OK   '),
+  //                 ),
+  //                 onTap: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         });
+  //       });
+  // }
 }
