@@ -4,6 +4,7 @@ import 'package:coe_attendance/components/data_source.dart';
 import 'package:coe_attendance/components/drawer.dart';
 import 'package:coe_attendance/components/footer.dart';
 import 'package:coe_attendance/components/signature.dart';
+import 'package:coe_attendance/components/signatureMini.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
 
@@ -241,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 50.0,
                       ),
                       // SIGNATURE
-
+                      // Container(child: SizedBox(child: SignatureScreenMini())),
                       MaterialButton(
                           color: Colors.amber,
                           onPressed: () {

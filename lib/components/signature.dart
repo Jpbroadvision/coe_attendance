@@ -49,7 +49,7 @@ class _WatermarkPaint extends CustomPainter {
 class _SignatureScreenState extends State<SignatureScreen> {
   ByteData _img = ByteData(0);
   var color = Colors.black;
-  var strokeWidth = 2.0;
+  var strokeWidth = 1.0;
   final _sign = GlobalKey<SignatureState>();
 
   @override
@@ -61,18 +61,15 @@ class _SignatureScreenState extends State<SignatureScreen> {
             child: Container(
               // width: 150.0,
               // height: 50.0,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Signature(
-                  color: color,
-                  key: _sign,
-                  onSign: () {
-                    final sign = _sign.currentState;
-                    debugPrint('${sign.points.length} points in the signature');
-                  },
-                  backgroundPainter: _WatermarkPaint("2.0", "2.0"),
-                  strokeWidth: strokeWidth,
-                ),
+              child: Signature(
+                color: color,
+                key: _sign,
+                onSign: () {
+                  final sign = _sign.currentState;
+                  debugPrint('${sign.points.length} points in the signature');
+                },
+                backgroundPainter: _WatermarkPaint("2.0", "2.0"),
+                strokeWidth: strokeWidth,
               ),
               color: Colors.black12,
             ),
@@ -80,7 +77,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
           _img.buffer.lengthInBytes == 0
               ? Container()
               : LimitedBox(
-                  maxHeight: 150.0,
+                  // maxHeight: 150.0,
                   child: Image.memory(_img.buffer.asUint8List())),
           Column(
             children: <Widget>[
