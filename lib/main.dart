@@ -315,8 +315,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          Text("clear if you dont like current signature. Cannot be undone after save",
-                          style: TextStyle(color: Colors.redAccent,fontSize: 12), textAlign: TextAlign.center,),
+                          Text(
+                            "clear if you dont like current signature. Cannot be undone after save",
+                            style: TextStyle(
+                                color: Colors.redAccent, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
                           Container(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -347,22 +351,23 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: () async {
                             //Signature image saving
 
-                        final sign = _sign.currentState;
-                        //retrieve image data, do whatever you want with it (send to server, save locally...)
-                        final image = await sign.getData();
+                            final sign = _sign.currentState;
+                            //retrieve image data, do whatever you want with it (send to server, save locally...)
+                            final image = await sign.getData();
 
-                        var data = await image.toByteData(
-                            format: ui.ImageByteFormat.png);
-                        // _save(data);
-                        sign.clear();
-                        final encoded =
-                            base64.encode(data.buffer.asUint8List());
-                        setState(() {
-                          _img = data;
-                        });
-                        debugPrint("onPressed " + encoded);
+                            var data = await image.toByteData(
+                                format: ui.ImageByteFormat.png);
+                            final byteInts = data.buffer.asUint8List().toList();
+                            // _save(data);
+                            sign.clear();
+                            final encoded =
+                                base64.encode(data.buffer.asUint8List());
+                            setState(() {
+                              _img = data;
+                            });
+                            debugPrint("onPressed " + encoded);
                             //Signature image saving ENDS
-                            
+
                             // get session value
 
                             var session =
