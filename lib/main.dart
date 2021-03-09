@@ -239,17 +239,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: 50.0,
+                        height: 20.0,
+                      ),
+                      Text("Sign"),
+                      SizedBox(
+                        height: 10.0,
                       ),
                       // SIGNATURE
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            SignatureScreen(),
-                          ],
-                        ),
-                      ),
+                        SignatureScreen(),
                       // MaterialButton(
                       //     color: Colors.amber,
                       //     onPressed: () {
@@ -258,7 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       //     child: Text("SAVE DETAILS",
                       //         style: TextStyle(color: Colors.white))),
                       SizedBox(
-                        height: 50.0,
+                        height: 10.0,
                       ),
                       MaterialButton(
                           color: Colors.blueAccent,
