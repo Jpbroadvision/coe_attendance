@@ -52,7 +52,8 @@ class CustomDrawer extends StatelessWidget {
   }
 
   toastMessage(String message, [Color color]) {
-    scaffoldKey.currentState.showSnackBar(SnackBar(
+    BuildContext context;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: color == null ? Colors.green : color,
       content: Text(
         message,

@@ -114,7 +114,7 @@ class _RecordsState extends State<Records> {
   }
 
   toastMessage(String message, [Color color]) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: color == null ? Colors.green : color,
       content: Center(
         child: Text(

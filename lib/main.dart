@@ -265,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               databaseService
                                   .insertInvigilatorsData(invigilatorsDetails);
                             } catch (e) {
-                              _scaffoldKey.currentState.showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content:
                                     Text("Error occured while saving data."),
                               ));
