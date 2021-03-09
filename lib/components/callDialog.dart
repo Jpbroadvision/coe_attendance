@@ -20,8 +20,8 @@ class _CallSignatureDialogState extends State<CallSignatureDialog> {
     return Scaffold(
       body: Container(
         child: Center(
-          child: FlatButton(
-              color: Colors.deepOrange,
+          child: TextButton(style: TextStyle(fontStyle:  Colors.deepOrange,),
+              
               onPressed: () async {
                 await showInformationDialog(context);
               },

@@ -271,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ));
                             }
 
-                            _scaffoldKey.currentState.showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               backgroundColor: Colors.green,
                               content: Text(
                                 "Successfully saved data.",
