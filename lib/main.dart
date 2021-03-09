@@ -357,7 +357,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                             var data = await image.toByteData(
                                 format: ui.ImageByteFormat.png);
-                            final byteInts = data.buffer.asUint8List().toList();
+                            // final byteInts = data.buffer.asUint8List().toList();
                             // _save(data);
                             sign.clear();
                             final encoded =
@@ -365,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             setState(() {
                               _img = data;
                             });
-                            debugPrint("onPressed " + encoded);
+                            debugPrint("This is the encoded " + encoded);
                             //Signature image saving ENDS
 
                             // get session value
