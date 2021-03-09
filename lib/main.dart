@@ -285,7 +285,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 20.0,
                       ),
-                      Text("Sign"),
+                      Text("Signature"),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -315,6 +315,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
+                          Text("clear if you dont like current signature. Cannot be undone after save",
+                          style: TextStyle(color: Colors.redAccent,fontSize: 12), textAlign: TextAlign.center,),
                           Container(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -342,9 +344,23 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       MaterialButton(
                           color: Colors.blueAccent,
-                          onPressed: () {
+                          onPressed: () async {
                             //Signature image saving
 
+                        final sign = _sign.currentState;
+                        //retrieve image data, do whatever you want with it (send to server, save locally...)
+                        final image = await sign.getData();
+
+                        var data = await image.toByteData(
+                            format: ui.ImageByteFormat.png);
+                        // _save(data);
+                        sign.clear();
+                        final encoded =
+                            base64.encode(data.buffer.asUint8List());
+                        setState(() {
+                          _img = data;
+                        });
+                        debugPrint("onPressed " + encoded);
                             //Signature image saving ENDS
                             
                             // get session value
