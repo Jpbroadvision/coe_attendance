@@ -99,11 +99,11 @@ class InvigilatorCard extends StatelessWidget {
               children: [
                 Text(
                   invigilatorsDetails.name,
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
                   '${invigilatorsDetails.day}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 )
               ],
             ),
