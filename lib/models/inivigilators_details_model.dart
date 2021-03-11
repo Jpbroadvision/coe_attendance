@@ -10,6 +10,7 @@ class InvigilatorsDetailsModel extends Equatable {
   String room;
   String day;
   String dateTime;
+  String signImage;
 
   InvigilatorsDetailsModel(
       {this.id,
@@ -19,7 +20,8 @@ class InvigilatorsDetailsModel extends Equatable {
       this.endTime,
       this.room,
       this.day,
-      this.dateTime});
+      this.dateTime,
+      this.signImage});
 
   // converts inivigilators details to a Map
   Map<String, dynamic> toMap() {
@@ -32,6 +34,7 @@ class InvigilatorsDetailsModel extends Equatable {
       'room': room,
       'day': day,
       'dateTime': dateTime,
+      'signImage': signImage
     };
 
     return map;
@@ -47,9 +50,10 @@ class InvigilatorsDetailsModel extends Equatable {
     room = map['room'];
     day = map['day'];
     dateTime = map['dateTime'];
+    signImage = map['signImage'];
   }
 
   @override
   List<Object> get props =>
-      [id, name, session, startTime, endTime, day, dateTime];
+      [id, name, session, startTime, endTime, day, dateTime, signImage];
 }
