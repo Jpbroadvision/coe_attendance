@@ -25,6 +25,7 @@ class DatabaseService {
   static const String ROOM = 'room';
   static const String DAY = 'day';
   static const String DATETIME = 'dateTime';
+  static const String SIGN_IMAGE = 'signImage';
 
   // get database
   Future<Database> get db async {
@@ -49,7 +50,7 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // creating various database tables
     await db.execute(
-        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT )");
+        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT, $SIGN_IMAGE BLOOB )");
     // return db;
   }
 
@@ -94,7 +95,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
-  // get all customers from INIVIGILATORS_TABLE
+  // get all iNVIGILATORS from INIVIGILATORS_TABLE
   Future<List<InvigilatorsDetailsModel>> getAllInvigilators() async {
     var dbClient = await db;
 
@@ -107,7 +108,8 @@ class DatabaseService {
           END_TIME,
           ROOM,
           DAY,
-          DATETIME
+          DATETIME,
+          SIGN_IMAGE
         ],
         orderBy: "$NAME ASC"); // similar to...
     // List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE");
@@ -239,7 +241,8 @@ class DatabaseService {
           END_TIME,
           ROOM,
           DAY,
-          DATETIME
+          DATETIME,
+          SIGN_IMAGE
         ],
         where: '$PROFILE_ID = ?',
         whereArgs: [id]);
@@ -374,7 +377,8 @@ class DatabaseService {
         "END TIME",
         "ROOM",
         "DAY",
-        "DATE TIME"
+        "DATE TIME",
+        "SIGNATURE"
       ],
       ...invigilatorsDetails.map((invigilator) => [
             "${invigilator.id}",
@@ -384,7 +388,8 @@ class DatabaseService {
             invigilator.endTime,
             invigilator.room,
             invigilator.day,
-            invigilator.dateTime
+            invigilator.dateTime,
+            invigilator.signImage
           ])
     ];
 
