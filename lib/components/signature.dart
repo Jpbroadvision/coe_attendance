@@ -20,13 +20,12 @@ class SignatureScreen extends StatefulWidget {
 class _WatermarkPaint extends CustomPainter {
   final String price;
   final String watermark;
-
   _WatermarkPaint(this.price, this.watermark);
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     canvas.drawCircle(Offset(size.width / 2, size.height / 2), 0.0,
-        Paint()..color = Colors.blue);
+    Paint()..color = Colors.blue);
   }
 
   @override

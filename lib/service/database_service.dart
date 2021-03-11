@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'dart:io';
-
+import 'dart:ui' as ui;
 import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -26,6 +28,10 @@ class DatabaseService {
   static const String DAY = 'day';
   static const String DATETIME = 'dateTime';
   static const String SIGN_IMAGE = 'signImage';
+
+  // signatures parameters declarations ENDS
+  final _sign = GlobalKey<SignatureState>();
+  // signatures parameters declarations ENDS
 
   // get database
   Future<Database> get db async {
@@ -228,7 +234,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
   // ---------------------------------------------------------------------------------
-  // get a customer from INIVIGILATORS_TABLE
+  // get a INIVIGILATORS from INIVIGILATORS_TABLE
   Future<InvigilatorsDetailsModel> getInvigilator(int id) async {
     var dbClient = await db;
 
@@ -304,7 +310,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
   // ---------------------------------------------------------------------------------
-  // delete customer from INIVIGILATORS_TABLE
+  // delete INIVIGILATORS from INIVIGILATORS_TABLE
   Future<int> deleteInivigilator(int id) async {
     var dbClient = await db;
 
@@ -367,6 +373,12 @@ class DatabaseService {
         .then((invigilators) => invigilatorsDetails = invigilators);
 
     if (invigilatorsDetails.isEmpty) return null;
+
+      // signatures parameters declarations ENDS
+    final sign = _sign.currentState;
+    final image = await sign.getData();
+    var data = await image.toByteData(format: ui.ImageByteFormat.png);
+    // signatures parameters declarations ENDS
 
     List<List<String>> csvData = [
       <String>[

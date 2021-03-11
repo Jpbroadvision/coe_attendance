@@ -385,7 +385,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     endTime: session["endTime"],
                                     room: _room,
                                     day: _selectedDay,
-                                    dateTime: dateTime);
+                                    dateTime: dateTime,
+                                    signImage: encoded);
                             // save details to database
                             try {
                               databaseService
