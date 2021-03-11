@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
@@ -374,10 +376,11 @@ class DatabaseService {
 
     if (invigilatorsDetails.isEmpty) return null;
 
-      // signatures parameters declarations ENDS
+    // signatures parameters declarations ENDS
     final sign = _sign.currentState;
     final image = await sign.getData();
     var data = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List _realImage = invigilator.signImage;
     // signatures parameters declarations ENDS
 
     List<List<String>> csvData = [
@@ -401,7 +404,7 @@ class DatabaseService {
             invigilator.room,
             invigilator.day,
             invigilator.dateTime,
-            invigilator.signImage
+            Base64Decoder().convert(_realImage)
           ])
     ];
 
