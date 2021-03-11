@@ -58,7 +58,7 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // creating various database tables
     await db.execute(
-        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT, $SIGN_IMAGE BLOOB )");
+        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
     // return db;
   }
 
@@ -380,7 +380,7 @@ class DatabaseService {
     final sign = _sign.currentState;
     final image = await sign.getData();
     var data = await image.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List _realImage = invigilator.signImage;
+    // Uint8List _realImage;
     // signatures parameters declarations ENDS
 
     List<List<String>> csvData = [
@@ -404,7 +404,7 @@ class DatabaseService {
             invigilator.room,
             invigilator.day,
             invigilator.dateTime,
-            Base64Decoder().convert(_realImage)
+            "${Base64Decoder().convert(invigilator.signImage)}"
           ])
     ];
 
