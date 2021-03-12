@@ -295,10 +295,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           Container(
                             // width: 100.0,
                             height: 80.0,
-                            child: Expanded(
                               child: Container(
                                 // width: 80.0,
-                                // height: 100.0,
+                                height:80.0,
                                 child: Signature(
                                   color: color,
                                   key: _sign,
@@ -313,7 +312,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 color: Colors.black12,
                               ),
-                            ),
+
                           ),
                           Text(
                             "clear if you dont like current signature. Cannot be undone after save",
