@@ -293,26 +293,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       Column(
                         children: [
                           Container(
-                            // width: 100.0,
-                            height: 80.0,
-                              child: Container(
-                                // width: 80.0,
-                                height:80.0,
-                                child: Signature(
-                                  color: color,
-                                  key: _sign,
-                                  // onSign: () {
-                                  //   final sign = _sign.currentState;
-                                  //   debugPrint(
-                                  //       '${sign.points.length} points in the signature');
-                                  // },
-                                  backgroundPainter:
-                                      _WatermarkPaint("2.0", "2.0"),
-                                  strokeWidth: strokeWidth,
-                                ),
-                                color: Colors.black12,
-                              ),
-
+                            width: 300.0,
+                            height: 50.0,
+                            child: Signature(
+                              color: color,
+                              key: _sign,
+                              // onSign: () {
+                              //   final sign = _sign.currentState;
+                              //   debugPrint(
+                              //       '${sign.points.length} points in the signature');
+                              // },
+                              backgroundPainter: _WatermarkPaint("2.0", "2.0"),
+                              strokeWidth: strokeWidth,
+                            ),
+                            color: Colors.black12,
                           ),
                           Text(
                             "clear if you dont like current signature. Cannot be undone after save",
@@ -348,7 +342,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialButton(
                           color: Colors.blueAccent,
                           onPressed: () async {
-                            
                             //Signature image saving
                             final sign = _sign.currentState;
                             //retrieve image data, do whatever you want with it (send to server, save locally...)
