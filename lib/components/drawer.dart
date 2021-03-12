@@ -41,7 +41,7 @@ class CustomDrawer extends StatelessWidget {
               if (path == null)
                 toastMessage(message, Colors.red);
               else {
-                debugPrint("$path");
+                // debugPrint("$path");
                 message = "File saved at $path";
                 toastMessage(message);
               }

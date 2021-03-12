@@ -357,7 +357,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             setState(() {
                               _img = data;
                             });
-                            debugPrint("This is the encoded " + encoded);
+                            // debugPrint("This is the encoded " + encoded);
                             //Signature image saving ENDS
 
                             // get session value
