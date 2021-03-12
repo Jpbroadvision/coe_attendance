@@ -377,9 +377,9 @@ class DatabaseService {
     if (invigilatorsDetails.isEmpty) return null;
 
     // signatures parameters declarations ENDS
-    final sign = _sign.currentState;
-    final image = await sign.getData();
-    var data = await image.toByteData(format: ui.ImageByteFormat.png);
+    // final sign = _sign.currentState;
+    // final image = await sign.getData();
+    // var data = await image.toByteData(format: ui.ImageByteFormat.png);
     // Uint8List _realImage;
     // signatures parameters declarations ENDS
 
