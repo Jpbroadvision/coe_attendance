@@ -292,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       // SIGNATURE implementations
                       Column(
                         children: [
-        d                  Container(
+                          Container(
                             width: 300.0,
                             height: 50.0,
                             child: Signature(
@@ -325,7 +325,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     setState(() {
                                       _img = ByteData(0);
                                     });
-                                    debugPrint("cleared Signature");
                                   },
                                   child: Text(
                                     "Clear Signature",
@@ -357,7 +356,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             setState(() {
                               _img = data;
                             });
-                            // debugPrint("This is the encoded " + encoded);
+                            debugPrint("This is the encoded " + encoded);
                             //Signature image saving ENDS
 
                             // get session value
