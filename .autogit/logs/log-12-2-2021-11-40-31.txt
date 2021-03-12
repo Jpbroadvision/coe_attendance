@@ -1,0 +1,17 @@
+-------------------- Auto-Git Log --------------------
+		Fri Mar 12 2021 11:40:31 GMT+0000 (Greenwich Mean Time)
+------------------------------------------------------
+
+Modified files:
+* lib/components/drawer.dart
+* lib/main.dart
+
+
+Created files:
+* .autogit/logs/log-12-2-2021-11-10-23.txt
+
+
+Deleted files:
+
+
+Renamed files:

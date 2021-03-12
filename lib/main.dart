@@ -292,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       // SIGNATURE implementations
                       Column(
                         children: [
-                          Container(
+        d                  Container(
                             width: 300.0,
                             height: 50.0,
                             child: Signature(
