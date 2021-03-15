@@ -8,7 +8,6 @@ import 'package:coe_attendance/components/footer.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
@@ -72,15 +71,24 @@ class _WatermarkPaint extends CustomPainter {
 // class for signature ENDS
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> _days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  String _selectedDay = "Monday";
+  List<String> _days = [
+    'Invigilators',
+    'TAs',
+    'Attendants',
+    'Security',
+    'Others'
+  ];
+  String _selectedCategory = "Inivigilators";
 
-  List<String> _sessions = ['1', '2', '3', '4', '5', '6', '7'];
+  List<String> _sessions = ['1', '2', '3'];
   String _selectedSession = "1";
 
   String _room = "LT";
   String _invigilators = "Alfred Crabbe";
   TextEditingController _nameCtrl;
+
+  List<String> _duration = ['1:15', '1:30', '1:45', '2:00'];
+  String _selectedDuration = "1:15";
 
   Map<String, List<String>> _allocations;
 
@@ -156,15 +164,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 20.0,
                       ),
-                      Text("Select Day"),
+                      Text("Select Category"),
                       DropdownButton<String>(
                         onChanged: (value) {
                           setState(() {
-                            _selectedDay = value;
-                            print("The selected day is: " + _selectedDay);
+                            _selectedCategory = value;
                           });
                         },
-                        value: _selectedDay,
+                        value: _selectedCategory,
                         style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.black87,
@@ -184,8 +191,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChanged: (value) {
                           setState(() {
                             _selectedSession = value;
-                            print(
-                                "The selected session is " + _selectedSession);
                           });
                         },
                         value: _selectedSession,
@@ -201,10 +206,29 @@ class _MyHomePageState extends State<MyHomePage> {
                         }).toList(),
                       ),
                       SizedBox(
-                        height: 20.0,
-                        child: SizedBox(
-                          height: 100.0,
-                        ),
+                        height: 120.0,
+                      ),
+                      Text("Select Duration"),
+                      DropdownButton<String>(
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDuration = value;
+                          });
+                        },
+                        value: _selectedDuration,
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.black87,
+                            fontFamily: "Roboto"),
+                        items: _duration.map((String dropDownStringItem) {
+                          return DropdownMenuItem<String>(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(
+                        height: 120.0,
                       ),
                       Text("Select Room"),
                       DropdownButton<String>(
@@ -285,7 +309,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(
                         height: 20.0,
                       ),
-                      Text("Signature"),
+                      Text("Signature/Initials"),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -375,7 +399,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     startTime: session["startTime"],
                                     endTime: session["endTime"],
                                     room: _room,
-                                    day: _selectedDay,
+                                    day: _selectedCategory,
                                     dateTime: dateTime,
                                     signImage: encoded);
                             // save details to database
