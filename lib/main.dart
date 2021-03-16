@@ -72,12 +72,12 @@ class _WatermarkPaint extends CustomPainter {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<String> _days = [
-    'Invigilators',
     'TAs',
+    'Invigilators',
     'Attendants',
     'Others'
   ];
-  String _selectedCategory = "Invigilators";
+  String _selectedCategory = "TAs";
 
   List<String> _sessions = ['1', '2', '3'];
   String _selectedSession = "1";
@@ -86,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _invigilators = "Alfred Crabbe";
   TextEditingController _nameCtrl;
 
-  List<String> _duration = ['1:15', '1:30', '1:45', '2:00'];
+  List<String> _duration = ['1:15', '1:30', '1:45', '2:00', '2:15', '2:30','2:45', '3:00'];
   String _selectedDuration = "1:15";
 
   Map<String, List<String>> _allocations;

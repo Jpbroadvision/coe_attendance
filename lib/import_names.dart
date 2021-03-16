@@ -58,7 +58,7 @@ class _ImportNamesState extends State<ImportNames> {
     databaseService.deleteInivigilator(id);
     // refresh list of invigilators
     getListOfInvigilators();
-    toastMessage("Delete successful");
+    toastMessage("Import successful");
   }
 
   @override
@@ -76,11 +76,10 @@ class _ImportNamesState extends State<ImportNames> {
         ),
         centerTitle: true,
         title: Text(
-          'Import',
+          'Import Names',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white),
         ),
-        actions: [
           IconButton(
             icon: Icon(
               Icons.file_download,
@@ -99,7 +98,6 @@ class _ImportNamesState extends State<ImportNames> {
               }
             },
           )
-        ],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
