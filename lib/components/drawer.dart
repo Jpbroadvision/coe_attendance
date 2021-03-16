@@ -1,3 +1,4 @@
+import 'package:coe_attendance/import_names.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/main.dart';
@@ -46,6 +47,13 @@ class CustomDrawer extends StatelessWidget {
                 toastMessage(message);
               }
             },
+          ),
+          ListTile(
+            leading: Icon(Icons.file_download),
+            title: Text("Import Names From CSV"),
+            onTap: () {Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => ImportNames()));
+            },
           )
         ],
       ),
@@ -63,3 +71,5 @@ class CustomDrawer extends StatelessWidget {
     ));
   }
 }
+
+

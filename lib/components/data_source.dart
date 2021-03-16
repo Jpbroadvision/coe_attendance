@@ -1,12 +1,8 @@
 class DataSource {
   static Map<String, Map<String, String>> _sessions = {
-    "1": {"startTime": "08:15 am", "endTime": "09:15 am"},
-    "2": {"startTime": "10:15 am", "endTime": "11:15 am"},
-    "3": {"startTime": "12:15 pm", "endTime": "13:15 pm"},
-    "4": {"startTime": "14:15 pm", "endTime": "15:15 pm"},
-    "5": {"startTime": "16:15 pm", "endTime": "17:15 pm"},
-    "6": {"startTime": "18:15 pm", "endTime": "19:15 pm"},
-    "7": {"startTime": "19:30 pm", "endTime": "20:30 pm"},
+    "1": {"startTime": "08:30 am", "endTime": "10:30 am"},
+    "2": {"startTime": "12:15 pm", "endTime": "2:15 pm"},
+    "3": {"startTime": "4:00 pm", "endTime": "06:00 pm"},
   };
 
   static Map<String, List<String>> getAllocations() => {

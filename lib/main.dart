@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
     'Security',
     'Others'
   ];
-  String _selectedCategory = "Inivigilators";
+  String _selectedCategory = "Invigilators";
 
   List<String> _sessions = ['1', '2', '3'];
   String _selectedSession = "1";
@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         }).toList(),
                       ),
                       SizedBox(
-                        height: 120.0,
+                        height: 20.0,
                       ),
                       Text("Select Duration"),
                       DropdownButton<String>(
@@ -228,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         }).toList(),
                       ),
                       SizedBox(
-                        height: 120.0,
+                        height: 20.0,
                       ),
                       Text("Select Room"),
                       DropdownButton<String>(
