@@ -9,100 +9,106 @@ class ImportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 10.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(10.0),
+    return Column(
+      children: [
+        Card(
+          margin: EdgeInsets.only(bottom: 10.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10.0),
+            ),
+          ),
+          elevation: 2.0,
+          child: ExpansionTile(
+            backgroundColor: Colors.white,
+            childrenPadding:
+                EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+            title: _importTypeTitleTAs(),
+            children: [
+              Row(
+                children: [
+                  Text('NOTICE:'),
+                  Text(
+                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                    style: TextStyle(fontSize: 12),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-      elevation: 2.0,
-      child: ExpansionTile(
-        backgroundColor: Colors.white,
-        childrenPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
-        title: _buildTitle(),
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Card(
+          margin: EdgeInsets.only(bottom: 10.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10.0),
+            ),
+          ),
+          elevation: 2.0,
+          child: ExpansionTile(
+            backgroundColor: Colors.white,
+            childrenPadding:
+                EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+            title: _importTypeTitleAttendants(),
             children: [
-              Text('Session'),
-              Text(
-                '${invigilatorsDetails.session}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
+              Row(
+                children: [
+                  Text('NOTICE:'),
+                  Text(
+                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                    style: TextStyle(fontSize: 12),
+                  )
+                ],
+              ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+        Card(
+          margin: EdgeInsets.only(bottom: 10.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10.0),
+            ),
+          ),
+          elevation: 2.0,
+          child: ExpansionTile(
+            backgroundColor: Colors.white,
+            childrenPadding:
+                EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+            title: _importTypeTitleInvigilators(),
             children: [
-              Text('Start Time'),
-              Text(
-                '${invigilatorsDetails.startTime}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
+              Row(
+                children: [
+                  Text('NOTICE:'),
+                  Text(
+                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                    style: TextStyle(fontSize: 12),
+                  )
+                ],
+              ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('End Time'),
-              Text(
-                '${invigilatorsDetails.endTime}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Room'),
-              Text(
-                '${invigilatorsDetails.room}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Date'),
-              Text(
-                '${invigilatorsDetails.dateTime}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   // title with arrow icon for expanded card
-  Widget _buildTitle() {
+  Widget _importTypeTitleTAs() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Row(
           children: [
-            Container(
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                    image: AssetImage("assets/user-profile.png")),
-              ),
-              height: 50,
-              width: 50,
-            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  invigilatorsDetails.name,
+                  "Teaching Assistance (TAs)",
                   style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  '${invigilatorsDetails.day}',
+                  'Attendance List',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 )
               ],
@@ -110,11 +116,82 @@ class ImportCard extends StatelessWidget {
           ],
         ),
         IconButton(
-          icon: Icon(Icons.delete, color: Colors.red),
-          onPressed: () {
-            deleteFunction(invigilatorsDetails.id);
+          icon: Icon(
+            Icons.file_upload,
+            color: Colors.white,
+          ),
+          onPressed: () async {
+            debugPrint("Import TAs list clicked");
           },
+        )
+      ],
+    );
+  }
+
+  Widget _importTypeTitleAttendants() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Attendants",
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                Text(
+                  'Attendants List',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
+          ],
         ),
+        IconButton(
+          icon: Icon(
+            Icons.file_upload,
+            color: Colors.white,
+          ),
+          onPressed: () async {
+            debugPrint("Import attandats list clicked");
+          },
+        )
+      ],
+    );
+  }
+
+  Widget _importTypeTitleInvigilators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Invigilators",
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                Text(
+                  'Attendance List',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
+          ],
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.file_upload,
+            color: Colors.white,
+          ),
+          onPressed: () async {
+            debugPrint("Import Iniligialtors list clicked");
+          },
+        )
       ],
     );
   }

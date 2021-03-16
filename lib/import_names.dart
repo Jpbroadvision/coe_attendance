@@ -80,24 +80,7 @@ class _ImportNamesState extends State<ImportNames> {
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white),
         ),
-          IconButton(
-            icon: Icon(
-              Icons.file_download,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              String path = await databaseService.generateCSV();
-
-              String message = "Failed to generate CSV file";
-
-              if (path == null)
-                toastMessage(message, Colors.red);
-              else {
-                message = "File saved at $path";
-                toastMessage(message);
-              }
-            },
-          )
+        
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
