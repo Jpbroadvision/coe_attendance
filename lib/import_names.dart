@@ -76,7 +76,7 @@ class _ImportNamesState extends State<ImportNames> {
         ),
         centerTitle: true,
         title: Text(
-          'Record',
+          'Import',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white),
         ),

@@ -75,7 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
     'Invigilators',
     'TAs',
     'Attendants',
-    'Security',
     'Others'
   ];
   String _selectedCategory = "Invigilators";
