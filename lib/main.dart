@@ -71,12 +71,7 @@ class _WatermarkPaint extends CustomPainter {
 // class for signature ENDS
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> _days = [
-    'TAs',
-    'Invigilators',
-    'Attendants',
-    'Others'
-  ];
+  List<String> _days = ['TAs', 'Invigilators', 'Attendants', 'Others'];
   String _selectedCategory = "TAs";
 
   List<String> _sessions = ['1', '2', '3'];
@@ -86,7 +81,16 @@ class _MyHomePageState extends State<MyHomePage> {
   String _invigilators = "Alfred Crabbe";
   TextEditingController _nameCtrl;
 
-  List<String> _duration = ['1:15', '1:30', '1:45', '2:00', '2:15', '2:30','2:45', '3:00'];
+  List<String> _duration = [
+    '1:15',
+    '1:30',
+    '1:45',
+    '2:00',
+    '2:15',
+    '2:30',
+    '2:45',
+    '3:00'
+  ];
   String _selectedDuration = "1:15";
 
   Map<String, List<String>> _allocations;
@@ -382,23 +386,16 @@ class _MyHomePageState extends State<MyHomePage> {
                             debugPrint("This is the encoded " + encoded);
                             //Signature image saving ENDS
 
-                            // get session value
-
-                            var session =
-                                DataSource.getSession(_selectedSession);
-
-                            String dateTime =
-                                DateTime.now().toString().split(" ")[0];
+                            String dateTime = DateTime.now().toString();
 
                             // set Invigilators details to be save
                             InvigilatorsDetailsModel invigilatorsDetails =
                                 InvigilatorsDetailsModel(
-                                    name: _nameCtrl.text,
+                                    invigiName: _nameCtrl.text,
                                     session: _selectedSession,
-                                    startTime: session["startTime"],
-                                    endTime: session["endTime"],
+                                    category: _selectedCategory,
+                                    duration: _selectedDuration,
                                     room: _room,
-                                    day: _selectedCategory,
                                     dateTime: dateTime,
                                     signImage: encoded);
                             // save details to database

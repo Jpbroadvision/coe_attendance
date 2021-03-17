@@ -14,7 +14,7 @@ import '../models/inivigilators_details_model.dart';
 class DatabaseService {
   static Database _db;
   static const String DB_NAME =
-      'inivigilators_database.db'; // database invigi_name
+      'inivigilators_database.db'; // database invigiName
   // INIVIGILATORS_ID can be used for all tables as a foreign key
   static const String INIVIGILATORS_ID = 'inivigilatorId';
 
@@ -24,14 +24,14 @@ class DatabaseService {
   static const String ATT_NAMES_TABLE = 'att_names_table';
   static const String TA_NAMES_TABLE = 'ta_names_table';
   static const String PROFILE_ID = 'id';
-  static const String INVIGI_NAME = 'invigi_name';
-  static const String ATT_NAME = 'att_name';
-  static const String TA_NAME = 'ta_name';
+  static const String INVIGI_NAME = 'invigiName';
+  static const String ATT_NAME = 'attName';
+  static const String TA_NAME = 'taName';
   static const String SESSION = 'session';
   static const String CATEGORY = 'category';
   static const String DURATION = 'duration';
   static const String ROOM = 'room';
-  static const String TA_ROOM_ALLOC = 'ta_room_alloc';
+  static const String TA_ROOM_ALLOC = 'taRoomAlloc';
   static const String DATETIME = 'dateTime';
   static const String SIGN_IMAGE = 'signImage';
 
@@ -88,14 +88,15 @@ class DatabaseService {
     // another way
     // await dbClient.transaction((txn) async {
     //   var query =
-    //       "INSERT INTO $TABLE($INVIGI_NAME) VALUES ('" + inivigilatorModel.invigi_name + "')";
+    //       "INSERT INTO $TABLE($INVIGI_NAME) VALUES ('" + inivigilatorModel.invigiName + "')";
     //   return await txn.rawInsert(query);
     // });
   }
+
   // INVIGI_NAMES_TABLE
-  // ATT_NAMES_TABLE 
-  // TA_NAMES_TABLE 
-   // insert data into the INVIGI_NAMES_TABLE from excel
+  // ATT_NAMES_TABLE
+  // TA_NAMES_TABLE
+  // insert data into the INVIGI_NAMES_TABLE from excel
   Future<InvigiNamesModel> insertInvigiNames(
       InvigiNamesModel inivigiNames) async {
     var dbClient = await db;
@@ -104,22 +105,21 @@ class DatabaseService {
 
     return inivigiNames;
   }
-  Future<AttNamesModel> insertAttNames(
-      AttNamesModel attNames) async {
+
+  Future<AttNamesModel> insertAttNames(AttNamesModel attNames) async {
     var dbClient = await db;
-    attNames.id =
-        await dbClient.insert(ATT_NAMES_TABLE, attNames.toMap());
+    attNames.id = await dbClient.insert(ATT_NAMES_TABLE, attNames.toMap());
 
     return attNames;
   }
-  Future<TaNamesModel> insertInvigiNames(
-      TaNamesModel taNames) async {
+
+  Future<TaNamesModel> insertInvigiNames(TaNamesModel taNames) async {
     var dbClient = await db;
-    taNames.id =
-        await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
+    taNames.id = await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
 
     return taNames;
   }
+
   // ---------------------------------------------------------------------------------
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
@@ -151,7 +151,6 @@ class DatabaseService {
     return listOfInvigilators;
   }
 
-
   // get delivery by inivigilatorId from DELIVERIES_TABLE
   // Future<List<DeliveryModel>> getAllDeliveriesByCustomerId(
   //     int inivigilatorId) async {
@@ -182,7 +181,6 @@ class DatabaseService {
   //   return listOfDeliveries;
   // }
 
-
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
   // ---------------------------------------------------------------------------------
@@ -211,7 +209,6 @@ class DatabaseService {
     return null;
   }
 
-
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
   // ---------------------------------------------------------------------------------
@@ -235,7 +232,6 @@ class DatabaseService {
         where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
-
   // --------------------------------------------------------------------------------
   //                      EXPORT DATABASE INVIGILATORS DATA
   // ---------------------------------------------------------------------------------
@@ -254,27 +250,25 @@ class DatabaseService {
     // var data = await image.toByteData(format: ui.ImageByteFormat.png);
     // Uint8List _realImage;
     // signatures parameters declarations ENDS
-$INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT
+
     List<List<String>> csvData = [
       <String>[
         "PROFILE ID",
         "INVIGI_NAME",
         "SESSION",
         "CATEGORY",
-        "END TIME",
+        "DURATION",
         "ROOM",
-        "DAY",
         "DATE TIME",
         "SIGNATURE"
       ],
       ...invigilatorsDetails.map((invigilator) => [
             "${invigilator.id}",
-            invigilator.invigi_name,
+            invigilator.invigiName,
             invigilator.session,
             invigilator.category,
             invigilator.duration,
             invigilator.room,
-            invigilator.day,
             invigilator.dateTime,
             "${Base64Decoder().convert(invigilator.signImage)}"
           ])

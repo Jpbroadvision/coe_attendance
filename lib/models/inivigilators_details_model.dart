@@ -3,23 +3,21 @@ import 'package:equatable/equatable.dart';
 // ignore: must_be_immutable
 class InvigilatorsDetailsModel extends Equatable {
   int id;
-  String name;
+  String invigiName;
   String session;
-  String startTime;
-  String endTime;
+  String category;
+  String duration;
   String room;
-  String day;
   String dateTime;
   String signImage;
 
   InvigilatorsDetailsModel(
       {this.id,
-      this.name,
+      this.invigiName,
       this.session,
-      this.startTime,
-      this.endTime,
+      this.category,
+      this.duration,
       this.room,
-      this.day,
       this.dateTime,
       this.signImage});
 
@@ -27,12 +25,11 @@ class InvigilatorsDetailsModel extends Equatable {
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       'id': id,
-      'name': name,
+      'name': invigiName,
       'session': session,
-      'startTime': startTime,
-      'endTime': endTime,
+      'category': category,
+      'duration': duration,
       'room': room,
-      'day': day,
       'dateTime': dateTime,
       'signImage': signImage
     };
@@ -43,17 +40,16 @@ class InvigilatorsDetailsModel extends Equatable {
   // destruct map of inivigilators
   InvigilatorsDetailsModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
-    name = map['name'];
+    invigiName = map['name'];
     session = map['session'];
-    startTime = map['startTime'];
-    endTime = map['endTime'];
+    category = map['category'];
+    duration = map['duration'];
     room = map['room'];
-    day = map['day'];
     dateTime = map['dateTime'];
     signImage = map['signImage'];
   }
 
   @override
   List<Object> get props =>
-      [id, name, session, startTime, endTime, day, dateTime, signImage];
+      [id, invigiName, session, category, duration, dateTime, signImage];
 }
