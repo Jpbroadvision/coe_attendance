@@ -81,7 +81,7 @@ class ImportCard extends StatelessWidget {
                 children: [
                   Text('NOTICE:'),
                   Text(
-                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                    'The file you are going to import must be a CSV file.\nIt must have only one column with their names',
                     style: TextStyle(fontSize: 12),
                   )
                 ],
