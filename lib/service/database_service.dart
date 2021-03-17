@@ -20,6 +20,9 @@ class DatabaseService {
 
   // Invigilators Table
   static const String INVIGILATORS_TABLE = 'Invigilators';
+  static const String INVIGI_NAMES_TABLE = 'invigi_names_table';
+  static const String ATT_NAMES_TABLE = 'att_names_table';
+  static const String TA_NAMES_TABLE = 'ta_names_table';
   static const String PROFILE_ID = 'id';
   static const String INVIGI_NAME = 'invigi_name';
   static const String ATT_NAME = 'att_name';
@@ -59,14 +62,14 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // creating various database tables
     await db.execute(
-        "CREATE TABLE $INVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
+        "CREATE TABLE IF NOT EXISTS $INVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
     // creating databases for import of names
     await db.execute(
-        "CREATE TABLE $INVIGI_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT )");
+        "CREATE TABLE IF NOT EXISTS $INVIGI_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT )");
     await db.execute(
-        "CREATE TABLE $ATT_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
+        "CREATE TABLE IF NOT EXISTS $ATT_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
     await db.execute(
-        "CREATE TABLE $TA_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
+        "CREATE TABLE IF NOT EXISTS $TA_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
     // return db;
   }
 
@@ -89,25 +92,34 @@ class DatabaseService {
     //   return await txn.rawInsert(query);
     // });
   }
+  // INVIGI_NAMES_TABLE
+  // ATT_NAMES_TABLE 
+  // TA_NAMES_TABLE 
+   // insert data into the INVIGI_NAMES_TABLE from excel
+  Future<InvigiNamesModel> insertInvigiNames(
+      InvigiNamesModel inivigiNames) async {
+    var dbClient = await db;
+    inivigiNames.id =
+        await dbClient.insert(INVIGI_NAMES_TABLE, inivigiNames.toMap());
 
-  // insert data into the DELIVERIES_TABLE
-  // Future<DeliveryModel> insertDeliveryData(DeliveryModel deliveryModel) async {
-  //   var dbClient = await db;
-  //   deliveryModel.id =
-  //       await dbClient.insert(DELIVERIES_TABLE, deliveryModel.toMap());
+    return inivigiNames;
+  }
+  Future<AttNamesModel> insertAttNames(
+      AttNamesModel attNames) async {
+    var dbClient = await db;
+    attNames.id =
+        await dbClient.insert(ATT_NAMES_TABLE, attNames.toMap());
 
-  //   return deliveryModel;
-  // }
+    return attNames;
+  }
+  Future<TaNamesModel> insertInvigiNames(
+      TaNamesModel taNames) async {
+    var dbClient = await db;
+    taNames.id =
+        await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
 
-  // insert data into the PAYMENTS_TABLE
-  // Future<PaymentModel> insertPaymentData(PaymentModel paymentModel) async {
-  //   var dbClient = await db;
-  //   paymentModel.id =
-  //       await dbClient.insert(PAYMENTS_TABLE, paymentModel.toMap());
-
-  //   return paymentModel;
-  // }
-
+    return taNames;
+  }
   // ---------------------------------------------------------------------------------
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
@@ -123,7 +135,6 @@ class DatabaseService {
           CATEGORY,
           DURATION,
           ROOM,
-          DAY,
           DATETIME,
           SIGN_IMAGE
         ],
@@ -140,31 +151,6 @@ class DatabaseService {
     return listOfInvigilators;
   }
 
-  // // get all deliveries from DELIVERIES_TABLE
-  // Future<List<DeliveryModel>> getAllDeliveries() async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(DELIVERIES_TABLE, columns: [
-  //     DELIVERY_ID,
-  //     INIVIGILATORS_ID,
-  //     TOTAL_PRICE,
-  //     SMALL_BREAD_QTY,
-  //     BIG_BREAD_QTY,
-  //     BIGGER_BREAD_QTY,
-  //     BIGGEST_BREAD_QTY,
-  //     ROUND_BREAD_QTY,
-  //     DELIVERY_DATE,
-  //   ]);
-
-  //   List<DeliveryModel> listOfDeliveries = [];
-  //   if (maps.length > 0) {
-  //     for (int i = 0; i < maps.length; i++) {
-  //       listOfDeliveries.add(DeliveryModel.fromMap(maps[i]));
-  //     }
-  //   }
-
-  //   return listOfDeliveries;
-  // }
 
   // get delivery by inivigilatorId from DELIVERIES_TABLE
   // Future<List<DeliveryModel>> getAllDeliveriesByCustomerId(
@@ -196,50 +182,6 @@ class DatabaseService {
   //   return listOfDeliveries;
   // }
 
-  // // get all payments from PAYMENTS_TABLE
-  // Future<List<PaymentModel>> getAllPayments() async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(PAYMENTS_TABLE, columns: [
-  //     PAYMENTS_ID,
-  //     INIVIGILATORS_ID,
-  //     AMOUNT,
-  //     PAYMENT_DATE,
-  //   ]);
-
-  //   List<PaymentModel> listOfPayments = [];
-  //   if (maps.length > 0) {
-  //     for (int i = 0; i < maps.length; i++) {
-  //       listOfPayments.add(PaymentModel.fromMap(maps[i]));
-  //     }
-  //   }
-
-  //   return listOfPayments;
-  // }
-
-  // get payments by inivigilatorId from  PAYMENTS_TABLE
-  // Future<List<PaymentModel>> getAllPaymentsByCustomerId(int inivigilatorId) async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(PAYMENTS_TABLE,
-  //       columns: [
-  //         PAYMENTS_ID,
-  //         INIVIGILATORS_ID,
-  //         AMOUNT,
-  //         PAYMENT_DATE,
-  //       ],
-  //       where: '$INIVIGILATORS_ID = ?',
-  //       whereArgs: [inivigilatorId]);
-
-  //   List<PaymentModel> listOfPayments = [];
-  //   if (maps.length > 0) {
-  //     for (int i = 0; i < maps.length; i++) {
-  //       listOfPayments.add(PaymentModel.fromMap(maps[i]));
-  //     }
-  //   }
-
-  //   return listOfPayments;
-  // }
 
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
@@ -256,7 +198,6 @@ class DatabaseService {
           CATEGORY,
           DURATION,
           ROOM,
-          DAY,
           DATETIME,
           SIGN_IMAGE
         ],
@@ -270,52 +211,6 @@ class DatabaseService {
     return null;
   }
 
-  // // get a delivery by customer from DELIVERIES_TABLE
-  // Future<DeliveryModel> getDelivery(int id) async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(DELIVERIES_TABLE,
-  //       columns: [
-  //         DELIVERY_ID,
-  //         INIVIGILATORS_ID,
-  //         TOTAL_PRICE,
-  //         SMALL_BREAD_QTY,
-  //         BIG_BREAD_QTY,
-  //         BIGGER_BREAD_QTY,
-  //         BIGGEST_BREAD_QTY,
-  //         ROUND_BREAD_QTY,
-  //         DELIVERY_DATE,
-  //       ],
-  //       where: '$DELIVERY_ID = ?',
-  //       whereArgs: [id]);
-
-  //   if (maps.length > 0) {
-  //     return DeliveryModel.fromMap(maps.first);
-  //   }
-
-  //   return null;
-  // }
-
-  // // get a payment by customerPAYMENTS_TABLE
-  // Future<PaymentModel> getPayment(int id) async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(PAYMENTS_TABLE,
-  //       columns: [
-  //         PAYMENTS_ID,
-  //         INIVIGILATORS_ID,
-  //         AMOUNT,
-  //         PAYMENT_DATE,
-  //       ],
-  //       where: '$INIVIGILATORS_ID = ?',
-  //       whereArgs: [id]);
-
-  //   if (maps.length > 0) {
-  //     return PaymentModel.fromMap(maps.first);
-  //   }
-
-  //   return null;
-  // }
 
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
@@ -327,22 +222,6 @@ class DatabaseService {
     return await dbClient
         .delete(INVIGILATORS_TABLE, where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
-
-  // // delete delivery from DELIVERIES_TABLE
-  // Future<int> deleteDelivery(int id) async {
-  //   var dbClient = await db;
-
-  //   return await dbClient.delete(DELIVERIES_TABLE,
-  //       where: '$INIVIGILATORS_ID = ?', whereArgs: [id]);
-  // }
-
-  // // delete payment from PAYMENTS_TABLE
-  // Future<int> deletePayment(int id) async {
-  //   var dbClient = await db;
-
-  //   return await dbClient.delete(PAYMENTS_TABLE,
-  //       where: '$INIVIGILATORS_ID = ?', whereArgs: [id]);
-  // }
 
   // ---------------------------------------------------------------------------------
   //                      UPDATE QUERIES
@@ -356,21 +235,6 @@ class DatabaseService {
         where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
-  // // update delivery
-  // Future<int> updateDelivery(DeliveryModel deliveryModel, int id) async {
-  //   var dbClient = await db;
-
-  //   return await dbClient.update(DELIVERIES_TABLE, deliveryModel.toMap(),
-  //       where: '$DELIVERY_ID = ?', whereArgs: [id]);
-  // }
-
-  // update payment
-  // Future<int> updatePayment(PaymentModel paymentModel, int id) async {
-  //   var dbClient = await db;
-
-  //   return await dbClient.update(PAYMENTS_TABLE, paymentModel.toMap(),
-  //       where: '$PAYMENTS_ID = ?', whereArgs: [id]);
-  // }
 
   // --------------------------------------------------------------------------------
   //                      EXPORT DATABASE INVIGILATORS DATA
@@ -390,13 +254,13 @@ class DatabaseService {
     // var data = await image.toByteData(format: ui.ImageByteFormat.png);
     // Uint8List _realImage;
     // signatures parameters declarations ENDS
-
+$INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT
     List<List<String>> csvData = [
       <String>[
         "PROFILE ID",
         "INVIGI_NAME",
         "SESSION",
-        "START TIME",
+        "CATEGORY",
         "END TIME",
         "ROOM",
         "DAY",
