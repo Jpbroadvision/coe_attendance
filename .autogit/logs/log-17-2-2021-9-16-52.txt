@@ -1,0 +1,16 @@
+-------------------- Auto-Git Log --------------------
+		Wed Mar 17 2021 09:16:52 GMT+0000 (Greenwich Mean Time)
+------------------------------------------------------
+
+Modified files:
+
+
+Created files:
+* .autogit/logs/log-17-2-2021-1-1-20.txt
+* android/settings_aar.gradle
+
+
+Deleted files:
+
+
+Renamed files:
