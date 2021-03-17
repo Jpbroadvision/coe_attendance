@@ -1,0 +1,17 @@
+-------------------- Auto-Git Log --------------------
+		Wed Mar 17 2021 17:18:55 GMT+0000 (Greenwich Mean Time)
+------------------------------------------------------
+
+Modified files:
+* pubspec.lock
+* pubspec.yaml
+
+
+Created files:
+* .autogit/logs/log-17-2-2021-16-48-54.txt
+
+
+Deleted files:
+
+
+Renamed files:
