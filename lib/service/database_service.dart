@@ -184,7 +184,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
   // ---------------------------------------------------------------------------------
-  // get a INIVIGILATORS from INVIGILATORS_TABLE
+  // get a INIVIGILATORS from INVIGILATORS_TABLE TO DELETE
   Future<InvigilatorsDetailsModel> getInvigilator(int id) async {
     var dbClient = await db;
 
