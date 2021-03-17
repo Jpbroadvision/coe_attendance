@@ -35,19 +35,9 @@ class InvigilatorCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Start Time'),
+              Text('Duration'),
               Text(
-                '${invigilatorsDetails.startTime}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('End Time'),
-              Text(
-                '${invigilatorsDetails.endTime}',
+                '${invigilatorsDetails.duration}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
             ],
@@ -65,7 +55,7 @@ class InvigilatorCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Date'),
+              Text('Date/Time'),
               Text(
                 '${invigilatorsDetails.dateTime}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -89,7 +79,7 @@ class InvigilatorCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
-                    image: AssetImage("assets/user-profile.png")),
+                    image: AssetImage("${invigilatorsDetails.signImage}")),//assets/user-profile.png
               ),
               height: 50,
               width: 50,
@@ -98,11 +88,11 @@ class InvigilatorCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  invigilatorsDetails.name,
+                  invigilatorsDetails.invigiName,
                   style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  '${invigilatorsDetails.day}',
+                  '${invigilatorsDetails.category}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 )
               ],
