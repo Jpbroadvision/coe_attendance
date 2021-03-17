@@ -1,0 +1,17 @@
+-------------------- Auto-Git Log --------------------
+		Wed Mar 17 2021 00:30:25 GMT+0000 (Greenwich Mean Time)
+------------------------------------------------------
+
+Modified files:
+* lib/components/import_card.dart
+* lib/import_names.dart
+
+
+Created files:
+* .autogit/logs/log-16-2-2021-23-59-49.txt
+
+
+Deleted files:
+
+
+Renamed files:
