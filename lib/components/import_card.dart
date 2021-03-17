@@ -12,13 +12,7 @@ class ImportCard extends StatelessWidget {
     return Column(
       children: [
         Card(
-          margin: EdgeInsets.only(bottom: 10.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-          ),
-          elevation: 2.0,
+          margin: EdgeInsets.only(bottom: 5.0),
           child: ExpansionTile(
             backgroundColor: Colors.white,
             childrenPadding:
@@ -27,9 +21,8 @@ class ImportCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('NOTICE:'),
                   Text(
-                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                    'NB: The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
                     style: TextStyle(fontSize: 12),
                   )
                 ],
@@ -38,13 +31,7 @@ class ImportCard extends StatelessWidget {
           ),
         ),
         Card(
-          margin: EdgeInsets.only(bottom: 10.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-          ),
-          elevation: 2.0,
+          margin: EdgeInsets.only(bottom: 5.0),
           child: ExpansionTile(
             backgroundColor: Colors.white,
             childrenPadding:
@@ -53,10 +40,13 @@ class ImportCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('NOTICE:'),
-                  Text(
-                    'The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
-                    style: TextStyle(fontSize: 12),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'NB: The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                      style: TextStyle(fontSize: 12),
+                      softWrap: ,
+                    ),
                   )
                 ],
               ),
@@ -65,12 +55,6 @@ class ImportCard extends StatelessWidget {
         ),
         Card(
           margin: EdgeInsets.only(bottom: 10.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-          ),
-          elevation: 2.0,
           child: ExpansionTile(
             backgroundColor: Colors.white,
             childrenPadding:
@@ -79,10 +63,11 @@ class ImportCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('NOTICE:'),
-                  Text(
-                    'The file you are going to import must be a CSV file.\nIt must have only one column with their names',
-                    style: TextStyle(fontSize: 12),
+                  Container(
+                    child: Text(
+                      'NB: The file you are going to import must be a CSV file.\nIt must have only one column with their names',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   )
                 ],
               ),
@@ -118,7 +103,7 @@ class ImportCard extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.file_upload,
-            color: Colors.white,
+            color: Colors.blueAccent,
           ),
           onPressed: () async {
             debugPrint("Import TAs list clicked");
@@ -152,7 +137,7 @@ class ImportCard extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.file_upload,
-            color: Colors.white,
+            color: Colors.blueAccent,
           ),
           onPressed: () async {
             debugPrint("Import attandats list clicked");
@@ -186,7 +171,7 @@ class ImportCard extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.file_upload,
-            color: Colors.white,
+            color: Colors.blueAccent,
           ),
           onPressed: () async {
             debugPrint("Import Iniligialtors list clicked");

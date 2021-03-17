@@ -1,8 +1,6 @@
-import 'package:coe_attendance/components/invigilator_card.dart';
-import 'package:coe_attendance/models/inivigilators_details_model.dart';
+import 'package:coe_attendance/components/import_card.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/drawer.dart';
-import 'package:coe_attendance/service/database_service.dart';
 
 class ImportNames extends StatefulWidget {
   ImportNames({Key key}) : super(key: key);
@@ -11,55 +9,7 @@ class ImportNames extends StatefulWidget {
 }
 
 class _ImportNamesState extends State<ImportNames> {
-  DatabaseService databaseService;
-  Future<List<InvigilatorsDetailsModel>> _importedNames;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    databaseService = DatabaseService();
-
-    getListOfInvigilators();
-  }
-
-  listInvigilators() {
-    return FutureBuilder(
-      future: _importedNames,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return buildInvigilatorsCard(snapshot.data);
-        }
-
-        return Container(child: CircularProgressIndicator());
-      },
-    );
-  }
-
-  Column buildInvigilatorsCard(List<InvigilatorsDetailsModel> invigilators) {
-    return Column(
-        children: invigilators
-            .map((invigilator) => InvigilatorCard(
-                  invigilatorsDetails: invigilator,
-                  deleteFunction: removeInvigilator,
-                ))
-            .toList());
-  }
-
-  getListOfInvigilators() {
-    setState(() {
-      _importedNames = databaseService.getAllInvigilators();
-    });
-  }
-
-  removeInvigilator(id) {
-    databaseService.deleteInivigilator(id);
-    // refresh list of invigilators
-    getListOfInvigilators();
-    toastMessage("Import successful");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +30,6 @@ class _ImportNamesState extends State<ImportNames> {
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white),
         ),
-        
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -89,7 +38,7 @@ class _ImportNamesState extends State<ImportNames> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[listInvigilators()]),
+            children: <Widget>[ImportCard()]),
       ),
     );
   }
