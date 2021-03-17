@@ -151,62 +151,71 @@ class DatabaseService {
     return listOfInvigilators;
   }
 
-  // get delivery by inivigilatorId from DELIVERIES_TABLE
-  // Future<List<DeliveryModel>> getAllDeliveriesByCustomerId(
-  //     int inivigilatorId) async {
-  //   var dbClient = await db;
-
-  //   List<Map> maps = await dbClient.query(DELIVERIES_TABLE,
-  //       columns: [
-  //         DELIVERY_ID,
-  //         INIVIGILATORS_ID,
-  //         TOTAL_PRICE,
-  //         SMALL_BREAD_QTY,
-  //         BIG_BREAD_QTY,
-  //         BIGGER_BREAD_QTY,
-  //         BIGGEST_BREAD_QTY,
-  //         ROUND_BREAD_QTY,
-  //         DELIVERY_DATE,
-  //       ],
-  //       where: '$INIVIGILATORS_ID = ?',
-  //       whereArgs: [inivigilatorId]);
-
-  //   List<DeliveryModel> listOfDeliveries = [];
-  //   if (maps.length > 0) {
-  //     for (int i = 0; i < maps.length; i++) {
-  //       listOfDeliveries.add(DeliveryModel.fromMap(maps[i]));
-  //     }
-  //   }
-
-  //   return listOfDeliveries;
-  // }
-
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
   // ---------------------------------------------------------------------------------
-  // get a INIVIGILATORS from INVIGILATORS_TABLE TO DELETE
-  Future<InvigilatorsDetailsModel> getInvigilator(int id) async {
+  // get a INIVIGILATORS names from INVIGI_NAMES_TABLE
+  Future<List<InvigiNamesModel>> getInvigilatorNames() async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(INVIGILATORS_TABLE,
-        columns: [
-          PROFILE_ID,
-          INVIGI_NAME,
-          SESSION,
-          CATEGORY,
-          DURATION,
-          ROOM,
-          DATETIME,
-          SIGN_IMAGE
-        ],
-        where: '$PROFILE_ID = ?',
-        whereArgs: [id]);
-
+    List<Map> maps = await dbClient.query(
+      INVIGI_NAMES_TABLE,
+      columns: [
+        INVIGI_NAME,
+      ],
+    );
+    List<InvigiNamesModel> listOfInvigilatorsNames = [];
     if (maps.length > 0) {
-      return InvigilatorsDetailsModel.fromMap(maps.first);
+      for (int i = 0; i < maps.length; i++) {
+        listOfInvigilatorsNames.add(InvigiNamesModel.fromMap(maps[i]));
+        
+      }
+      return null;
     }
+    return InvigiNamesModel.fromMap(maps.first);
+  }
 
-    return null;
+  // get a ATTENDANTS names from ATT_NAME
+  Future<List<AttNamesModel>> getAttNames() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(
+      ATT_NAME,
+      columns: [
+        INVIGI_NAME,
+      ],
+    );
+    List<AttNamesModel> listOfAttendantNames = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfAttendantNames.add(AttNamesModel.fromMap(maps[i]));
+        
+      }
+      return null;
+    }
+    return AttNamesModel.fromMap(maps.first);
+  }
+  
+  // get a TAS names from TA_NAMES_TABLE
+  Future<List<TaNamesModel>> getTasNames(String getTasClassroom) async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(
+      TA_NAMES_TABLE,
+      columns: [
+        TA_NAME,
+      ],
+    where: '$TA_ROOM_ALLOC = ?',
+        whereArgs: [getTasClassroom]);
+    List<TaNamesModel> listOfTasNames = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfTasNames.add(TaNamesModel.fromMap(maps[i]));
+        
+      }
+      return null;
+    }
+    return TaNamesModel.fromMap(maps.first);
   }
 
   // ---------------------------------------------------------------------------------
