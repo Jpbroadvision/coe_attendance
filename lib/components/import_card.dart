@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 
 class ImportCard extends StatelessWidget {
   // final InvigilatorsDetailsModel invigilatorsDetails;
@@ -12,20 +12,20 @@ class ImportCard extends StatelessWidget {
   // ImportCard({@required this.invigilatorsDetails, this.deleteFunction});
 
 // Call this function to get the results
-  pickFile() async {
-    FilePickerResult result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      PlatformFile file = result.files.first;
+  // pickFile() async {
+  //   FilePickerResult result = await FilePicker.platform.pickFiles();
+  //   if (result != null) {
+  //     PlatformFile file = result.files.first;
 
-      final input = new File(file.path).openRead();
-      final fields = await input
-          .transform(utf8.decoder)
-          .transform(new CsvToListConverter())
-          .toList();
+  //     final input = new File(file.path).openRead();
+  //     final fields = await input
+  //         .transform(utf8.decoder)
+  //         .transform(new CsvToListConverter())
+  //         .toList();
 
-      print(fields);
-    }
-  }
+  //     print(fields);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +125,7 @@ class ImportCard extends StatelessWidget {
             color: Colors.blueAccent,
           ),
           onPressed: () async {
-            pickFile();
+            // pickFile();
           },
         )
       ],

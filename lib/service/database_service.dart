@@ -13,19 +13,22 @@ import '../models/inivigilators_details_model.dart';
 
 class DatabaseService {
   static Database _db;
-  static const String DB_NAME = 'inivigilators_database.db'; // database name
+  static const String DB_NAME =
+      'inivigilators_database.db'; // database invigi_name
   // INIVIGILATORS_ID can be used for all tables as a foreign key
   static const String INIVIGILATORS_ID = 'inivigilatorId';
 
   // Invigilators Table
-  static const String INIVIGILATORS_TABLE = 'Invigilators';
+  static const String INVIGILATORS_TABLE = 'Invigilators';
   static const String PROFILE_ID = 'id';
-  static const String NAME = 'name';
+  static const String INVIGI_NAME = 'invigi_name';
+  static const String ATT_NAME = 'att_name';
+  static const String TA_NAME = 'ta_name';
   static const String SESSION = 'session';
-  static const String START_TIME = 'startTime';
-  static const String END_TIME = 'endTime';
+  static const String CATEGORY = 'category';
+  static const String DURATION = 'duration';
   static const String ROOM = 'room';
-  static const String DAY = 'day';
+  static const String TA_ROOM_ALLOC = 'ta_room_alloc';
   static const String DATETIME = 'dateTime';
   static const String SIGN_IMAGE = 'signImage';
 
@@ -56,26 +59,33 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // creating various database tables
     await db.execute(
-        "CREATE TABLE $INIVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $START_TIME TEXT, $END_TIME TEXT, $ROOM TEXT, $DAY TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
+        "CREATE TABLE $INVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
+    // creating databases for import of names
+    await db.execute(
+        "CREATE TABLE $INVIGI_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT )");
+    await db.execute(
+        "CREATE TABLE $ATT_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
+    await db.execute(
+        "CREATE TABLE $TA_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
     // return db;
   }
 
   // ---------------------------------------------------------------------------------
   //                      INSERT QUERIES
   // ---------------------------------------------------------------------------------
-  // insert data into the INIVIGILATORS_TABLE
+  // insert data into the INVIGILATORS_TABLE
   Future<InvigilatorsDetailsModel> insertInvigilatorsData(
       InvigilatorsDetailsModel inivigilatorModel) async {
     var dbClient = await db;
     inivigilatorModel.id =
-        await dbClient.insert(INIVIGILATORS_TABLE, inivigilatorModel.toMap());
+        await dbClient.insert(INVIGILATORS_TABLE, inivigilatorModel.toMap());
 
     return inivigilatorModel;
 
     // another way
     // await dbClient.transaction((txn) async {
     //   var query =
-    //       "INSERT INTO $TABLE($NAME) VALUES ('" + inivigilatorModel.name + "')";
+    //       "INSERT INTO $TABLE($INVIGI_NAME) VALUES ('" + inivigilatorModel.invigi_name + "')";
     //   return await txn.rawInsert(query);
     // });
   }
@@ -101,23 +111,23 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
-  // get all iNVIGILATORS from INIVIGILATORS_TABLE
+  // get all iNVIGILATORS from INVIGILATORS_TABLE
   Future<List<InvigilatorsDetailsModel>> getAllInvigilators() async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(INIVIGILATORS_TABLE,
+    List<Map> maps = await dbClient.query(INVIGILATORS_TABLE,
         columns: [
           PROFILE_ID,
-          NAME,
+          INVIGI_NAME,
           SESSION,
-          START_TIME,
-          END_TIME,
+          CATEGORY,
+          DURATION,
           ROOM,
           DAY,
           DATETIME,
           SIGN_IMAGE
         ],
-        orderBy: "$NAME ASC"); // similar to...
+        orderBy: "$INVIGI_NAME ASC"); // similar to...
     // List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE");
 
     List<InvigilatorsDetailsModel> listOfInvigilators = [];
@@ -234,17 +244,17 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FETCH ONE QUERIES
   // ---------------------------------------------------------------------------------
-  // get a INIVIGILATORS from INIVIGILATORS_TABLE
+  // get a INIVIGILATORS from INVIGILATORS_TABLE
   Future<InvigilatorsDetailsModel> getInvigilator(int id) async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(INIVIGILATORS_TABLE,
+    List<Map> maps = await dbClient.query(INVIGILATORS_TABLE,
         columns: [
           PROFILE_ID,
-          NAME,
+          INVIGI_NAME,
           SESSION,
-          START_TIME,
-          END_TIME,
+          CATEGORY,
+          DURATION,
           ROOM,
           DAY,
           DATETIME,
@@ -310,12 +320,12 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
   // ---------------------------------------------------------------------------------
-  // delete INIVIGILATORS from INIVIGILATORS_TABLE
+  // delete INIVIGILATORS from INVIGILATORS_TABLE
   Future<int> deleteInivigilator(int id) async {
     var dbClient = await db;
 
     return await dbClient
-        .delete(INIVIGILATORS_TABLE, where: '$PROFILE_ID = ?', whereArgs: [id]);
+        .delete(INVIGILATORS_TABLE, where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
   // // delete delivery from DELIVERIES_TABLE
@@ -342,7 +352,7 @@ class DatabaseService {
       InvigilatorsDetailsModel inivigilatorModel, int id) async {
     var dbClient = await db;
 
-    return await dbClient.update(INIVIGILATORS_TABLE, inivigilatorModel.toMap(),
+    return await dbClient.update(INVIGILATORS_TABLE, inivigilatorModel.toMap(),
         where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
@@ -384,7 +394,7 @@ class DatabaseService {
     List<List<String>> csvData = [
       <String>[
         "PROFILE ID",
-        "NAME",
+        "INVIGI_NAME",
         "SESSION",
         "START TIME",
         "END TIME",
@@ -395,10 +405,10 @@ class DatabaseService {
       ],
       ...invigilatorsDetails.map((invigilator) => [
             "${invigilator.id}",
-            invigilator.name,
+            invigilator.invigi_name,
             invigilator.session,
-            invigilator.startTime,
-            invigilator.endTime,
+            invigilator.category,
+            invigilator.duration,
             invigilator.room,
             invigilator.day,
             invigilator.dateTime,
