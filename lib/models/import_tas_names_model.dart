@@ -12,7 +12,7 @@ class TaNamesModel extends Equatable {
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       'id': id,
-      'name': taName,
+      'taName': taName,
       'taRoomAlloc': taRoomAlloc
     };
 
@@ -22,7 +22,7 @@ class TaNamesModel extends Equatable {
   // destruct map of inivigilators
   TaNamesModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
-    taName = map['name'];
+    taName = map['taName'];
     taRoomAlloc = map['taRoomAlloc'];
   }
 
