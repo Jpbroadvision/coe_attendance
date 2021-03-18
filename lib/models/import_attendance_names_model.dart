@@ -9,7 +9,7 @@ class AttNamesModel extends Equatable {
 
   // converts inivigilators details to a Map
   Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{'id': id, 'name': attName};
+    var map = <String, dynamic>{'id': id, 'attName': attName};
 
     return map;
   }
@@ -17,7 +17,7 @@ class AttNamesModel extends Equatable {
   // destruct map of inivigilators
   AttNamesModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
-    attName = map['name'];
+    attName = map['attName'];
   }
 
   @override
