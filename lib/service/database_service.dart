@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
+import 'package:coe_attendance/models/import_attendance_names_model.dart';
+import 'package:coe_attendance/models/import_inivigilators_names_model.dart';
+import 'package:coe_attendance/models/import_tas_names_model.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
@@ -93,9 +96,6 @@ class DatabaseService {
     // });
   }
 
-  // INVIGI_NAMES_TABLE
-  // ATT_NAMES_TABLE
-  // TA_NAMES_TABLE
   // insert data into the INVIGI_NAMES_TABLE from excel
   Future<InvigiNamesModel> insertInvigiNames(
       InvigiNamesModel inivigiNames) async {
@@ -106,6 +106,7 @@ class DatabaseService {
     return inivigiNames;
   }
 
+// insert data into the ATT_NAMES_TABLE from excel
   Future<AttNamesModel> insertAttNames(AttNamesModel attNames) async {
     var dbClient = await db;
     attNames.id = await dbClient.insert(ATT_NAMES_TABLE, attNames.toMap());
@@ -113,7 +114,8 @@ class DatabaseService {
     return attNames;
   }
 
-  Future<TaNamesModel> insertInvigiNames(TaNamesModel taNames) async {
+// insert data into the TA_NAMES_TABLE from excel
+  Future<TaNamesModel> insertTasNames(TaNamesModel taNames) async {
     var dbClient = await db;
     taNames.id = await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
 
@@ -168,11 +170,10 @@ class DatabaseService {
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
         listOfInvigilatorsNames.add(InvigiNamesModel.fromMap(maps[i]));
-        
       }
       return null;
     }
-    return InvigiNamesModel.fromMap(maps.first);
+    return listOfInvigilatorsNames;
   }
 
   // get a ATTENDANTS names from ATT_NAME
@@ -189,33 +190,30 @@ class DatabaseService {
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
         listOfAttendantNames.add(AttNamesModel.fromMap(maps[i]));
-        
       }
       return null;
     }
-    return AttNamesModel.fromMap(maps.first);
+    return listOfAttendantNames;
   }
-  
+
   // get a TAS names from TA_NAMES_TABLE
   Future<List<TaNamesModel>> getTasNames(String getTasClassroom) async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(
-      TA_NAMES_TABLE,
-      columns: [
-        TA_NAME,
-      ],
-    where: '$TA_ROOM_ALLOC = ?',
+    List<Map> maps = await dbClient.query(TA_NAMES_TABLE,
+        columns: [
+          TA_NAME,
+        ],
+        where: '$TA_ROOM_ALLOC = ?',
         whereArgs: [getTasClassroom]);
     List<TaNamesModel> listOfTasNames = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
         listOfTasNames.add(TaNamesModel.fromMap(maps[i]));
-        
       }
       return null;
     }
-    return TaNamesModel.fromMap(maps.first);
+    return listOfTasNames;
   }
 
   // ---------------------------------------------------------------------------------
