@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
 import 'package:coe_attendance/models/import_attendance_names_model.dart';
+import 'package:coe_attendance/models/import_available_rooms_model.dart';
 import 'package:coe_attendance/models/import_inivigilators_names_model.dart';
 import 'package:coe_attendance/models/import_tas_names_model.dart';
 import 'package:csv/csv.dart';
@@ -26,6 +27,8 @@ class DatabaseService {
   static const String INVIGI_NAMES_TABLE = 'invigi_names_table';
   static const String ATT_NAMES_TABLE = 'att_names_table';
   static const String TA_NAMES_TABLE = 'ta_names_table';
+  static const String AVAILABLE_ROOMS = 'available_rooms';
+  static const String ROOM_ALLOCATIONS = 'roomAllocations';
   static const String PROFILE_ID = 'id';
   static const String INVIGI_NAME = 'invigiName';
   static const String ATT_NAME = 'attName';
@@ -73,6 +76,8 @@ class DatabaseService {
         "CREATE TABLE IF NOT EXISTS $ATT_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
     await db.execute(
         "CREATE TABLE IF NOT EXISTS $TA_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
+    await db.execute(
+        "CREATE TABLE IF NOT EXISTS $AVAILABLE_ROOMS($PROFILE_ID INTEGER PRIMARY KEY, $ROOM_ALLOCATIONS  TEXT )");
     // return db;
   }
 
@@ -87,13 +92,6 @@ class DatabaseService {
         await dbClient.insert(INVIGILATORS_TABLE, inivigilatorModel.toMap());
 
     return inivigilatorModel;
-
-    // another way
-    // await dbClient.transaction((txn) async {
-    //   var query =
-    //       "INSERT INTO $TABLE($INVIGI_NAME) VALUES ('" + inivigilatorModel.invigiName + "')";
-    //   return await txn.rawInsert(query);
-    // });
   }
 
   // insert data into the INVIGI_NAMES_TABLE from excel
@@ -120,6 +118,15 @@ class DatabaseService {
     taNames.id = await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
 
     return taNames;
+  }
+
+  // insert data into the AVAILABLE_ROOMS from excel
+  Future<TaNamesModel> insertAvailableRooms(TaNamesModel roomsAvailable) async {
+    var dbClient = await db;
+    roomsAvailable.id =
+        await dbClient.insert(AVAILABLE_ROOMS, roomsAvailable.toMap());
+
+    return roomsAvailable;
   }
 
   // ---------------------------------------------------------------------------------
@@ -214,6 +221,23 @@ class DatabaseService {
       return null;
     }
     return listOfTasNames;
+  }
+
+  // get a Available roomss from AVAILABLE_ROOMS
+  Future<List<AvailableRoomsModel>> getAvailableRooms() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(AVAILABLE_ROOMS, columns: [
+      ROOM_ALLOCATIONS,
+    ]);
+    List<AvailableRoomsModel> listOfRooms = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfRooms.add(AvailableRoomsModel.fromMap(maps[i]));
+      }
+      return null;
+    }
+    return listOfRooms;
   }
 
   // ---------------------------------------------------------------------------------
