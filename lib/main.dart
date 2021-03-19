@@ -1,3 +1,4 @@
+import 'package:coe_attendance/models/import_available_rooms_model.dart';
 import 'package:coe_attendance/service/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/data_source.dart';
