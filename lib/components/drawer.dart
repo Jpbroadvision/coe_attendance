@@ -50,8 +50,9 @@ class CustomDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.file_download),
-            title: Text("Import Names From CSV"),
-            onTap: () {Navigator.push(
+            title: Text("Import from CSV"),
+            onTap: () {
+              Navigator.push(
                   context, MaterialPageRoute(builder: (_) => ImportNames()));
             },
           )
@@ -61,8 +62,7 @@ class CustomDrawer extends StatelessWidget {
   }
 
   toastMessage(String message, [Color color]) {
-    BuildContext context;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(scaffoldKey.currentContext).showSnackBar(SnackBar(
       backgroundColor: color == null ? Colors.green : color,
       content: Text(
         message,
@@ -71,5 +71,3 @@ class CustomDrawer extends StatelessWidget {
     ));
   }
 }
-
-
