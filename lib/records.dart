@@ -1,4 +1,5 @@
 import 'package:coe_attendance/components/invigilator_card.dart';
+import 'package:coe_attendance/components/toast_message.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/drawer.dart';
@@ -58,7 +59,7 @@ class _RecordsState extends State<Records> {
     databaseService.deleteInivigilator(id);
     // refresh list of invigilators
     getListOfInvigilators();
-    toastMessage("Delete successful");
+    toastMessage(_scaffoldKey.currentContext, "Delete successful");
   }
 
   @override
@@ -92,10 +93,10 @@ class _RecordsState extends State<Records> {
               String message = "Failed to generate CSV file";
 
               if (path == null)
-                toastMessage(message, Colors.red);
+                toastMessage(_scaffoldKey.currentContext, message, Colors.red);
               else {
                 message = "File saved at $path";
-                toastMessage(message);
+                toastMessage(_scaffoldKey.currentContext, message);
               }
             },
           )
@@ -111,17 +112,5 @@ class _RecordsState extends State<Records> {
             children: <Widget>[listInvigilators()]),
       ),
     );
-  }
-
-  toastMessage(String message, [Color color]) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: color == null ? Colors.green : color,
-      content: Center(
-        child: Text(
-          message,
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    ));
   }
 }
