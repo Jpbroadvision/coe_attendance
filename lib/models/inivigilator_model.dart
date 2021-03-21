@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 
 // ignore: must_be_immutable
-class InvigiNamesModel extends Equatable {
+class InvigilatorsModel extends Equatable {
   int id;
   String invigiName;
 
-  InvigiNamesModel({this.id, this.invigiName});
+  InvigilatorsModel({this.id, this.invigiName});
 
   // converts inivigilators details to a Map
   Map<String, dynamic> toMap() {
@@ -15,7 +15,7 @@ class InvigiNamesModel extends Equatable {
   }
 
   // destruct map of inivigilators
-  InvigiNamesModel.fromMap(Map<String, dynamic> map) {
+  InvigilatorsModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     invigiName = map['invigiName'];
   }
