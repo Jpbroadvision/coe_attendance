@@ -1,4 +1,5 @@
-import 'package:coe_attendance/import_names.dart';
+import 'package:coe_attendance/components/toast_message.dart';
+import 'package:coe_attendance/import_attendance.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/main.dart';
@@ -40,11 +41,10 @@ class CustomDrawer extends StatelessWidget {
               String message = "Failed to generate CSV file";
 
               if (path == null)
-                toastMessage(message, Colors.red);
+                toastMessage(scaffoldKey.currentContext, message, Colors.red);
               else {
-                // debugPrint("$path");
                 message = "File saved at $path";
-                toastMessage(message);
+                toastMessage(scaffoldKey.currentContext, message);
               }
             },
           ),
@@ -52,22 +52,12 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Import from CSV"),
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => ImportNames()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => ImportAttendance()));
             },
           )
         ],
       ),
     );
-  }
-
-  toastMessage(String message, [Color color]) {
-    ScaffoldMessenger.of(scaffoldKey.currentContext).showSnackBar(SnackBar(
-      backgroundColor: color == null ? Colors.green : color,
-      content: Text(
-        message,
-        style: TextStyle(color: Colors.white),
-      ),
-    ));
   }
 }
