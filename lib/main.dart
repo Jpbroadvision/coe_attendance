@@ -1,20 +1,29 @@
-import 'package:coe_attendance/models/import_available_rooms_model.dart';
+import 'package:coe_attendance/bloc/attendants_bloc.dart';
+import 'package:coe_attendance/bloc/invigilators_bloc.dart';
+import 'package:coe_attendance/bloc/rooms_bloc.dart';
+import 'package:coe_attendance/bloc/teaching_assistants_bloc.dart';
+import 'package:coe_attendance/components/loading.dart';
+import 'package:coe_attendance/locator.dart';
+import 'package:coe_attendance/models/available_rooms_model.dart';
+import 'package:coe_attendance/models/inivigilator_model.dart';
+import 'package:coe_attendance/models/teaching_assistant_model.dart';
 import 'package:coe_attendance/service/permission_service.dart';
 import 'package:flutter/material.dart';
-import 'package:coe_attendance/components/data_source.dart';
+import 'package:coe_attendance/components/teaching_assistant_allocation.dart';
 import 'package:coe_attendance/components/drawer.dart';
 import 'package:coe_attendance/components/footer.dart';
-// import 'package:coe_attendance/components/signature.dart';
-// import 'package:coe_attendance/components/signatureMini.dart';
 import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 
 void main() {
+  // setup getIt service locator
+  setupLocator();
   runApp(MyApp());
 }
 
@@ -72,14 +81,17 @@ class _WatermarkPaint extends CustomPainter {
 // class for signature ENDS
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> _days = ['TAs', 'Invigilators', 'Attendants', 'Others'];
+  final DatabaseService _databaseService = locator<DatabaseService>();
+
+  List<String> _categories = ['TAs', 'Invigilators', 'Attendants', 'Others'];
   String _selectedCategory = "TAs";
 
   List<String> _sessions = ['1', '2', '3'];
   String _selectedSession = "1";
 
-  String _room = "LT";
-  String _invigilators = "Alfred Crabbe";
+  List<AvailableRoomsModel> _availableRooms;
+  String _selectedRoom;
+
   TextEditingController _nameCtrl;
 
   List<String> _duration = [
@@ -96,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Map<String, List<String>> _allocations;
 
-  DatabaseService databaseService;
+  List<InvigilatorsModel> _invigilators;
+  String _selectedInvigilator;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -105,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var color = Colors.black;
   var strokeWidth = 1.0;
   final _sign = GlobalKey<SignatureState>();
-// signatures parameters declarations ENDS
+  // signatures parameters declarations ENDS
 
   @override
   void initState() {
@@ -113,322 +126,443 @@ class _MyHomePageState extends State<MyHomePage> {
 
     PermissionService.getPermission();
 
-    setState(() {
-      _allocations = DataSource.getAllocations();
-      _nameCtrl = TextEditingController(text: _invigilators);
-    });
+    _nameCtrl = TextEditingController(text: "");
+  }
 
-    databaseService = DatabaseService();
+  buildTACategory() {
+    return Column(
+      children: [
+        Text("Select Teaching Assistant"),
+        // get names per room
+        DropdownButton<String>(
+            onChanged: (value) {
+              setState(() {
+                _selectedInvigilator = value;
+              });
+            },
+            value: _selectedInvigilator,
+            style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.black87,
+                // fontWeight: FontWeight.w200,
+                fontFamily: "Roboto"),
+            items: _allocations[_selectedRoom].map((String dropDownStringItem) {
+              return DropdownMenuItem<String>(
+                value: dropDownStringItem,
+                child: Text(dropDownStringItem),
+              );
+            }).toList()),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: CustomDrawer(_scaffoldKey),
-      appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
-          onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
-          },
-        ),
-        centerTitle: true,
-        title: Text('CoE INVIGILTORS ATTENDANCE',
-            textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        padding: const EdgeInsets.all(0.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).primaryColor,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Theme.of(context).hintColor.withOpacity(0.2),
-                        offset: Offset(0, 5),
-                        blurRadius: 10)
-                  ],
-                ),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Select Category"),
-                      DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value;
-                          });
-                        },
-                        value: _selectedCategory,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.black87,
-                            fontFamily: "Roboto"),
-                        items: _days.map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Text(dropDownStringItem),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Select Session"),
-                      DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedSession = value;
-                          });
-                        },
-                        value: _selectedSession,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.black87,
-                            fontFamily: "Roboto"),
-                        items: _sessions.map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Text(dropDownStringItem),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Select Duration"),
-                      DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedDuration = value;
-                          });
-                        },
-                        value: _selectedDuration,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.black87,
-                            fontFamily: "Roboto"),
-                        items: _duration.map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Text(dropDownStringItem),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Select Room"),
-                      DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            _room = value;
-                            _invigilators = _allocations[_room][0];
-                            _nameCtrl.text = _invigilators;
-                          });
-                        },
-                        value: _room,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.black87,
-                            // fontWeight: FontWeight.w200,
-                            fontFamily: "Roboto"),
-                        items:
-                            _allocations.keys.map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Text(dropDownStringItem),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Select Invigilator"),
-                      // get names per room
-                      DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            _invigilators = value;
-                            _nameCtrl.text = _invigilators;
-                          });
-                        },
-                        value: _invigilators,
-                        style: TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.black87,
-                            // fontWeight: FontWeight.w200,
-                            fontFamily: "Roboto"),
-                        items: _allocations[_room]
-                            .map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Text(dropDownStringItem),
-                          );
-                        }).toList(),
-                      ),
-
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      TextField(
-                        controller: _nameCtrl,
-                        style: TextStyle(color: null),
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          hintText: _invigilators,
-                          hintStyle:
-                              Theme.of(context).textTheme.bodyText2.merge(
-                                    TextStyle(color: Colors.black87),
-                                  ), //shape: StadiumBorder(),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 2, color: Colors.black12)),
-                          filled: false,
-                          // fillColor: Theme.of(context).primaryColor,
-                          contentPadding: EdgeInsets.all(12),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 2, color: Colors.yellowAccent)),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text("Signature/Initials"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      // SIGNATURE implementations
-                      Column(
-                        children: [
-                          Container(
-                            width: 300.0,
-                            height: 50.0,
-                            child: Signature(
-                              color: color,
-                              key: _sign,
-                              // onSign: () {
-                              //   final sign = _sign.currentState;
-                              //   debugPrint(
-                              //       '${sign.points.length} points in the signature');
-                              // },
-                              backgroundPainter: _WatermarkPaint("2.0", "2.0"),
-                              strokeWidth: strokeWidth,
-                            ),
-                            color: Colors.black12,
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => InvigilatorsBloc(),
+          ),
+          BlocProvider(
+            create: (context) => AttendantsBloc(),
+          ),
+          BlocProvider(
+            create: (context) => RoomsBloc(),
+          ),
+          BlocProvider(
+            create: (context) => TeachingAssistantsBloc(),
+          ),
+        ],
+        child: Scaffold(
+          key: _scaffoldKey,
+          drawer: CustomDrawer(_scaffoldKey),
+          appBar: AppBar(
+            backgroundColor: Colors.blueAccent,
+            leading: IconButton(
+              icon: Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                _scaffoldKey.currentState.openDrawer();
+              },
+            ),
+            centerTitle: true,
+            title: Text('CoE INVIGILTORS ATTENDANCE',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white)),
+          ),
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            padding: const EdgeInsets.all(0.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).primaryColor,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Theme.of(context).hintColor.withOpacity(0.2),
+                            offset: Offset(0, 5),
+                            blurRadius: 10)
+                      ],
+                    ),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          SizedBox(
+                            height: 20.0,
                           ),
-                          Text(
-                            "clear if you dont like current signature. Cannot be undone after save",
+                          Text("Select Category"),
+                          DropdownButton<String>(
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                            },
+                            value: _selectedCategory,
                             style: TextStyle(
-                                color: Colors.redAccent, fontSize: 12),
-                            textAlign: TextAlign.center,
+                                fontSize: 20.0,
+                                color: Colors.black87,
+                                fontFamily: "Roboto"),
+                            items: _categories.map((String dropDownStringItem) {
+                              return DropdownMenuItem<String>(
+                                value: dropDownStringItem,
+                                child: Text(dropDownStringItem),
+                              );
+                            }).toList(),
                           ),
-                          Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MaterialButton(
-                                  color: Colors.redAccent,
-                                  onPressed: () {
-                                    final sign = _sign.currentState;
-                                    sign.clear();
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Text("Select Session"),
+                          DropdownButton<String>(
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedSession = value;
+                              });
+                            },
+                            value: _selectedSession,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.black87,
+                                fontFamily: "Roboto"),
+                            items: _sessions.map((String dropDownStringItem) {
+                              return DropdownMenuItem<String>(
+                                value: dropDownStringItem,
+                                child: Text(dropDownStringItem),
+                              );
+                            }).toList(),
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Text("Select Duration"),
+                          DropdownButton<String>(
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedDuration = value;
+                              });
+                            },
+                            value: _selectedDuration,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.black87,
+                                fontFamily: "Roboto"),
+                            items: _duration.map((String dropDownStringItem) {
+                              return DropdownMenuItem<String>(
+                                value: dropDownStringItem,
+                                child: Text(dropDownStringItem),
+                              );
+                            }).toList(),
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Text("Select Room"),
+                          buildRoomsBlocBuilder(),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+
+                          buildInvigilatorsBlocBuilder(),
+
+                          /* BlocBuilder<TeachingAssistantsBloc,
+                              TeachingAssistantsState>(
+                            builder: (context, state) {
+                              if (state is TeachingAssistantsInitial) {
+                                BlocProvider.of<TeachingAssistantsBloc>(context)
+                                    .add(GetTeachingAssistants(
+                                        room: _selectedRoom));
+                                return Loading();
+                              } else if (state is TeachingAssistantsLoading) {
+                                return Loading();
+                              } else if (state is TeachingAssistantsLoaded) {
+                                _selectedInvigilator =
+                                    state.teachingAssistants[0];
+
+                                return DropdownButton<String>(
+                                  onChanged: (value) {
                                     setState(() {
-                                      _img = ByteData(0);
+                                      _selectedRoom = value;
                                     });
                                   },
-                                  child: Text(
-                                    "Clear Signature",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
+                                  value: _selectedRoom,
+                                  style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.black87,
+                                      // fontWeight: FontWeight.w200,
+                                      fontFamily: "Roboto"),
+                                  items: state.teachingAssistants
+                                      .map((String dropDownStringItem) {
+                                    return DropdownMenuItem<String>(
+                                      value: dropDownStringItem,
+                                      child: Text(dropDownStringItem),
+                                    );
+                                  }).toList(),
+                                );
+                              } else {
+                                return Loading();
+                              }
+                            },
+                          ), */
+
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextField(
+                            controller: _nameCtrl,
+                            style: TextStyle(color: null),
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              hintText: "Other",
+                              hintStyle:
+                                  Theme.of(context).textTheme.bodyText2.merge(
+                                        TextStyle(color: Colors.black87),
+                                      ), //shape: StadiumBorder(),
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      width: 2, color: Colors.black12)),
+                              filled: false,
+                              // fillColor: Theme.of(context).primaryColor,
+                              contentPadding: EdgeInsets.all(12),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      width: 2, color: Colors.yellowAccent)),
                             ),
                           ),
-                        ],
-                      ),
-
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      MaterialButton(
-                          color: Colors.blueAccent,
-                          onPressed: () async {
-                            //Signature image saving
-                            final sign = _sign.currentState;
-                            //retrieve image data, do whatever you want with it (send to server, save locally...)
-                            final image = await sign.getData();
-
-                            var data = await image.toByteData(
-                                format: ui.ImageByteFormat.png);
-                            // final byteInts = data.buffer.asUint8List().toList();
-                            // _save(data);
-                            sign.clear();
-                            final encoded =
-                                base64.encode(data.buffer.asUint8List());
-                            setState(() {
-                              _img = data;
-                            });
-                            debugPrint("This is the encoded " + encoded);
-                            //Signature image saving ENDS
-
-                            String dateTime = DateTime.now().toString();
-
-                            // set Invigilators details to be save
-                            InvigilatorsDetailsModel invigilatorsDetails =
-                                InvigilatorsDetailsModel(
-                                    invigiName: _nameCtrl.text,
-                                    session: _selectedSession,
-                                    category: _selectedCategory,
-                                    duration: _selectedDuration,
-                                    room: _room,
-                                    dateTime: dateTime,
-                                    signImage: encoded);
-                            // save details to database
-                            try {
-                              databaseService
-                                  .insertInvigilatorsData(invigilatorsDetails);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content:
-                                    Text("Error occured while saving data."),
-                              ));
-                            }
-
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor: Colors.green,
-                              content: Text(
-                                "Successfully saved data.",
-                                style: TextStyle(color: Colors.white),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Text("Signature/Initials"),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          // SIGNATURE implementations
+                          Column(
+                            children: [
+                              Container(
+                                width: 300.0,
+                                height: 50.0,
+                                child: Signature(
+                                  color: color,
+                                  key: _sign,
+                                  // onSign: () {
+                                  //   final sign = _sign.currentState;
+                                  //   debugPrint(
+                                  //       '${sign.points.length} points in the signature');
+                                  // },
+                                  backgroundPainter:
+                                      _WatermarkPaint("2.0", "2.0"),
+                                  strokeWidth: strokeWidth,
+                                ),
+                                color: Colors.black12,
                               ),
-                            ));
-                          },
-                          child: Text("SAVE DETAILS",
-                              style: TextStyle(color: Colors.white))),
-                      SizedBox(height: 20),
-                      Footer()
-                    ]),
+                              Text(
+                                "clear if you dont like current signature. Cannot be undone after save",
+                                style: TextStyle(
+                                    color: Colors.redAccent, fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                              Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: MaterialButton(
+                                      color: Colors.redAccent,
+                                      onPressed: () {
+                                        final sign = _sign.currentState;
+                                        sign.clear();
+                                        setState(() {
+                                          _img = ByteData(0);
+                                        });
+                                      },
+                                      child: Text(
+                                        "Clear Signature",
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
 
-                // alignment: Alignment.center,
-              )
-            ]),
-      ),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          MaterialButton(
+                              color: Colors.blueAccent,
+                              onPressed: () async {
+                                //Signature image saving
+                                final sign = _sign.currentState;
+                                //retrieve image data, do whatever you want with it (send to server, save locally...)
+                                final image = await sign.getData();
+
+                                var data = await image.toByteData(
+                                    format: ui.ImageByteFormat.png);
+                                // final byteInts = data.buffer.asUint8List().toList();
+                                // _save(data);
+                                sign.clear();
+                                final encoded =
+                                    base64.encode(data.buffer.asUint8List());
+                                setState(() {
+                                  _img = data;
+                                });
+                                debugPrint("This is the encoded " + encoded);
+                                //Signature image saving ENDS
+
+                                String dateTime = DateTime.now().toString();
+
+                                // set Invigilators details to be save
+                                InvigilatorsDetailsModel invigilatorsDetails =
+                                    InvigilatorsDetailsModel(
+                                        invigiName: _nameCtrl.text,
+                                        session: _selectedSession,
+                                        category: _selectedCategory,
+                                        duration: _selectedDuration,
+                                        room: _selectedRoom,
+                                        dateTime: dateTime,
+                                        signImage: encoded);
+                                // save details to database
+                                try {
+                                  _databaseService.insertInvigilatorsData(
+                                      invigilatorsDetails);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Error occured while saving data."),
+                                  ));
+                                }
+
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Text(
+                                    "Successfully saved data.",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ));
+                              },
+                              child: Text("SAVE DETAILS",
+                                  style: TextStyle(color: Colors.white))),
+                          SizedBox(height: 20),
+                          Footer()
+                        ]),
+
+                    // alignment: Alignment.center,
+                  )
+                ]),
+          ),
+        ));
+  }
+
+  BlocConsumer<InvigilatorsBloc, InvigilatorsState>
+      buildInvigilatorsBlocBuilder() {
+    return BlocConsumer<InvigilatorsBloc, InvigilatorsState>(
+      listener: (context, state) {
+        print(state);
+      },
+      builder: (context, state) {
+        if (state is InvigilatorsInitial) {
+          BlocProvider.of<InvigilatorsBloc>(context).add(GetInvigilators());
+          return Loading();
+        } else if (state is InvigilatorsLoading) {
+          return Loading();
+        } else if (state is InvigilatorsLoaded) {
+          _selectedInvigilator = state.invigilators[0].invigiName;
+
+          return DropdownButton<String>(
+            onChanged: (value) {
+              setState(() {
+                _selectedInvigilator = value;
+              });
+              print(_selectedInvigilator);
+            },
+            value: _selectedInvigilator,
+            style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.black87,
+                // fontWeight: FontWeight.w200,
+                fontFamily: "Roboto"),
+            items:
+                state.invigilators.map((InvigilatorsModel dropDownStringItem) {
+              return DropdownMenuItem<String>(
+                value: dropDownStringItem.invigiName,
+                child: Text(dropDownStringItem.invigiName),
+              );
+            }).toList(),
+          );
+        } else {
+          return Loading();
+        }
+      },
+    );
+  }
+
+  BlocBuilder<RoomsBloc, RoomsState> buildRoomsBlocBuilder() {
+    return BlocBuilder<RoomsBloc, RoomsState>(
+      builder: (context, state) {
+        if (state is RoomsInitial) {
+          BlocProvider.of<RoomsBloc>(context).add(GetRooms());
+          return Loading();
+        } else if (state is RoomsLoading) {
+          return Loading();
+        } else if (state is RoomsLoaded) {
+          _selectedRoom = state.rooms[0].roomAllocations;
+
+          return DropdownButton<String>(
+            onChanged: (value) {
+              setState(() {
+                _selectedRoom = value;
+              });
+
+              BlocProvider.of<TeachingAssistantsBloc>(context)
+                  .add(GetTeachingAssistants(room: _selectedRoom));
+            },
+            value: _selectedRoom,
+            style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.black87,
+                // fontWeight: FontWeight.w200,
+                fontFamily: "Roboto"),
+            items: state.rooms.map((AvailableRoomsModel dropDownStringItem) {
+              return DropdownMenuItem<String>(
+                value: dropDownStringItem.roomAllocations,
+                child: Text(dropDownStringItem.roomAllocations),
+              );
+            }).toList(),
+          );
+        } else {
+          return Loading();
+        }
+      },
     );
   }
 
