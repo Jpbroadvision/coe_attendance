@@ -8,8 +8,6 @@ class AttendanceImportCard extends StatelessWidget {
   final String description;
   final String category;
 
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
   final DatabaseService databaseService = DatabaseService();
 
   AttendanceImportCard({this.title, this.description, this.category});
@@ -24,7 +22,7 @@ class AttendanceImportCard extends StatelessWidget {
             backgroundColor: Colors.white,
             childrenPadding:
                 EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
-            title: buildCardTitle(),
+            title: buildCardTitle(context),
             children: [
               Row(
                 children: [
@@ -44,7 +42,7 @@ class AttendanceImportCard extends StatelessWidget {
   }
 
   // title with arrow icon for expanded card
-  Widget buildCardTitle() {
+  Widget buildCardTitle(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -70,7 +68,7 @@ class AttendanceImportCard extends StatelessWidget {
             String csvFilePath = await getCSVFilePath();
 
             if (csvFilePath == "FAILED_TO_GET_FILE_PATH") {
-              toastMessage(scaffoldKey.currentContext,
+              toastMessage(context,
                   "Failed to get CSV file.", Colors.red);
 
               return;
@@ -78,20 +76,45 @@ class AttendanceImportCard extends StatelessWidget {
 
             switch (category) {
               case "TEACHING_ASSISTANCE":
-                print("Importing TA");
-                print(csvFilePath);
-                databaseService.insertTeachingAssistantsCSV(csvFilePath);
+                try {
+                  await databaseService.insertTeachingAssistantsCSV(csvFilePath);
+                  toastMessage(context,
+                      "TAs CSV file import was a success");
+                } catch (e) {
+                  toastMessage(context,
+                      "Failed to get TAs CSV file.", Colors.red);
+                }
                 break;
               case "ATTENDANTS":
-                print("Importing Attendants");
-                print(csvFilePath);
-                databaseService.insertAttendantCSV(csvFilePath);
+                try {
+                  await databaseService.insertAttendantCSV(csvFilePath);
+                  toastMessage(context,
+                      "Attendant CSV file import was a success");
+                } catch (e) {
+                  toastMessage(context,
+                      "Failed to get attendant CSV file.", Colors.red);
+                }
                 break;
               case "INVIGILATORS":
-                print("Importing Invigilators");
-                print(csvFilePath);
-                databaseService.insertAttendantCSV(csvFilePath);
+                try {
+                  await databaseService.insertInvigilatorsCSV(csvFilePath);
+                  toastMessage(context,
+                      "Invigilators CSV file import was a success");
+                } catch (e) {
+                  toastMessage(context,
+                      "Failed to import invigilators CSV file.", Colors.red);
+                }
                 break;
+              case "AVAILABLE_ROOMS":
+                try {
+                  await databaseService.insertAvailableRoomsCSV(csvFilePath);
+                  toastMessage(context,
+                      "Available Rooms CSV file import was a success");
+                } catch (e) {
+                  toastMessage(context,
+                      "Failed to import Available Rooms CSV file.", Colors.red);
+                }
+                break; 
             }
           },
         )
