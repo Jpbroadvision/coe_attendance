@@ -61,7 +61,7 @@ class _ImportAttendanceState extends State<ImportAttendance> {
                 title: "Available Rooms",
                 description:
                     "NB: The file you are going to import must be a CSV file. It must have only one column with their room numbers or names.",
-                category: "Rooms",
+                category: "AVAILABLE_ROOMS",
               )
             ]),
       ),
