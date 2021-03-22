@@ -51,7 +51,7 @@ class _RecordsState extends State<Records> {
 
   getListOfInvigilators() {
     setState(() {
-      _invigilatorsDetails = databaseService.getAllInvigilators();
+      _invigilatorsDetails = databaseService.getAllAttendanceRecords();
     });
   }
 
