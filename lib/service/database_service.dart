@@ -1,51 +1,58 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' as io;
 import 'dart:io';
-import 'package:coe_attendance/models/import_attendance_names_model.dart';
-import 'package:coe_attendance/models/import_available_rooms_model.dart';
-import 'package:coe_attendance/models/import_inivigilators_names_model.dart';
-import 'package:coe_attendance/models/import_tas_names_model.dart';
+
 import 'package:csv/csv.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 import '../models/inivigilators_details_model.dart';
+import 'package:coe_attendance/models/attendant_model.dart';
+import 'package:coe_attendance/models/available_rooms_model.dart';
+import 'package:coe_attendance/models/inivigilator_model.dart';
+import 'package:coe_attendance/models/teaching_assistant_model.dart';
 
 class DatabaseService {
   static Database _db;
-  static const String DB_NAME =
-      'inivigilators_database.db'; // database invigiName
-  // INIVIGILATORS_ID can be used for all tables as a foreign key
+  static const String DB_NAME = 'inivigilators_database.db';
+
+  /// database invigiName
+  /// INIVIGILATORS_ID can be used for all tables as a foreign key
   static const String INIVIGILATORS_ID = 'inivigilatorId';
 
-  // Invigilators Table
-  static const String INVIGILATORS_TABLE = 'Invigilators';
-  static const String INVIGI_NAMES_TABLE = 'invigi_names_table';
-  static const String ATT_NAMES_TABLE = 'att_names_table';
-  static const String TA_NAMES_TABLE = 'ta_names_table';
-  static const String AVAILABLE_ROOMS = 'available_rooms';
+  /// All tables
+  static const String ATTENDANCE_RECORDS_TABLE = 'attendance_records';
+  static const String INVIGILATORS_TABLE = 'invigilators';
+  static const String ATTENDANT_TABLE = 'attendants';
+  static const String TEACHING_ASSISTANT_TABLE = 'teaching_assistants';
+  static const String AVAILABLE_ROOMS_TABLE = 'available_rooms';
+
   static const String ROOM_ALLOCATIONS = 'roomAllocations';
   static const String PROFILE_ID = 'id';
-  static const String INVIGI_NAME = 'invigiName';
-  static const String ATT_NAME = 'attName';
-  static const String TA_NAME = 'taName';
+
   static const String SESSION = 'session';
   static const String CATEGORY = 'category';
   static const String DURATION = 'duration';
   static const String ROOM = 'room';
-  static const String TA_ROOM_ALLOC = 'taRoomAlloc';
   static const String DATETIME = 'dateTime';
   static const String SIGN_IMAGE = 'signImage';
 
-  // signatures parameters declarations ENDS
-  final _sign = GlobalKey<SignatureState>();
-  // signatures parameters declarations ENDS
+  /// Invigilation Records Table
 
-  // get database
+  /// Teaching Assistant Table fields
+  static const String TA_NAME = 'taName';
+  static const String TA_ROOM_ALLOC = 'taRoomAlloc';
+
+  /// Invigilators Table fields
+  static const String INVIGI_NAME = 'invigiName';
+
+  /// Attendants Table fields
+  static const String ATT_NAME = 'attName';
+
+  /// signatures parameters declarations ENDS
+
+  /// get database
   Future<Database> get db async {
     if (_db != null) {
       return _db;
@@ -55,88 +62,162 @@ class DatabaseService {
     return _db;
   }
 
-  // initialize the database with DB_NAME
+  /// initialize the database with DB_NAME
   initDB() async {
-    io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    Directory documentsDirectory = await getExternalStorageDirectory();
     String path = join(documentsDirectory.path, DB_NAME);
 
     var db = await openDatabase(path, version: 1, onCreate: _onCreate);
     return db;
   }
 
-  // creates a database table
+  /// creates a database table
   _onCreate(Database db, int version) async {
-    // creating various database tables
+    /// creating various database tables
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $INVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
-    // creating databases for import of names
+        "CREATE TABLE IF NOT EXISTS $ATTENDANCE_RECORDS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
+
+    /// creating databases for import of names
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $INVIGI_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT )");
+        "CREATE TABLE IF NOT EXISTS $INVIGILATORS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT )");
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $ATT_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
+        "CREATE TABLE IF NOT EXISTS $ATTENDANT_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ATT_NAME TEXT )");
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $TA_NAMES_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
+        "CREATE TABLE IF NOT EXISTS $TEACHING_ASSISTANT_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $TA_NAME TEXT, $TA_ROOM_ALLOC  TEXT )");
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $AVAILABLE_ROOMS($PROFILE_ID INTEGER PRIMARY KEY, $ROOM_ALLOCATIONS  TEXT )");
-    // return db;
+        "CREATE TABLE IF NOT EXISTS $AVAILABLE_ROOMS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $ROOM_ALLOCATIONS  TEXT )");
+
+    /// return db;
   }
 
   // ---------------------------------------------------------------------------------
   //                      INSERT QUERIES
   // ---------------------------------------------------------------------------------
-  // insert data into the INVIGILATORS_TABLE
+  /// insert data into the ATTENDANCE_RECORDS_TABLE
   Future<InvigilatorsDetailsModel> insertInvigilatorsData(
       InvigilatorsDetailsModel inivigilatorModel) async {
     var dbClient = await db;
-    inivigilatorModel.id =
-        await dbClient.insert(INVIGILATORS_TABLE, inivigilatorModel.toMap());
+    inivigilatorModel.id = await dbClient.insert(
+        ATTENDANCE_RECORDS_TABLE, inivigilatorModel.toMap());
 
     return inivigilatorModel;
   }
 
-  // insert data into the INVIGI_NAMES_TABLE from excel
-  Future<InvigiNamesModel> insertInvigiNames(
-      InvigiNamesModel inivigiNames) async {
-    var dbClient = await db;
-    inivigiNames.id =
-        await dbClient.insert(INVIGI_NAMES_TABLE, inivigiNames.toMap());
+  /// insert data into the Teaching Assistant table from CSV file
+  Future<List<TeachingAssistantModel>> insertTeachingAssistantsCSV(
+      String csvFilePath) async {
+    List<List<dynamic>> csvData = await getCSVData(csvFilePath);
 
-    return inivigiNames;
+    var dbClient = await db;
+
+    List<TeachingAssistantModel> listOfTAs = [];
+
+    // delete entries in teaching assistant table
+    await dbClient.delete(TEACHING_ASSISTANT_TABLE);
+
+    for (var item in csvData) {
+      final teachingAssistant = TeachingAssistantModel(
+          taName: "${item[1]}", taRoomAlloc: "${item[0]}");
+
+      teachingAssistant.id = await dbClient.insert(
+          TEACHING_ASSISTANT_TABLE, teachingAssistant.toMap());
+
+      listOfTAs.add(teachingAssistant);
+    }
+
+    return listOfTAs;
   }
 
-// insert data into the ATT_NAMES_TABLE from excel
-  Future<AttNamesModel> insertAttNames(AttNamesModel attNames) async {
-    var dbClient = await db;
-    attNames.id = await dbClient.insert(ATT_NAMES_TABLE, attNames.toMap());
+  /// insert data into the Attendants table from CSV file
+  Future<List<AttendantModel>> insertAttendantCSV(String csvFilePath) async {
+    List<List<dynamic>> csvData = await getCSVData(csvFilePath);
 
-    return attNames;
+    var dbClient = await db;
+
+    List<AttendantModel> listOfAttendants = [];
+
+    // delete entries in attendants table
+    await dbClient.delete(ATTENDANT_TABLE);
+
+    for (var item in csvData) {
+      final attendant = AttendantModel(attName: "${item[0]}");
+
+      attendant.id = await dbClient.insert(ATTENDANT_TABLE, attendant.toMap());
+
+      listOfAttendants.add(attendant);
+    }
+
+    return listOfAttendants;
   }
 
-// insert data into the TA_NAMES_TABLE from excel
-  Future<TaNamesModel> insertTasNames(TaNamesModel taNames) async {
-    var dbClient = await db;
-    taNames.id = await dbClient.insert(TA_NAMES_TABLE, taNames.toMap());
+  /// insert data into the Invigilators table from CSV file
+  Future<List<InvigilatorsModel>> insertInvigilatorsCSV(
+      String csvFilePath) async {
+    List<List<dynamic>> csvData = await getCSVData(csvFilePath);
 
-    return taNames;
+    var dbClient = await db;
+
+    List<InvigilatorsModel> listOfInvigilators = [];
+
+    // delete entries in invigilators table
+    await dbClient.delete(INVIGILATORS_TABLE);
+
+    for (var item in csvData) {
+      final invigilator = InvigilatorsModel(invigiName: "${item[0]}");
+
+      invigilator.id =
+          await dbClient.insert(INVIGILATORS_TABLE, invigilator.toMap());
+
+      listOfInvigilators.add(invigilator);
+    }
+
+    return listOfInvigilators;
   }
 
-  // insert data into the AVAILABLE_ROOMS from excel
-  Future<TaNamesModel> insertAvailableRooms(TaNamesModel roomsAvailable) async {
-    var dbClient = await db;
-    roomsAvailable.id =
-        await dbClient.insert(AVAILABLE_ROOMS, roomsAvailable.toMap());
+  /// insert data into the AVAILABLE_ROOMS_TABLE table from CSV file
+  Future<List<AvailableRoomsModel>> insertAvailableRoomsCSV(
+      String csvFilePath) async {
+    List<List<dynamic>> csvData = await getCSVData(csvFilePath);
 
-    return roomsAvailable;
+    var dbClient = await db;
+
+    List<AvailableRoomsModel> listOfAvailableRooms = [];
+
+    // delete entries in available rooms table
+    await dbClient.delete(AVAILABLE_ROOMS_TABLE);
+
+    for (var item in csvData) {
+      final availableRooms = AvailableRoomsModel(roomAllocations: "${item[0]}");
+
+      availableRooms.id =
+          await dbClient.insert(AVAILABLE_ROOMS_TABLE, availableRooms.toMap());
+
+      listOfAvailableRooms.add(availableRooms);
+    }
+
+    return listOfAvailableRooms;
+  }
+
+  /// helper function to get a CSV file data from a given path
+  Future<List<List<dynamic>>> getCSVData(String csvFilePath) async {
+    final csvFileInput = File(csvFilePath).openRead();
+
+    List<List<dynamic>> csvData = await csvFileInput
+        .transform(utf8.decoder)
+        .transform(CsvToListConverter())
+        .toList();
+
+    return csvData;
   }
 
   // ---------------------------------------------------------------------------------
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
-  // get all iNVIGILATORS from INVIGILATORS_TABLE
-  Future<List<InvigilatorsDetailsModel>> getAllInvigilators() async {
+  // get all attendance records from ATTENDANCE_RECORDS_TABLE
+  Future<List<InvigilatorsDetailsModel>> getAllAttendanceRecords() async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(INVIGILATORS_TABLE,
+    List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
         columns: [
           PROFILE_ID,
           INVIGI_NAME,
@@ -147,44 +228,113 @@ class DatabaseService {
           DATETIME,
           SIGN_IMAGE
         ],
-        orderBy: "$INVIGI_NAME ASC"); // similar to...
-    // List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE");
+        orderBy: "$INVIGI_NAME ASC");
 
-    List<InvigilatorsDetailsModel> listOfInvigilators = [];
+    List<InvigilatorsDetailsModel> listOfRecords = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        listOfInvigilators.add(InvigilatorsDetailsModel.fromMap(maps[i]));
+        listOfRecords.add(InvigilatorsDetailsModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfRecords;
+  }
+
+  /// get all Invigilators from INVIGILATORS_TABLE
+  Future<List<InvigilatorsModel>> getAllInvigilators() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(INVIGILATORS_TABLE,
+        columns: [PROFILE_ID, INVIGI_NAME], orderBy: "$INVIGI_NAME ASC");
+
+    List<InvigilatorsModel> listOfInvigilators = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfInvigilators.add(InvigilatorsModel.fromMap(maps[i]));
       }
     }
 
     return listOfInvigilators;
   }
 
-  // ---------------------------------------------------------------------------------
-  //                      FETCH ONE QUERIES
-  // ---------------------------------------------------------------------------------
-  // get a INIVIGILATORS names from INVIGI_NAMES_TABLE
-  Future<List<InvigiNamesModel>> getInvigilatorNames() async {
+  /// get all Teaching Assistant from TEACHING_ASSISTANT_TABLE
+  Future<List<TeachingAssistantModel>> getAllTeachingAssistants() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(TEACHING_ASSISTANT_TABLE,
+        columns: [PROFILE_ID, TA_NAME, TA_ROOM_ALLOC], orderBy: "$TA_NAME ASC");
+
+    List<TeachingAssistantModel> listOfTeachingAssistants = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfTeachingAssistants.add(TeachingAssistantModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfTeachingAssistants;
+  }
+
+  /// get all Attendants from ATTENDANT_TABLE
+  Future<List<AttendantModel>> getAllAttendants() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(ATTENDANT_TABLE,
+        columns: [PROFILE_ID, ATT_NAME], orderBy: "$ATT_NAME ASC");
+
+    List<AttendantModel> listOfAttendants = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfAttendants.add(AttendantModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfAttendants;
+  }
+
+  /// get a Available rooms from AVAILABLE_ROOMS_TABLE
+  Future<List<AvailableRoomsModel>> getAvailableRooms() async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(AVAILABLE_ROOMS_TABLE, columns: [
+      PROFILE_ID,
+      ROOM_ALLOCATIONS,
+    ]);
+
+    List<AvailableRoomsModel> listOfRooms = [];
+
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfRooms.add(AvailableRoomsModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfRooms;
+  }
+
+  /// ---------------------------------------------------------------------------------
+  ///                      FETCH ONE QUERIES
+  /// ---------------------------------------------------------------------------------
+  /// get a INIVIGILATORS names from INVIGILATORS_TABLE
+  Future<List<InvigilatorsModel>> getInvigilatorNames() async {
     var dbClient = await db;
 
     List<Map> maps = await dbClient.query(
-      INVIGI_NAMES_TABLE,
+      INVIGILATORS_TABLE,
       columns: [
         INVIGI_NAME,
       ],
     );
-    List<InvigiNamesModel> listOfInvigilatorsNames = [];
+    List<InvigilatorsModel> listOfInvigilatorsNames = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        listOfInvigilatorsNames.add(InvigiNamesModel.fromMap(maps[i]));
+        listOfInvigilatorsNames.add(InvigilatorsModel.fromMap(maps[i]));
       }
-      return null;
     }
     return listOfInvigilatorsNames;
   }
 
-  // get a ATTENDANTS names from ATT_NAME
-  Future<List<AttNamesModel>> getAttNames() async {
+  /// get a ATTENDANTS names from ATT_NAME
+  Future<List<AttendantModel>> getAttNames() async {
     var dbClient = await db;
 
     List<Map> maps = await dbClient.query(
@@ -193,94 +343,79 @@ class DatabaseService {
         INVIGI_NAME,
       ],
     );
-    List<AttNamesModel> listOfAttendantNames = [];
+    List<AttendantModel> listOfAttendantNames = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        listOfAttendantNames.add(AttNamesModel.fromMap(maps[i]));
+        listOfAttendantNames.add(AttendantModel.fromMap(maps[i]));
       }
-      return null;
     }
+
     return listOfAttendantNames;
   }
 
-  // get a TAS names from TA_NAMES_TABLE
-  Future<List<TaNamesModel>> getTasNames(String getTasClassroom) async {
+  /// get a TAS names from TEACHING_ASSISTANT_TABLE
+  Future<List<TeachingAssistantModel>> getTasNames(
+      String getTasClassroom) async {
     var dbClient = await db;
 
-    List<Map> maps = await dbClient.query(TA_NAMES_TABLE,
+    List<Map> maps = await dbClient.query(TEACHING_ASSISTANT_TABLE,
         columns: [
           TA_NAME,
         ],
         where: '$TA_ROOM_ALLOC = ?',
         whereArgs: [getTasClassroom]);
-    List<TaNamesModel> listOfTasNames = [];
+    List<TeachingAssistantModel> listOfTasNames = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        listOfTasNames.add(TaNamesModel.fromMap(maps[i]));
+        listOfTasNames.add(TeachingAssistantModel.fromMap(maps[i]));
       }
-      return null;
     }
+
     return listOfTasNames;
-  }
-
-  // get a Available roomss from AVAILABLE_ROOMS
-  Future<List<AvailableRoomsModel>> getAvailableRooms() async {
-    var dbClient = await db;
-
-    List<Map> maps = await dbClient.query(AVAILABLE_ROOMS, columns: [
-      ROOM_ALLOCATIONS,
-    ]);
-    List<AvailableRoomsModel> listOfRooms = [];
-    if (maps.length > 0) {
-      for (int i = 0; i < maps.length; i++) {
-        listOfRooms.add(AvailableRoomsModel.fromMap(maps[i]));
-      }
-      return null;
-    }
-    return listOfRooms;
   }
 
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
   // ---------------------------------------------------------------------------------
-  // delete INIVIGILATORS from INVIGILATORS_TABLE
+  /// delete INIVIGILATORS from ATTENDANCE_RECORDS_TABLE
   Future<int> deleteInivigilator(int id) async {
     var dbClient = await db;
 
-    return await dbClient
-        .delete(INVIGILATORS_TABLE, where: '$PROFILE_ID = ?', whereArgs: [id]);
+    return await dbClient.delete(ATTENDANCE_RECORDS_TABLE,
+        where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
   // ---------------------------------------------------------------------------------
   //                      UPDATE QUERIES
   // ---------------------------------------------------------------------------------
-  // update customer info
+  /// update customer info
   Future<int> updateInivigilator(
       InvigilatorsDetailsModel inivigilatorModel, int id) async {
     var dbClient = await db;
 
-    return await dbClient.update(INVIGILATORS_TABLE, inivigilatorModel.toMap(),
+    return await dbClient.update(
+        ATTENDANCE_RECORDS_TABLE, inivigilatorModel.toMap(),
         where: '$PROFILE_ID = ?', whereArgs: [id]);
   }
 
   // --------------------------------------------------------------------------------
   //                      EXPORT DATABASE INVIGILATORS DATA
   // ---------------------------------------------------------------------------------
-  // generate csv file with data from invigilators table
+  /// generate csv file with data from invigilators table
   Future<String> generateCSV() async {
     List<InvigilatorsDetailsModel> invigilatorsDetails;
 
-    await getAllInvigilators()
+    await getAllAttendanceRecords()
         .then((invigilators) => invigilatorsDetails = invigilators);
 
     if (invigilatorsDetails.isEmpty) return null;
 
-    // signatures parameters declarations ENDS
-    // final sign = _sign.currentState;
-    // final image = await sign.getData();
-    // var data = await image.toByteData(format: ui.ImageByteFormat.png);
-    // Uint8List _realImage;
-    // signatures parameters declarations ENDS
+    /// signatures parameters declarations ENDS
+    /// final sign = _sign.currentState;
+    /// final image = await sign.getData();
+    /// var data = await image.toByteData(format: ui.ImageByteFormat.png);
+    /// Uint8List _realImage;
+    /// signatures parameters declarations ENDS
 
     List<List<String>> csvData = [
       <String>[
@@ -312,9 +447,10 @@ class DatabaseService {
     final String dirPath = (await getExternalStorageDirectory()).path;
     final String filePath = "$dirPath/invigilators-$reportDate.csv";
 
-    // create file
+    /// create file
     final File file = File(filePath);
-    // save csv file
+
+    /// save csv file
     await file.writeAsString(csv);
 
     return filePath;
@@ -323,7 +459,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   //                      FINALLY CLOSE DATABASE
   // ---------------------------------------------------------------------------------
-  // close database
+  /// close database
   Future close() async {
     var dbClient = await db;
     dbClient.close();
