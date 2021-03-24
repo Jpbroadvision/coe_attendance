@@ -1,4 +1,5 @@
 import 'package:coe_attendance/components/toast_message.dart';
+import 'package:coe_attendance/locator.dart';
 import 'package:coe_attendance/service/database_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,8 @@ class AttendanceImportCard extends StatelessWidget {
   final String title;
   final String description;
   final String category;
-
-  final DatabaseService databaseService = DatabaseService();
+  
+  final DatabaseService _databaseService = locator<DatabaseService>();
 
   AttendanceImportCard({this.title, this.description, this.category});
 
@@ -77,7 +78,7 @@ class AttendanceImportCard extends StatelessWidget {
             switch (category) {
               case "TEACHING_ASSISTANCE":
                 try {
-                  await databaseService.insertTeachingAssistantsCSV(csvFilePath);
+                  await _databaseService.insertTeachingAssistantsCSV(csvFilePath);
                   toastMessage(context,
                       "TAs CSV file import was a success");
                 } catch (e) {
@@ -87,7 +88,7 @@ class AttendanceImportCard extends StatelessWidget {
                 break;
               case "ATTENDANTS":
                 try {
-                  await databaseService.insertAttendantCSV(csvFilePath);
+                  await _databaseService.insertAttendantCSV(csvFilePath);
                   toastMessage(context,
                       "Attendant CSV file import was a success");
                 } catch (e) {
@@ -97,7 +98,7 @@ class AttendanceImportCard extends StatelessWidget {
                 break;
               case "INVIGILATORS":
                 try {
-                  await databaseService.insertInvigilatorsCSV(csvFilePath);
+                  await _databaseService.insertInvigilatorsCSV(csvFilePath);
                   toastMessage(context,
                       "Invigilators CSV file import was a success");
                 } catch (e) {
@@ -107,7 +108,7 @@ class AttendanceImportCard extends StatelessWidget {
                 break;
               case "AVAILABLE_ROOMS":
                 try {
-                  await databaseService.insertAvailableRoomsCSV(csvFilePath);
+                  await _databaseService.insertAvailableRoomsCSV(csvFilePath);
                   toastMessage(context,
                       "Available Rooms CSV file import was a success");
                 } catch (e) {
