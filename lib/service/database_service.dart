@@ -411,14 +411,13 @@ class DatabaseService {
 
     List<List<String>> csvData = [
       <String>[
-        "PROFILE ID",
+        "ID #",
         "NAME",
         "SESSION",
         "CATEGORY",
         "DURATION",
         "ROOM",
-        "DATE TIME",
-        "SIGNATURE"
+        "DATE TIME"
       ],
       ...attendanceRecords.map((attendantRecord) => [
             "${attendantRecord.id}",
@@ -427,8 +426,7 @@ class DatabaseService {
             attendantRecord.category,
             attendantRecord.duration,
             attendantRecord.room,
-            attendantRecord.dateTime,
-            "${Base64Decoder().convert(attendantRecord.signImagePath)}"
+            attendantRecord.dateTime
           ])
     ];
 
