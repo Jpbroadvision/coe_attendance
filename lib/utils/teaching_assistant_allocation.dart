@@ -8,17 +8,17 @@ class TeachingAssistantAllocation {
     _databaseService = databaseService;
   }
 
-  Future<Map<String, List<String>>> getAllocations() async {
+  Future<Map<String, List<TeachingAssistantModel>>> getAllocations() async {
     List<TeachingAssistantModel> listOfTeachingAssistants =
         await _databaseService.getAllTeachingAssistants();
 
-    Map<String, List<String>> allocations = {};
+    Map<String, List<TeachingAssistantModel>> allocations = {};
 
     for (var taRoom in listOfTeachingAssistants) {
       if (allocations.containsKey(taRoom.taRoomAlloc)) {
-        allocations[taRoom.taRoomAlloc].add(taRoom.taName);
+        allocations[taRoom.taRoomAlloc].add(taRoom);
       } else {
-        allocations[taRoom.taRoomAlloc] = [taRoom.taName];
+        allocations[taRoom.taRoomAlloc] = [taRoom];
       }
     }
     return allocations;
