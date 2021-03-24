@@ -1,11 +1,14 @@
-import 'package:coe_attendance/models/inivigilators_details_model.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import 'package:coe_attendance/models/attendance_records_model.dart';
+
 class InvigilatorCard extends StatelessWidget {
-  final InvigilatorsDetailsModel invigilatorsDetails;
+  final AttendanceRecordsModel attendanceRecord;
   final Function deleteFunction;
 
-  InvigilatorCard({@required this.invigilatorsDetails, this.deleteFunction});
+  InvigilatorCard({@required this.attendanceRecord, this.deleteFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class InvigilatorCard extends StatelessWidget {
             children: [
               Text('Session'),
               Text(
-                '${invigilatorsDetails.session}',
+                '${attendanceRecord.session}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
             ],
@@ -37,7 +40,7 @@ class InvigilatorCard extends StatelessWidget {
             children: [
               Text('Duration'),
               Text(
-                '${invigilatorsDetails.duration}',
+                '${attendanceRecord.duration}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
             ],
@@ -47,7 +50,7 @@ class InvigilatorCard extends StatelessWidget {
             children: [
               Text('Room'),
               Text(
-                '${invigilatorsDetails.room}',
+                '${attendanceRecord.room}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
             ],
@@ -57,7 +60,7 @@ class InvigilatorCard extends StatelessWidget {
             children: [
               Text('Date/Time'),
               Text(
-                '${invigilatorsDetails.dateTime}',
+                '${attendanceRecord.dateTime}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
             ],
@@ -74,25 +77,23 @@ class InvigilatorCard extends StatelessWidget {
       children: <Widget>[
         Row(
           children: [
-            Container(
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                    image: AssetImage("${invigilatorsDetails.signImage}")),//assets/user-profile.png
+            ClipOval(
+              child: Image.file(
+                File(attendanceRecord.signImagePath), //assets/user-profile.png
+                height: 50,
+                width: 50,
+                fit: BoxFit.cover,
               ),
-              height: 50,
-              width: 50,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  invigilatorsDetails.invigiName,
+                  attendanceRecord.name,
                   style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  '${invigilatorsDetails.category}',
+                  '${attendanceRecord.category}',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 )
               ],
@@ -102,7 +103,7 @@ class InvigilatorCard extends StatelessWidget {
         IconButton(
           icon: Icon(Icons.delete, color: Colors.red),
           onPressed: () {
-            deleteFunction(invigilatorsDetails.id);
+            deleteFunction(attendanceRecord.id);
           },
         ),
       ],
