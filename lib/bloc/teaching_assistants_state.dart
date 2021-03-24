@@ -16,6 +16,6 @@ class TeachingAssistantsLoading extends TeachingAssistantsState {
 }
 
 class TeachingAssistantsLoaded extends TeachingAssistantsState {
-  final List<String> teachingAssistants;
+  final List<TeachingAssistantModel> teachingAssistants;
   const TeachingAssistantsLoaded({this.teachingAssistants});
 }

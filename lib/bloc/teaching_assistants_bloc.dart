@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:coe_attendance/components/teaching_assistant_allocation.dart';
+import 'package:coe_attendance/utils/teaching_assistant_allocation.dart';
 import 'package:coe_attendance/locator.dart';
 import 'package:coe_attendance/models/teaching_assistant_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
@@ -22,7 +22,7 @@ class TeachingAssistantsBloc
     if (event is GetTeachingAssistants) {
       yield TeachingAssistantsLoading();
 
-      final Map<String, List<String>> result =
+      final Map<String, List<TeachingAssistantModel>> result =
           await TeachingAssistantAllocation(_databaseService).getAllocations();
 
       yield TeachingAssistantsLoaded(teachingAssistants: result[event.room]);
