@@ -7,7 +7,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/inivigilators_details_model.dart';
+import '../models/attendance_records_model.dart';
 import 'package:coe_attendance/models/attendant_model.dart';
 import 'package:coe_attendance/models/available_rooms_model.dart';
 import 'package:coe_attendance/models/inivigilator_model.dart';
@@ -15,42 +15,41 @@ import 'package:coe_attendance/models/teaching_assistant_model.dart';
 
 class DatabaseService {
   static Database _db;
-  static const String DB_NAME = 'inivigilators_database.db';
 
-  /// database invigiName
-  /// INIVIGILATORS_ID can be used for all tables as a foreign key
-  static const String INIVIGILATORS_ID = 'inivigilatorId';
+  /// database name
+  static const String DB_NAME = 'coe_attendance_database.db';
 
-  /// All tables
+  /// PROFILE_ID can be used for all tables as a unique id
+  static const String PROFILE_ID = 'id';
+
+  // All tables
   static const String ATTENDANCE_RECORDS_TABLE = 'attendance_records';
   static const String INVIGILATORS_TABLE = 'invigilators';
   static const String ATTENDANT_TABLE = 'attendants';
   static const String TEACHING_ASSISTANT_TABLE = 'teaching_assistants';
   static const String AVAILABLE_ROOMS_TABLE = 'available_rooms';
 
+  // Available Rooms Table fields
   static const String ROOM_ALLOCATIONS = 'roomAllocations';
-  static const String PROFILE_ID = 'id';
 
+  // Attendance Records Table fields
+  static const String NAME = 'name';
   static const String SESSION = 'session';
   static const String CATEGORY = 'category';
   static const String DURATION = 'duration';
   static const String ROOM = 'room';
   static const String DATETIME = 'dateTime';
-  static const String SIGN_IMAGE = 'signImage';
+  static const String SIGN_IMAGE_PATH = 'signImagePath';
 
-  /// Invigilation Records Table
-
-  /// Teaching Assistant Table fields
+  // Teaching Assistant Table fields
   static const String TA_NAME = 'taName';
   static const String TA_ROOM_ALLOC = 'taRoomAlloc';
 
-  /// Invigilators Table fields
+  // Invigilators Table fields
   static const String INVIGI_NAME = 'invigiName';
 
-  /// Attendants Table fields
+  // Attendants Table fields
   static const String ATT_NAME = 'attName';
-
-  /// signatures parameters declarations ENDS
 
   /// get database
   Future<Database> get db async {
@@ -75,7 +74,7 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     /// creating various database tables
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $ATTENDANCE_RECORDS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $INVIGI_NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE TEXT )");
+        "CREATE TABLE IF NOT EXISTS $ATTENDANCE_RECORDS_TABLE($PROFILE_ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATETIME TEXT, $SIGN_IMAGE_PATH TEXT )");
 
     /// creating databases for import of names
     await db.execute(
@@ -94,13 +93,13 @@ class DatabaseService {
   //                      INSERT QUERIES
   // ---------------------------------------------------------------------------------
   /// insert data into the ATTENDANCE_RECORDS_TABLE
-  Future<InvigilatorsDetailsModel> insertInvigilatorsData(
-      InvigilatorsDetailsModel inivigilatorModel) async {
+  Future<AttendanceRecordsModel> insertInvigilatorsData(
+      AttendanceRecordsModel attendanceRecord) async {
     var dbClient = await db;
-    inivigilatorModel.id = await dbClient.insert(
-        ATTENDANCE_RECORDS_TABLE, inivigilatorModel.toMap());
+    attendanceRecord.id = await dbClient.insert(
+        ATTENDANCE_RECORDS_TABLE, attendanceRecord.toMap());
 
-    return inivigilatorModel;
+    return attendanceRecord;
   }
 
   /// insert data into the Teaching Assistant table from CSV file
@@ -214,26 +213,26 @@ class DatabaseService {
   //                      FETCH ALL QUERIES
   // ---------------------------------------------------------------------------------
   // get all attendance records from ATTENDANCE_RECORDS_TABLE
-  Future<List<InvigilatorsDetailsModel>> getAllAttendanceRecords() async {
+  Future<List<AttendanceRecordsModel>> getAllAttendanceRecords() async {
     var dbClient = await db;
 
     List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
         columns: [
           PROFILE_ID,
-          INVIGI_NAME,
+          NAME,
           SESSION,
           CATEGORY,
           DURATION,
           ROOM,
           DATETIME,
-          SIGN_IMAGE
+          SIGN_IMAGE_PATH
         ],
-        orderBy: "$INVIGI_NAME ASC");
+        orderBy: "$NAME ASC");
 
-    List<InvigilatorsDetailsModel> listOfRecords = [];
+    List<AttendanceRecordsModel> listOfRecords = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
-        listOfRecords.add(InvigilatorsDetailsModel.fromMap(maps[i]));
+        listOfRecords.add(AttendanceRecordsModel.fromMap(maps[i]));
       }
     }
 
@@ -390,7 +389,7 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   /// update customer info
   Future<int> updateInivigilator(
-      InvigilatorsDetailsModel inivigilatorModel, int id) async {
+      AttendanceRecordsModel inivigilatorModel, int id) async {
     var dbClient = await db;
 
     return await dbClient.update(
@@ -403,24 +402,17 @@ class DatabaseService {
   // ---------------------------------------------------------------------------------
   /// generate csv file with data from invigilators table
   Future<String> generateCSV() async {
-    List<InvigilatorsDetailsModel> invigilatorsDetails;
+    List<AttendanceRecordsModel> attendanceRecords;
 
     await getAllAttendanceRecords()
-        .then((invigilators) => invigilatorsDetails = invigilators);
+        .then((invigilators) => attendanceRecords = invigilators);
 
-    if (invigilatorsDetails.isEmpty) return null;
-
-    /// signatures parameters declarations ENDS
-    /// final sign = _sign.currentState;
-    /// final image = await sign.getData();
-    /// var data = await image.toByteData(format: ui.ImageByteFormat.png);
-    /// Uint8List _realImage;
-    /// signatures parameters declarations ENDS
+    if (attendanceRecords.isEmpty) return null;
 
     List<List<String>> csvData = [
       <String>[
         "PROFILE ID",
-        "INVIGI_NAME",
+        "NAME",
         "SESSION",
         "CATEGORY",
         "DURATION",
@@ -428,15 +420,15 @@ class DatabaseService {
         "DATE TIME",
         "SIGNATURE"
       ],
-      ...invigilatorsDetails.map((invigilator) => [
-            "${invigilator.id}",
-            invigilator.invigiName,
-            invigilator.session,
-            invigilator.category,
-            invigilator.duration,
-            invigilator.room,
-            invigilator.dateTime,
-            "${Base64Decoder().convert(invigilator.signImage)}"
+      ...attendanceRecords.map((attendantRecord) => [
+            "${attendantRecord.id}",
+            attendantRecord.name,
+            attendantRecord.session,
+            attendantRecord.category,
+            attendantRecord.duration,
+            attendantRecord.room,
+            attendantRecord.dateTime,
+            "${Base64Decoder().convert(attendantRecord.signImagePath)}"
           ])
     ];
 
