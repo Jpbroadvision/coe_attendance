@@ -1,25 +1,29 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:coe_attendance/bloc/attendants_bloc.dart';
 import 'package:coe_attendance/bloc/invigilators_bloc.dart';
 import 'package:coe_attendance/bloc/rooms_bloc.dart';
 import 'package:coe_attendance/bloc/teaching_assistants_bloc.dart';
+import 'package:coe_attendance/components/drawer.dart';
+import 'package:coe_attendance/components/footer.dart';
 import 'package:coe_attendance/components/loading.dart';
+import 'package:coe_attendance/components/toast_message.dart';
 import 'package:coe_attendance/locator.dart';
+import 'package:coe_attendance/models/attendance_records_model.dart';
+import 'package:coe_attendance/models/attendant_model.dart';
 import 'package:coe_attendance/models/available_rooms_model.dart';
 import 'package:coe_attendance/models/inivigilator_model.dart';
 import 'package:coe_attendance/models/teaching_assistant_model.dart';
-import 'package:coe_attendance/service/permission_service.dart';
-import 'package:flutter/material.dart';
-import 'package:coe_attendance/components/teaching_assistant_allocation.dart';
-import 'package:coe_attendance/components/drawer.dart';
-import 'package:coe_attendance/components/footer.dart';
-import 'package:coe_attendance/models/inivigilators_details_model.dart';
 import 'package:coe_attendance/service/database_service.dart';
-import 'dart:convert';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:coe_attendance/service/permission_service.dart';
 
 void main() {
   // setup getIt service locator
@@ -89,11 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _sessions = ['1', '2', '3'];
   String _selectedSession = "1";
 
-  List<AvailableRoomsModel> _availableRooms;
-  String _selectedRoom;
-
-  TextEditingController _nameCtrl;
-
   List<String> _duration = [
     '1:15',
     '1:30',
@@ -106,10 +105,12 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
   String _selectedDuration = "1:15";
 
-  Map<String, List<String>> _allocations;
+  TextEditingController _otherNameCtrl;
 
-  List<InvigilatorsModel> _invigilators;
+  String _selectedRoom;
+  String _selectedAttendant;
   String _selectedInvigilator;
+  TeachingAssistantModel _selectedTA;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -126,34 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     PermissionService.getPermission();
 
-    _nameCtrl = TextEditingController(text: "");
-  }
-
-  buildTACategory() {
-    return Column(
-      children: [
-        Text("Select Teaching Assistant"),
-        // get names per room
-        DropdownButton<String>(
-            onChanged: (value) {
-              setState(() {
-                _selectedInvigilator = value;
-              });
-            },
-            value: _selectedInvigilator,
-            style: TextStyle(
-                fontSize: 20.0,
-                color: Colors.black87,
-                // fontWeight: FontWeight.w200,
-                fontFamily: "Roboto"),
-            items: _allocations[_selectedRoom].map((String dropDownStringItem) {
-              return DropdownMenuItem<String>(
-                value: dropDownStringItem,
-                child: Text(dropDownStringItem),
-              );
-            }).toList()),
-      ],
-    );
+    _otherNameCtrl = TextEditingController(text: "");
   }
 
   @override
@@ -269,6 +243,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               setState(() {
                                 _selectedDuration = value;
                               });
+
+                              BlocProvider.of<TeachingAssistantsBloc>(context)
+                                  .add(GetTeachingAssistants(
+                                      room: _selectedRoom));
                             },
                             value: _selectedDuration,
                             style: TextStyle(
@@ -286,79 +264,26 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 20.0,
                           ),
                           Text("Select Room"),
-                          buildRoomsBlocBuilder(),
+                          _buildRoomsBloc(),
                           SizedBox(
                             height: 20.0,
                           ),
-
-                          buildInvigilatorsBlocBuilder(),
-
-                          /* BlocBuilder<TeachingAssistantsBloc,
-                              TeachingAssistantsState>(
-                            builder: (context, state) {
-                              if (state is TeachingAssistantsInitial) {
-                                BlocProvider.of<TeachingAssistantsBloc>(context)
-                                    .add(GetTeachingAssistants(
-                                        room: _selectedRoom));
-                                return Loading();
-                              } else if (state is TeachingAssistantsLoading) {
-                                return Loading();
-                              } else if (state is TeachingAssistantsLoaded) {
-                                _selectedInvigilator =
-                                    state.teachingAssistants[0];
-
-                                return DropdownButton<String>(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedRoom = value;
-                                    });
-                                  },
-                                  value: _selectedRoom,
-                                  style: TextStyle(
-                                      fontSize: 20.0,
-                                      color: Colors.black87,
-                                      // fontWeight: FontWeight.w200,
-                                      fontFamily: "Roboto"),
-                                  items: state.teachingAssistants
-                                      .map((String dropDownStringItem) {
-                                    return DropdownMenuItem<String>(
-                                      value: dropDownStringItem,
-                                      child: Text(dropDownStringItem),
-                                    );
-                                  }).toList(),
-                                );
-                              } else {
-                                return Loading();
-                              }
-                            },
-                          ), */
-
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          TextField(
-                            controller: _nameCtrl,
-                            style: TextStyle(color: null),
-                            keyboardType: TextInputType.name,
-                            decoration: InputDecoration(
-                              hintText: "Other",
-                              hintStyle:
-                                  Theme.of(context).textTheme.bodyText2.merge(
-                                        TextStyle(color: Colors.black87),
-                                      ), //shape: StadiumBorder(),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      width: 2, color: Colors.black12)),
-                              filled: false,
-                              // fillColor: Theme.of(context).primaryColor,
-                              contentPadding: EdgeInsets.all(12),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      width: 2, color: Colors.yellowAccent)),
-                            ),
-                          ),
+                          if (_selectedCategory == "TAs") ...[
+                            Text("Select Teaching Assistant"),
+                            _buildTABloc()
+                          ],
+                          if (_selectedCategory == "Invigilators") ...[
+                            Text("Select Invigilator"),
+                            _buildInvigilatorsBloc()
+                          ],
+                          if (_selectedCategory == "Others") ...[
+                            Text("Enter name"),
+                            _buildOtherTextField(context),
+                          ],
+                          if (_selectedCategory == "Attendants") ...[
+                            Text("Select Attendant"),
+                            _buildAttendantsBloc(),
+                          ],
                           SizedBox(
                             height: 20.0,
                           ),
@@ -367,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 10.0,
                           ),
                           // SIGNATURE implementations
-                          Column(
+                          Row(
                             children: [
                               Container(
                                 width: 300.0,
@@ -386,30 +311,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 color: Colors.black12,
                               ),
-                              Text(
-                                "clear if you dont like current signature. Cannot be undone after save",
-                                style: TextStyle(
-                                    color: Colors.redAccent, fontSize: 12),
-                                textAlign: TextAlign.center,
-                              ),
-                              Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: MaterialButton(
-                                      color: Colors.redAccent,
-                                      onPressed: () {
-                                        final sign = _sign.currentState;
-                                        sign.clear();
-                                        setState(() {
-                                          _img = ByteData(0);
-                                        });
-                                      },
-                                      child: Text(
-                                        "Clear Signature",
-                                        style: TextStyle(color: Colors.white),
-                                      )),
-                                ),
-                              ),
+                              IconButton(
+                                  icon: Icon(Icons.dangerous,
+                                      color: Colors.red, size: 30),
+                                  onPressed: () {
+                                    final sign = _sign.currentState;
+                                    sign.clear();
+                                    setState(() {
+                                      _img = ByteData(0);
+                                    });
+                                  })
                             ],
                           ),
 
@@ -419,56 +330,51 @@ class _MyHomePageState extends State<MyHomePage> {
                           MaterialButton(
                               color: Colors.blueAccent,
                               onPressed: () async {
-                                //Signature image saving
-                                final sign = _sign.currentState;
-                                //retrieve image data, do whatever you want with it (send to server, save locally...)
-                                final image = await sign.getData();
-
-                                var data = await image.toByteData(
-                                    format: ui.ImageByteFormat.png);
-                                // final byteInts = data.buffer.asUint8List().toList();
-                                // _save(data);
-                                sign.clear();
-                                final encoded =
-                                    base64.encode(data.buffer.asUint8List());
-                                setState(() {
-                                  _img = data;
-                                });
-                                debugPrint("This is the encoded " + encoded);
-                                //Signature image saving ENDS
+                                String signImagePath = await _getImagePath();
+                                print("sign image path: $signImagePath");
 
                                 String dateTime = DateTime.now().toString();
 
+                                String invigilator;
+                                switch (_selectedCategory) {
+                                  case "TAs":
+                                    invigilator = _selectedTA.taName;
+                                    break;
+                                  case "Invigilators":
+                                    invigilator = _selectedInvigilator;
+                                    break;
+                                  case "Attendants":
+                                    invigilator = _selectedAttendant;
+                                    break;
+                                  case "Others":
+                                    invigilator = _otherNameCtrl.text;
+                                    break;
+                                }
+
                                 // set Invigilators details to be save
-                                InvigilatorsDetailsModel invigilatorsDetails =
-                                    InvigilatorsDetailsModel(
-                                        invigiName: _nameCtrl.text,
+                                AttendanceRecordsModel attendanceRecords =
+                                    AttendanceRecordsModel(
+                                        name: invigilator,
                                         session: _selectedSession,
                                         category: _selectedCategory,
                                         duration: _selectedDuration,
                                         room: _selectedRoom,
                                         dateTime: dateTime,
-                                        signImage: encoded);
+                                        signImagePath: signImagePath);
+
                                 // save details to database
                                 try {
-                                  _databaseService.insertInvigilatorsData(
-                                      invigilatorsDetails);
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    content: Text(
-                                        "Error occured while saving data."),
-                                  ));
-                                }
+                                  await _databaseService.insertInvigilatorsData(
+                                      attendanceRecords);
 
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  backgroundColor: Colors.green,
-                                  content: Text(
-                                    "Successfully saved data.",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ));
+                                  toastMessage(
+                                      context, "Successfully saved data.");
+                                } catch (e) {
+                                  toastMessage(
+                                      context,
+                                      "Error occured while saving data.",
+                                      Colors.red);
+                                }
                               },
                               child: Text("SAVE DETAILS",
                                   style: TextStyle(color: Colors.white))),
@@ -483,41 +389,91 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
-  BlocConsumer<InvigilatorsBloc, InvigilatorsState>
-      buildInvigilatorsBlocBuilder() {
-    return BlocConsumer<InvigilatorsBloc, InvigilatorsState>(
+  _getImagePath() async {
+    //Signature image saving
+    final sign = _sign.currentState;
+    //retrieve image data, do whatever you want with it (send to server, save locally...)
+    final image = await sign.getData();
+
+    sign.clear();
+
+    String reportDate = DateTime.now().toString();
+
+    final String dirPath = (await getExternalStorageDirectory()).path;
+    final String filePath = "$dirPath/sign-image-$reportDate.png";
+
+    var data = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    /// create file
+    final File file = File(filePath);
+
+    /// save image file
+    await file.writeAsBytes(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+
+    return filePath;
+  }
+
+  TextField _buildOtherTextField(BuildContext context) {
+    return TextField(
+      controller: _otherNameCtrl,
+      style: TextStyle(color: null),
+      keyboardType: TextInputType.name,
+      decoration: InputDecoration(
+        hintText: "Other",
+        hintStyle: Theme.of(context).textTheme.bodyText2.merge(
+              TextStyle(color: Colors.black87),
+            ), //shape: StadiumBorder(),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(width: 2, color: Colors.black12)),
+        filled: false,
+        // fillColor: Theme.of(context).primaryColor,
+        contentPadding: EdgeInsets.all(12),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(width: 2, color: Colors.yellowAccent)),
+      ),
+    );
+  }
+
+  BlocConsumer<TeachingAssistantsBloc, TeachingAssistantsState> _buildTABloc() {
+    return BlocConsumer<TeachingAssistantsBloc, TeachingAssistantsState>(
       listener: (context, state) {
-        print(state);
+        if (state is TeachingAssistantsLoaded) {
+          _selectedTA = state.teachingAssistants == null
+              ? TeachingAssistantModel()
+              : state.teachingAssistants[0];
+        }
       },
       builder: (context, state) {
-        if (state is InvigilatorsInitial) {
-          BlocProvider.of<InvigilatorsBloc>(context).add(GetInvigilators());
+        if (state is TeachingAssistantsInitial) {
+          BlocProvider.of<TeachingAssistantsBloc>(context)
+              .add(GetTeachingAssistants(room: _selectedRoom ?? ""));
           return Loading();
-        } else if (state is InvigilatorsLoading) {
+        } else if (state is TeachingAssistantsLoading) {
           return Loading();
-        } else if (state is InvigilatorsLoaded) {
-          _selectedInvigilator = state.invigilators[0].invigiName;
-
-          return DropdownButton<String>(
+        } else if (state is TeachingAssistantsLoaded) {
+          return DropdownButton<TeachingAssistantModel>(
             onChanged: (value) {
               setState(() {
-                _selectedInvigilator = value;
+                _selectedTA = value;
               });
-              print(_selectedInvigilator);
             },
-            value: _selectedInvigilator,
+            value: _selectedTA,
             style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.black87,
                 // fontWeight: FontWeight.w200,
                 fontFamily: "Roboto"),
-            items:
-                state.invigilators.map((InvigilatorsModel dropDownStringItem) {
-              return DropdownMenuItem<String>(
-                value: dropDownStringItem.invigiName,
-                child: Text(dropDownStringItem.invigiName),
-              );
-            }).toList(),
+            items: state.teachingAssistants
+                    ?.map((TeachingAssistantModel teachingAssistant) {
+                  return DropdownMenuItem<TeachingAssistantModel>(
+                    value: teachingAssistant,
+                    child: Text(teachingAssistant.taName),
+                  );
+                })?.toList() ??
+                [],
           );
         } else {
           return Loading();
@@ -526,8 +482,61 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  BlocBuilder<RoomsBloc, RoomsState> buildRoomsBlocBuilder() {
-    return BlocBuilder<RoomsBloc, RoomsState>(
+  BlocConsumer<InvigilatorsBloc, InvigilatorsState> _buildInvigilatorsBloc() {
+    return BlocConsumer<InvigilatorsBloc, InvigilatorsState>(
+      listener: (context, state) {
+        if (state is InvigilatorsLoaded) {
+          _selectedInvigilator = state.invigilators == null
+              ? ""
+              : state.invigilators[0].invigiName;
+        }
+      },
+      builder: (context, state) {
+        if (state is InvigilatorsInitial) {
+          BlocProvider.of<InvigilatorsBloc>(context).add(GetInvigilators());
+          return Loading();
+        } else if (state is InvigilatorsLoading) {
+          return Loading();
+        } else if (state is InvigilatorsLoaded) {
+          return DropdownButton<String>(
+            onChanged: (value) {
+              setState(() {
+                _selectedInvigilator = value;
+              });
+            },
+            value: _selectedInvigilator,
+            style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.black87,
+                // fontWeight: FontWeight.w200,
+                fontFamily: "Roboto"),
+            items: state.invigilators?.map((InvigilatorsModel invigilator) {
+                  return DropdownMenuItem<String>(
+                    value: invigilator.invigiName,
+                    child: Text(invigilator.invigiName),
+                  );
+                })?.toList() ??
+                [],
+          );
+        } else {
+          return Loading();
+        }
+      },
+    );
+  }
+
+  BlocConsumer<RoomsBloc, RoomsState> _buildRoomsBloc() {
+    return BlocConsumer<RoomsBloc, RoomsState>(
+      listener: (context, state) {
+        if (state is RoomsLoaded) {
+          _selectedRoom =
+              state.rooms.isEmpty ? "" : state.rooms[0]?.roomAllocations;
+
+          // get TAs with the selected room
+          BlocProvider.of<TeachingAssistantsBloc>(context)
+              .add(GetTeachingAssistants(room: _selectedRoom));
+        }
+      },
       builder: (context, state) {
         if (state is RoomsInitial) {
           BlocProvider.of<RoomsBloc>(context).add(GetRooms());
@@ -535,8 +544,6 @@ class _MyHomePageState extends State<MyHomePage> {
         } else if (state is RoomsLoading) {
           return Loading();
         } else if (state is RoomsLoaded) {
-          _selectedRoom = state.rooms[0].roomAllocations;
-
           return DropdownButton<String>(
             onChanged: (value) {
               setState(() {
@@ -552,10 +559,52 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.black87,
                 // fontWeight: FontWeight.w200,
                 fontFamily: "Roboto"),
-            items: state.rooms.map((AvailableRoomsModel dropDownStringItem) {
+            items: state.rooms?.map((AvailableRoomsModel room) {
+                  return DropdownMenuItem<String>(
+                    value: room.roomAllocations,
+                    child: Text(room.roomAllocations),
+                  );
+                })?.toList() ??
+                [],
+          );
+        } else {
+          return Loading();
+        }
+      },
+    );
+  }
+
+  BlocConsumer<AttendantsBloc, AttendantsState> _buildAttendantsBloc() {
+    return BlocConsumer<AttendantsBloc, AttendantsState>(
+      listener: (context, state) {
+        if (state is AttendantsLoaded) {
+          _selectedAttendant =
+              state.attendants == null ? "" : state.attendants[0].attName;
+        }
+      },
+      builder: (context, state) {
+        if (state is AttendantsInitial) {
+          BlocProvider.of<AttendantsBloc>(context).add(GetAttendants());
+          return Loading();
+        } else if (state is AttendantsLoading) {
+          return Loading();
+        } else if (state is AttendantsLoaded) {
+          return DropdownButton<String>(
+            onChanged: (value) {
+              setState(() {
+                _selectedAttendant = value;
+              });
+
+              BlocProvider.of<TeachingAssistantsBloc>(context)
+                  .add(GetTeachingAssistants(room: _selectedAttendant));
+            },
+            value: _selectedAttendant,
+            style: TextStyle(
+                fontSize: 20.0, color: Colors.black87, fontFamily: "Roboto"),
+            items: state.attendants.map((AttendantModel attendant) {
               return DropdownMenuItem<String>(
-                value: dropDownStringItem.roomAllocations,
-                child: Text(dropDownStringItem.roomAllocations),
+                value: attendant.attName,
+                child: Text(attendant.attName),
               );
             }).toList(),
           );
@@ -565,37 +614,4 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
-
-  // void ponButtonPressed() {}
-
-  // Future<void> callSignatureDialog(BuildContext context) {
-  //   print("sAVE IS clicked");
-
-  //   return showDialog(
-  //       context: context,
-  //       builder: (context) {
-  //         // bool isChecked = false;
-  //         return StatefulBuilder(builder: (context, setState) {
-  //           return AlertDialog(
-  //             content: SignatureScreen(),
-  //             title: Text(
-  //               'Kindly Sign And Save',
-  //               textAlign: TextAlign.center,
-  //               style: TextStyle(fontSize: 20.0),
-  //             ),
-  //             actions: <Widget>[
-  //               InkWell(
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.all(8.0),
-  //                   child: Text('OK   '),
-  //                 ),
-  //                 onTap: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         });
-  //       });
-  // }
 }
