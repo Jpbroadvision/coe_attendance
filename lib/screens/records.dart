@@ -1,6 +1,8 @@
 import 'package:coe_attendance/components/invigilator_card.dart';
+import 'package:coe_attendance/components/loading.dart';
 import 'package:coe_attendance/components/toast_message.dart';
-import 'package:coe_attendance/models/inivigilators_details_model.dart';
+import 'package:coe_attendance/locator.dart';
+import 'package:coe_attendance/models/attendance_records_model.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/components/drawer.dart';
 import 'package:coe_attendance/service/database_service.dart';
@@ -12,8 +14,9 @@ class Records extends StatefulWidget {
 }
 
 class _RecordsState extends State<Records> {
-  DatabaseService databaseService;
-  Future<List<InvigilatorsDetailsModel>> _invigilatorsDetails;
+    final DatabaseService _databaseService = locator<DatabaseService>();
+
+  Future<List<AttendanceRecordsModel>> _attendanceRecords;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -21,42 +24,40 @@ class _RecordsState extends State<Records> {
   void initState() {
     super.initState();
 
-    databaseService = DatabaseService();
-
     getListOfInvigilators();
   }
 
   listInvigilators() {
     return FutureBuilder(
-      future: _invigilatorsDetails,
+      future: _attendanceRecords,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return buildInvigilatorsCard(snapshot.data);
         }
 
-        return Container(child: CircularProgressIndicator());
+        return Loading();
       },
     );
   }
 
-  Column buildInvigilatorsCard(List<InvigilatorsDetailsModel> invigilators) {
+  Column buildInvigilatorsCard(List<AttendanceRecordsModel> attendanceRecords) {
     return Column(
-        children: invigilators
-            .map((invigilator) => InvigilatorCard(
-                  invigilatorsDetails: invigilator,
-                  deleteFunction: removeInvigilator,
+        children: attendanceRecords
+            .map((attendanceRecord) => InvigilatorCard(
+                  attendanceRecord: attendanceRecord,
+                  deleteFunction: removeAttendanceRecord,
                 ))
             .toList());
   }
 
   getListOfInvigilators() {
     setState(() {
-      _invigilatorsDetails = databaseService.getAllAttendanceRecords();
+      _attendanceRecords = _databaseService.getAllAttendanceRecords();
     });
   }
 
-  removeInvigilator(id) {
-    databaseService.deleteInivigilator(id);
+  removeAttendanceRecord(id) {
+    _databaseService.deleteInivigilator(id);
     // refresh list of invigilators
     getListOfInvigilators();
     toastMessage(_scaffoldKey.currentContext, "Delete successful");
@@ -88,7 +89,7 @@ class _RecordsState extends State<Records> {
               color: Colors.white,
             ),
             onPressed: () async {
-              String path = await databaseService.generateCSV();
+              String path = await _databaseService.generateCSV();
 
               String message = "Failed to generate CSV file";
 
