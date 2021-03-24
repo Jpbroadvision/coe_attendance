@@ -359,8 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         category: _selectedCategory,
                                         duration: _selectedDuration,
                                         room: _selectedRoom,
-                                        dateTime: dateTime,
-                                        signImagePath: signImagePath);
+                                        dateTime: dateTime,);
 
                                 // save details to database
                                 try {
