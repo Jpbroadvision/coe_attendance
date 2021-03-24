@@ -1,13 +1,17 @@
+import 'dart:typed_data';
+
 import 'package:coe_attendance/components/toast_message.dart';
-import 'package:coe_attendance/import_attendance.dart';
+import 'package:coe_attendance/screens/import_attendance.dart';
+import 'package:coe_attendance/locator.dart';
 import 'package:coe_attendance/service/database_service.dart';
+import 'package:coe_attendance/utils/pdf_document.dart';
 import 'package:flutter/material.dart';
 import 'package:coe_attendance/main.dart';
-import 'package:coe_attendance/records.dart';
+import 'package:coe_attendance/screens/records.dart';
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
-  final DatabaseService databaseService = DatabaseService();
+  final DatabaseService _databaseService = locator<DatabaseService>();
 
   CustomDrawer(this.scaffoldKey);
 
@@ -36,7 +40,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export to CSV"),
             onTap: () async {
-              String path = await databaseService.generateCSV();
+              String path = await _databaseService.generateCSV();
 
               String message = "Failed to generate CSV file";
 
@@ -46,6 +50,13 @@ class CustomDrawer extends StatelessWidget {
                 message = "File saved at $path";
                 toastMessage(scaffoldKey.currentContext, message);
               }
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.file_download),
+            title: Text("Export PDF"),
+            onTap: () async {
+              await generatePDF();
             },
           ),
           ListTile(
