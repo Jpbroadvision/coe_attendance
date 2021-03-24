@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -12,9 +13,11 @@ import 'package:coe_attendance/service/database_service.dart';
 Future<Uint8List> generatePDF() async {
   final doc = pw.Document(pageMode: PdfPageMode.outlines);
   final DatabaseService databaseService = locator<DatabaseService>();
-
+  var dateTimeNow = DateTime.now().year;
+  var dateTimeLastYear = (dateTimeNow - 1);
   List<AttendanceRecordsModel> attendanceRecords;
-
+//Change the page orientation to landscape
+  
   await databaseService
       .getAllAttendanceRecords()
       .then((invigilators) => attendanceRecords = invigilators);
@@ -58,16 +61,17 @@ Future<Uint8List> generatePDF() async {
                   child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: <pw.Widget>[
-                        pw.Text('Portable Document Format', textScaleFactor: 2),
-                        pw.PdfLogo()
+                        pw.Text(
+                            'CoE Attendance Records For ${dateTimeLastYear.toString()}/${dateTimeNow.toString()} Academic Year',
+                            textScaleFactor: 2),
+                        // pw.PdfLogo()
                       ])),
               pw.Table(children: [
                 pw.TableRow(
                   children: [
-                    pw.Text("ID"),
+                    pw.Text("ID #"),
                     pw.Text("NAME"),
                     pw.Text("SESSION"),
-                    pw.Text("CATEGORY"),
                     pw.Text("DURATION"),
                     pw.Text("ROOM"),
                     pw.Text("DATE TIME"),
@@ -83,7 +87,6 @@ Future<Uint8List> generatePDF() async {
                     pw.Text("${attendantRecord.id}"),
                     pw.Text(attendantRecord.name),
                     pw.Text(attendantRecord.session),
-                    pw.Text(attendantRecord.category),
                     pw.Text(attendantRecord.duration),
                     pw.Text(attendantRecord.room),
                     pw.Text(attendantRecord.dateTime),
@@ -92,7 +95,7 @@ Future<Uint8List> generatePDF() async {
                 })
               ]),
               pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Paragraph(text: 'Developed by JPbroadvision.')
+              pw.Paragraph(text: 'CoE Office, @ JPbroadvision.')
             ]),
   );
 
