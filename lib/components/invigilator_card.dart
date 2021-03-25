@@ -77,12 +77,18 @@ class InvigilatorCard extends StatelessWidget {
       children: <Widget>[
         Row(
           children: [
-            ClipOval(
-              child: Image.file(
-                File(attendanceRecord.signImagePath), //assets/user-profile.png
-                height: 50,
-                width: 50,
-                fit: BoxFit.cover,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+              child: ClipOval(
+                child: Material(
+                  shadowColor: Colors.grey.withOpacity(0.5),
+                  child: Image.file(
+                    File(attendanceRecord.signImagePath),
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
             Column(
@@ -90,11 +96,13 @@ class InvigilatorCard extends StatelessWidget {
               children: [
                 Text(
                   attendanceRecord.name,
-                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.clip,
+                  maxLines: 1,
+                  style: TextStyle(fontSize: 12),
                 ),
                 Text(
                   '${attendanceRecord.category}',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                 )
               ],
             ),
