@@ -202,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             },
                             value: _selectedCategory,
                             style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 15.0,
                                 color: Colors.black87,
                                 fontFamily: "Roboto"),
                             items: _categories.map((String dropDownStringItem) {
@@ -224,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             },
                             value: _selectedSession,
                             style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 15.0,
                                 color: Colors.black87,
                                 fontFamily: "Roboto"),
                             items: _sessions.map((String dropDownStringItem) {
@@ -250,7 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             },
                             value: _selectedDuration,
                             style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 15.0,
                                 color: Colors.black87,
                                 fontFamily: "Roboto"),
                             items: _duration.map((String dropDownStringItem) {
@@ -292,10 +292,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 10.0,
                           ),
                           // SIGNATURE implementations
-                          Row(
+                          Wrap(
                             children: [
                               Container(
-                                width: 300.0,
+                                width: 270.0,
                                 height: 50.0,
                                 child: Signature(
                                   color: color,
@@ -333,7 +333,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 String signImagePath = await _getImagePath();
                                 print("sign image path: $signImagePath");
 
-                                String dateTime = DateTime.now().toString();
+                                String dateTime =
+                                    DateTime.now().toString().split(".")[0];
 
                                 String invigilator;
                                 switch (_selectedCategory) {
@@ -462,7 +463,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             value: _selectedTA,
             style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 15.0,
                 color: Colors.black87,
                 // fontWeight: FontWeight.w200,
                 fontFamily: "Roboto"),
@@ -506,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             value: _selectedInvigilator,
             style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 15.0,
                 color: Colors.black87,
                 // fontWeight: FontWeight.w200,
                 fontFamily: "Roboto"),
@@ -555,7 +556,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             value: _selectedRoom,
             style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 15.0,
                 color: Colors.black87,
                 // fontWeight: FontWeight.w200,
                 fontFamily: "Roboto"),
@@ -600,7 +601,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             value: _selectedAttendant,
             style: TextStyle(
-                fontSize: 20.0, color: Colors.black87, fontFamily: "Roboto"),
+                fontSize: 15.0, color: Colors.black87, fontFamily: "Roboto"),
             items: state.attendants.map((AttendantModel attendant) {
               return DropdownMenuItem<String>(
                 value: attendant.attName,
