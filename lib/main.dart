@@ -331,7 +331,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.blueAccent,
                               onPressed: () async {
                                 String signImagePath = await _getImagePath();
-                                print("sign image path: $signImagePath");
 
                                 String dateTime =
                                     DateTime.now().toString().split(".")[0];
@@ -352,6 +351,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                     break;
                                 }
 
+                                if (_selectedRoom.isEmpty ||
+                                    invigilator.isEmpty) {
+                                  toastMessage(
+                                      context, "Import CSV data.", Colors.red);
+                                  return;
+                                }
+
                                 // set Invigilators details to be save
                                 AttendanceRecordsModel attendanceRecords =
                                     AttendanceRecordsModel(
@@ -360,7 +366,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         category: _selectedCategory,
                                         duration: _selectedDuration,
                                         room: _selectedRoom,
-                                        dateTime: dateTime,);
+                                        dateTime: dateTime,
+                                        signImagePath: signImagePath);
 
                                 // save details to database
                                 try {
