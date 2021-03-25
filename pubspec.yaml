@@ -46,6 +46,7 @@ dependencies:
   flutter_bloc: ^7.0.0
   get_it: ^6.0.0
   pdf: ^3.1.0
+  flash: ^1.5.1
 
 dev_dependencies:
   flutter_test:
