@@ -14,7 +14,7 @@ class Records extends StatefulWidget {
 }
 
 class _RecordsState extends State<Records> {
-    final DatabaseService _databaseService = locator<DatabaseService>();
+  final DatabaseService _databaseService = locator<DatabaseService>();
 
   Future<List<AttendanceRecordsModel>> _attendanceRecords;
 
@@ -41,6 +41,9 @@ class _RecordsState extends State<Records> {
   }
 
   Column buildInvigilatorsCard(List<AttendanceRecordsModel> attendanceRecords) {
+    if (attendanceRecords.isEmpty)
+      return Column(children: [Text("No record saved.")]);
+
     return Column(
         children: attendanceRecords
             .map((attendanceRecord) => InvigilatorCard(
