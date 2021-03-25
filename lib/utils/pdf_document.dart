@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -17,7 +16,7 @@ Future<Uint8List> generatePDF() async {
   var dateTimeLastYear = (dateTimeNow - 1);
   List<AttendanceRecordsModel> attendanceRecords;
 //Change the page orientation to landscape
-  
+
   await databaseService
       .getAllAttendanceRecords()
       .then((invigilators) => attendanceRecords = invigilators);
@@ -61,41 +60,88 @@ Future<Uint8List> generatePDF() async {
                   child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: <pw.Widget>[
+                        pw.Text('CoE Examination Attendance', textScaleFactor: 1.2),
                         pw.Text(
-                            'CoE Attendance Records For ${dateTimeLastYear.toString()}/${dateTimeNow.toString()} Academic Year',
-                            textScaleFactor: 2),
-                        // pw.PdfLogo()
+                          '${dateTimeLastYear.toString()}/${dateTimeNow.toString()} Academic Year',
+                        ),
                       ])),
-              pw.Table(children: [
-                pw.TableRow(
+              pw.Table(
+                  defaultColumnWidth: pw.IntrinsicColumnWidth(flex: 10.0),
+                  border: pw.TableBorder.all(width: 1),
                   children: [
-                    pw.Text("ID #"),
-                    pw.Text("NAME"),
-                    pw.Text("SESSION"),
-                    pw.Text("DURATION"),
-                    pw.Text("ROOM"),
-                    pw.Text("DATE TIME"),
-                    pw.Text("SIGNATURE")
-                  ],
-                ),
-                ...attendanceRecords.map((attendantRecord) {
-                  final File file = File(attendantRecord.signImagePath);
+                    pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("NAME"),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("SESSION"),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("DURATION"),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("ROOM"),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("DATE/TIME"),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text("SIGNATURE"),
+                        ),
+                      ],
+                    ),
+                    ...attendanceRecords.map((attendantRecord) {
+                      final File file = File(attendantRecord.signImagePath);
 
-                  var data = file.readAsBytesSync();
+                      var data = file.readAsBytesSync();
 
-                  return pw.TableRow(children: [
-                    pw.Text("${attendantRecord.id}"),
-                    pw.Text(attendantRecord.name),
-                    pw.Text(attendantRecord.session),
-                    pw.Text(attendantRecord.duration),
-                    pw.Text(attendantRecord.room),
-                    pw.Text(attendantRecord.dateTime),
-                    pw.Image(pw.MemoryImage(data.buffer.asUint8List()))
-                  ]);
-                })
-              ]),
+                      return pw.TableRow(children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(attendantRecord.name,
+                              style: pw.TextStyle(fontSize: 10.0)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(attendantRecord.session,
+                              style: pw.TextStyle(fontSize: 10.0)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(attendantRecord.duration,
+                              style: pw.TextStyle(fontSize: 10.0)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(attendantRecord.room,
+                              style: pw.TextStyle(fontSize: 10.0)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(attendantRecord.dateTime,
+                              style: pw.TextStyle(fontSize: 10.0)),
+                        ),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(2),
+                            child: pw.Image(
+                                pw.MemoryImage(data.buffer.asUint8List()))),
+                      ]);
+                    })
+                  ]),
               pw.Padding(padding: const pw.EdgeInsets.all(10)),
-              pw.Paragraph(text: 'CoE Office, @ JPbroadvision.')
+              pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.end,
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Paragraph(text: 'CoE Exams Office, created by JPbroadvision.')
+                  ])
             ]),
   );
 
