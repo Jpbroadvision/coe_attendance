@@ -36,11 +36,27 @@ class CustomDrawer extends StatelessWidget {
                   context, MaterialPageRoute(builder: (_) => Records()));
             },
           ),
+           ListTile(
+            leading: Icon(Icons.file_download),
+            title: Text("Export Today's Entries"),
+            onTap: () async {
+              String path = await _databaseService.generateCSVPerDay();
+
+              String message = "Failed to export your daily entries";
+
+              if (path == null)
+                toastMessage(scaffoldKey.currentContext, message, Colors.red);
+              else {
+                message = "File saved at $path";
+                toastMessage(scaffoldKey.currentContext, message);
+              }
+            },
+          ),
           ListTile(
             leading: Icon(Icons.file_download),
-            title: Text("Export to CSV"),
+            title: Text("Export All to CSV"),
             onTap: () async {
-              String path = await _databaseService.generateCSV();
+              String path = await _databaseService.generateCSV();//generateCSVPerDay
 
               String message = "Failed to generate CSV file";
 
