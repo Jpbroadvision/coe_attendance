@@ -51,6 +51,10 @@ class DatabaseService {
   // Attendants Table fields
   static const String ATT_NAME = 'attName';
 
+  //getting todays date
+  String dateTime = DateTime.now().toString().split(".")[0];
+  
+
   /// get database
   Future<Database> get db async {
     if (_db != null) {
@@ -313,7 +317,7 @@ class DatabaseService {
   /// ---------------------------------------------------------------------------------
   ///                      FETCH ONE QUERIES
   /// ---------------------------------------------------------------------------------
-  /// get a INIVIGILATORS names from INVIGILATORS_TABLE
+  /// get a INIVIGILATORS names from INVIGILFATORS_TABLE
   Future<List<InvigilatorsModel>> getInvigilatorNames() async {
     var dbClient = await db;
 
@@ -372,6 +376,31 @@ class DatabaseService {
 
     return listOfTasNames;
   }
+  // get data per day
+  Future<List<AttendanceRecordsModel>> getInigilatorsPerDay() async {
+    var dbClient = await db;
+    String todaysDate = dateTime.split(" ")[0];
+    List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
+        columns: [
+          PROFILE_ID,
+          NAME,
+          SESSION,
+          CATEGORY,
+          DURATION,
+          ROOM,
+          DATETIME
+        ],where: '${DATETIME.split(".")[0].split(" ")[0]} = ?',
+        whereArgs: [todaysDate], orderBy: "$NAME ASC");
+
+    List<AttendanceRecordsModel> listOfTodaysRecords = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfTodaysRecords.add(AttendanceRecordsModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfTodaysRecords;
+  }
 
   // ---------------------------------------------------------------------------------
   //                      DELETE QUERIES
@@ -400,7 +429,7 @@ class DatabaseService {
   // --------------------------------------------------------------------------------
   //                      EXPORT DATABASE INVIGILATORS DATA
   // ---------------------------------------------------------------------------------
-  /// generate csv file with data from invigilators table
+  /// generate csv file with ALL data from invigilators table
   Future<String> generateCSV() async {
     List<AttendanceRecordsModel> attendanceRecords;
 
@@ -445,7 +474,52 @@ class DatabaseService {
 
     return filePath;
   }
+  /// generate csv file with PER DAY data from invigilators table
+//////////////////////////////////////////////////////////////////
+  Future<String> generateCSVPerDay() async {
+    List<AttendanceRecordsModel> attendanceRecords;
 
+    await getInigilatorsPerDay()
+        .then((invigilators) => attendanceRecords = invigilators);
+
+    if (attendanceRecords.isEmpty) return null;
+
+    List<List<String>> csvData = [
+      <String>[
+        "ID #",
+        "NAME",
+        "SESSION",
+        "CATEGORY",
+        "DURATION",
+        "ROOM",
+        "DATE TIME"
+      ],
+      ...attendanceRecords.map((attendantRecord) => [
+            "${attendantRecord.id}",
+            attendantRecord.name,
+            attendantRecord.session,
+            attendantRecord.category,
+            attendantRecord.duration,
+            attendantRecord.room,
+            attendantRecord.dateTime
+          ])
+    ];
+
+    String csv = const ListToCsvConverter().convert(csvData);
+
+    String reportDate = DateTime.now().toString();
+
+    final String dirPath = (await getExternalStorageDirectory()).path;
+    final String filePath = "$dirPath/invigilators-today-$reportDate.csv";
+
+    /// create file
+    final File file = File(filePath);
+
+    /// save csv file
+    await file.writeAsString(csv);
+
+    return filePath;
+  }
   // ---------------------------------------------------------------------------------
   //                      FINALLY CLOSE DATABASE
   // ---------------------------------------------------------------------------------
