@@ -296,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               Container(
                                 width: 270.0,
-                                height: 50.0,
+                                height: 100.0,
                                 child: Signature(
                                   color: color,
                                   key: _sign,
