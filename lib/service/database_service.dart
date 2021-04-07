@@ -53,7 +53,6 @@ class DatabaseService {
 
   //getting todays date
   String dateTime = DateTime.now().toString().split(".")[0];
-  
 
   /// get database
   Future<Database> get db async {
@@ -376,6 +375,7 @@ class DatabaseService {
 
     return listOfTasNames;
   }
+
   // get data per day
   Future<List<AttendanceRecordsModel>> getInigilatorsPerDay() async {
     var dbClient = await db;
@@ -389,9 +389,11 @@ class DatabaseService {
           DURATION,
           ROOM,
           DATETIME
-        ],where: '${DATETIME.split(".")[0].split(" ")[0]} = ?',
-        whereArgs: [todaysDate], orderBy: "$NAME ASC");
-
+        ],
+        where: '${DATETIME.split(".")[0].split(" ")[0]} = ?',
+        whereArgs: [todaysDate],
+        orderBy: "$NAME ASC");
+    // print("");
     List<AttendanceRecordsModel> listOfTodaysRecords = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
@@ -474,6 +476,7 @@ class DatabaseService {
 
     return filePath;
   }
+
   /// generate csv file with PER DAY data from invigilators table
 //////////////////////////////////////////////////////////////////
   Future<String> generateCSVPerDay() async {
@@ -520,6 +523,7 @@ class DatabaseService {
 
     return filePath;
   }
+
   // ---------------------------------------------------------------------------------
   //                      FINALLY CLOSE DATABASE
   // ---------------------------------------------------------------------------------
