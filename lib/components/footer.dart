@@ -15,7 +15,7 @@ class Footer extends StatelessWidget {
             padding: const EdgeInsets.all(4.0),
             child: Container(
               child: Text(
-                '${DateTime.now().year} @ College of Engineering, Exams Office - KNUST',
+                '${DateTime.now().year}(c)  College of Engineering, Exams Office - KNUST',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12.0),
               ),
