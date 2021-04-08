@@ -151,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
           key: _scaffoldKey,
           drawer: CustomDrawer(_scaffoldKey),
           appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Color.fromRGBO(253,192,41,1.0),
             leading: IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () {
@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
             centerTitle: true,
             title: Text('CoE INVIGILTORS ATTENDANCE',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: Colors.white,fontSize: 18.0)),
           ),
           body: SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -328,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 10.0,
                           ),
                           MaterialButton(
-                              color: Colors.blueAccent,
+                              color: Color.fromRGBO(253,192,41,1.0),
                               onPressed: () async {
                                 String signImagePath = await _getImagePath();
 
