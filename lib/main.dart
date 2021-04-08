@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // signatures parameters declarations
   ByteData _img = ByteData(0);
   var color = Colors.black;
-  var strokeWidth = 1.0;
+  var strokeWidth = 3.0;
   final _sign = GlobalKey<SignatureState>();
   // signatures parameters declarations ENDS
 
@@ -295,8 +295,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             Wrap(
                               children: [
                                 Container(
-                                  width: 270.0,
-                                  height: 100.0,
+                                  // width: 270.0,
+                                  height: 300.0,
                                   child: Signature(
                                     color: color,
                                     key: _sign,

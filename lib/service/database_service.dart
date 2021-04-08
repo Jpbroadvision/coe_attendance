@@ -393,7 +393,6 @@ class DatabaseService {
         where: '${DATETIME.split(".")[0].split(" ")[0]} = ?',
         whereArgs: [todaysDate],
         orderBy: "$NAME ASC");
-    // print("");
     List<AttendanceRecordsModel> listOfTodaysRecords = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
@@ -482,10 +481,16 @@ class DatabaseService {
   Future<String> generateCSVPerDay() async {
     List<AttendanceRecordsModel> attendanceRecords;
 
-    await getInigilatorsPerDay()
+    await getAllAttendanceRecords()
         .then((invigilators) => attendanceRecords = invigilators);
 
     if (attendanceRecords.isEmpty) return null;
+
+    String reportDate = DateTime.now().toString().split(" ")[0];
+
+    List<AttendanceRecordsModel> filterByDay = attendanceRecords.where(
+        (attendanceRecord) =>
+            attendanceRecord.dateTime.split(" ")[0] == reportDate).toList(); 
 
     List<List<String>> csvData = [
       <String>[
@@ -497,7 +502,7 @@ class DatabaseService {
         "ROOM",
         "DATE TIME"
       ],
-      ...attendanceRecords.map((attendantRecord) => [
+      ...filterByDay.map((attendantRecord) => [
             "${attendantRecord.id}",
             attendantRecord.name,
             attendantRecord.session,
@@ -509,8 +514,6 @@ class DatabaseService {
     ];
 
     String csv = const ListToCsvConverter().convert(csvData);
-
-    String reportDate = DateTime.now().toString();
 
     final String dirPath = (await getExternalStorageDirectory()).path;
     final String filePath = "$dirPath/invigilators-today-$reportDate.csv";
