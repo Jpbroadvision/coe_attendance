@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // signatures parameters declarations
   ByteData _img = ByteData(0);
   var color = Colors.black;
-  var strokeWidth = 1.0;
+  var strokeWidth = 3.0;
   final _sign = GlobalKey<SignatureState>();
   // signatures parameters declarations ENDS
 
@@ -151,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
           key: _scaffoldKey,
           drawer: CustomDrawer(_scaffoldKey),
           appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Color.fromRGBO(253,192,41,1.0),
             leading: IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () {
@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
             centerTitle: true,
             title: Text('CoE INVIGILTORS ATTENDANCE',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: Colors.white,fontSize: 18.0)),
           ),
           body: SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -186,149 +186,149 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Text("Select Category"),
-                          DropdownButton<String>(
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value;
-                              });
-                            },
-                            value: _selectedCategory,
-                            style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.black87,
-                                fontFamily: "Roboto"),
-                            items: _categories.map((String dropDownStringItem) {
-                              return DropdownMenuItem<String>(
-                                value: dropDownStringItem,
-                                child: Text(dropDownStringItem),
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Text("Select Session"),
-                          DropdownButton<String>(
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedSession = value;
-                              });
-                            },
-                            value: _selectedSession,
-                            style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.black87,
-                                fontFamily: "Roboto"),
-                            items: _sessions.map((String dropDownStringItem) {
-                              return DropdownMenuItem<String>(
-                                value: dropDownStringItem,
-                                child: Text(dropDownStringItem),
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Text("Select Duration"),
-                          DropdownButton<String>(
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDuration = value;
-                              });
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: <Widget>[
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Text("Select Category"),
+                            DropdownButton<String>(
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedCategory = value;
+                                });
+                              },
+                              value: _selectedCategory,
+                              style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: Colors.black87,
+                                  fontFamily: "Roboto"),
+                              items: _categories.map((String dropDownStringItem) {
+                                return DropdownMenuItem<String>(
+                                  value: dropDownStringItem,
+                                  child: Text(dropDownStringItem),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Text("Select Session"),
+                            DropdownButton<String>(
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedSession = value;
+                                });
+                              },
+                              value: _selectedSession,
+                              style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: Colors.black87,
+                                  fontFamily: "Roboto"),
+                              items: _sessions.map((String dropDownStringItem) {
+                                return DropdownMenuItem<String>(
+                                  value: dropDownStringItem,
+                                  child: Text(dropDownStringItem),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Text("Select Duration"),
+                            DropdownButton<String>(
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedDuration = value;
+                                });
 
-                              BlocProvider.of<TeachingAssistantsBloc>(context)
-                                  .add(GetTeachingAssistants(
-                                      room: _selectedRoom));
-                            },
-                            value: _selectedDuration,
-                            style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.black87,
-                                fontFamily: "Roboto"),
-                            items: _duration.map((String dropDownStringItem) {
-                              return DropdownMenuItem<String>(
-                                value: dropDownStringItem,
-                                child: Text(dropDownStringItem),
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Text("Select Room"),
-                          _buildRoomsBloc(),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          if (_selectedCategory == "TAs") ...[
-                            Text("Select Teaching Assistant"),
-                            _buildTABloc()
-                          ],
-                          if (_selectedCategory == "Invigilators") ...[
-                            Text("Select Invigilator"),
-                            _buildInvigilatorsBloc()
-                          ],
-                          if (_selectedCategory == "Others") ...[
-                            Text("Enter name"),
-                            _buildOtherTextField(context),
-                          ],
-                          if (_selectedCategory == "Attendants") ...[
-                            Text("Select Attendant"),
-                            _buildAttendantsBloc(),
-                          ],
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Text("Signature/Initials"),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          // SIGNATURE implementations
-                          Wrap(
-                            children: [
-                              Container(
-                                width: 270.0,
-                                height: 100.0,
-                                child: Signature(
-                                  color: color,
-                                  key: _sign,
-                                  // onSign: () {
-                                  //   final sign = _sign.currentState;
-                                  //   debugPrint(
-                                  //       '${sign.points.length} points in the signature');
-                                  // },
-                                  backgroundPainter:
-                                      _WatermarkPaint("2.0", "2.0"),
-                                  strokeWidth: strokeWidth,
-                                ),
-                                color: Colors.black12,
-                              ),
-                              IconButton(
-                                  icon: Icon(Icons.dangerous,
-                                      color: Colors.red, size: 30),
-                                  onPressed: () {
-                                    final sign = _sign.currentState;
-                                    sign.clear();
-                                    setState(() {
-                                      _img = ByteData(0);
-                                    });
-                                  })
+                                BlocProvider.of<TeachingAssistantsBloc>(context)
+                                    .add(GetTeachingAssistants(
+                                        room: _selectedRoom));
+                              },
+                              value: _selectedDuration,
+                              style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: Colors.black87,
+                                  fontFamily: "Roboto"),
+                              items: _duration.map((String dropDownStringItem) {
+                                return DropdownMenuItem<String>(
+                                  value: dropDownStringItem,
+                                  child: Text(dropDownStringItem),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Text("Select Room"),
+                            _buildRoomsBloc(),
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            if (_selectedCategory == "TAs") ...[
+                              Text("Select Teaching Assistant"),
+                              _buildTABloc()
                             ],
-                          ),
+                            if (_selectedCategory == "Invigilators") ...[
+                              Text("Select Invigilator"),
+                              _buildInvigilatorsBloc()
+                            ],
+                            if (_selectedCategory == "Others") ...[
+                              Text("Enter name"),
+                              _buildOtherTextField(context),
+                            ],
+                            if (_selectedCategory == "Attendants") ...[
+                              Text("Select Attendant"),
+                              _buildAttendantsBloc(),
+                            ],
+                            SizedBox(
+                              height: 20.0,
+                            ),
+                            Text("Signature/Initials"),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            // SIGNATURE implementations
+                            Wrap(
+                              children: [
+                                Container(
+                                  // width: 270.0,
+                                  height: 300.0,
+                                  child: Signature(
+                                    color: color,
+                                    key: _sign,
+                                    // onSign: () {
+                                    //   final sign = _sign.currentState;
+                                    //   debugPrint(
+                                    //       '${sign.points.length} points in the signature');
+                                    // },
+                                    backgroundPainter:
+                                        _WatermarkPaint("2.0", "2.0"),
+                                    strokeWidth: strokeWidth,
+                                  ),
+                                  color: Colors.black12,
+                                ),
+                                IconButton(
+                                    icon: Icon(Icons.dangerous,
+                                        color: Colors.red, size: 30),
+                                    onPressed: () {
+                                      final sign = _sign.currentState;
+                                      sign.clear();
+                                      setState(() {
+                                        _img = ByteData(0);
+                                      });
+                                    })
+                              ],
+                            ),
 
-                          SizedBox(
+                            SizedBox(
                             height: 10.0,
                           ),
                           MaterialButton(
-                              color: Colors.blueAccent,
+                              color: Color.fromRGBO(253,192,41,1.0),
                               onPressed: () async {
                                 String signImagePath = await _getImagePath();
 

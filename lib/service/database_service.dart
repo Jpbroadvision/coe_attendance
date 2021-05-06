@@ -393,7 +393,6 @@ class DatabaseService {
         where: '${DATETIME.split(".")[0].split(" ")[0]} = ?',
         whereArgs: [todaysDate],
         orderBy: "$NAME ASC");
-
     List<AttendanceRecordsModel> listOfTodaysRecords = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {

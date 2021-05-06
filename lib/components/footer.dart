@@ -12,12 +12,13 @@ class Footer extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Container(
               child: Text(
-                  'Developed by JPbroadvision',
-                  textAlign: TextAlign.center,
-                ),
+                '${DateTime.now().year}(c)  College of Engineering, Exams Office - KNUST',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.0),
+              ),
             ),
           ),
         ],

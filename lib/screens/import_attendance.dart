@@ -17,7 +17,7 @@ class _ImportAttendanceState extends State<ImportAttendance> {
       key: _scaffoldKey,
       drawer: CustomDrawer(_scaffoldKey),
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromRGBO(253,192,41,1.0),
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white),
           onPressed: () {
