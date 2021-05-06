@@ -140,7 +140,7 @@ Future<Uint8List> generatePDF() async {
                   mainAxisAlignment: pw.MainAxisAlignment.end,
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Paragraph(text: 'CoE Exams Office, created by JPbroadvision.')
+                    pw.Paragraph(text: 'KNUST- College of Engineering, Examination Office')
                   ])
             ]),
   );
