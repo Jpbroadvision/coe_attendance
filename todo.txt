@@ -1,0 +1,16 @@
+To-Do 
+-----
+[+] Home Screen
+1. Change Invigilators and Attendants dropdown to search-and-select(autosuggest) input
+2. Remove Text "Initials" from signature area
+3. Stack clear button on top of signature area
+[+] Record Screen
+1. Add filters: date, session, category
+2. ActionWidget: [Share] exported file, [Export] -> dialog for pdf or csv
+4. Extend Delete button functionality to delete signed image
+[+] Settings Screen
+1. Import TAs only
+2. 
+
+Preload rooms, invigilators, 
+Combine Invigilators and Attendants table -> Proctor(id, name, category)
