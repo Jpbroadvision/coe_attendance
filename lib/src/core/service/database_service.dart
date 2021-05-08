@@ -128,7 +128,7 @@ class DatabaseService {
     await dbClient.delete(PROCTORS_TABLE);
 
     for (var item in csvData) {
-      final proctor = ProctorModel(name: "${item[0]}");
+      final proctor = ProctorModel(name: "${item[0]}", category: "${item[1]}");
 
       proctor.id = await dbClient.insert(PROCTORS_TABLE, proctor.toMap());
 
