@@ -3,13 +3,13 @@ import 'package:equatable/equatable.dart';
 // ignore: must_be_immutable
 class AvailableRoomsModel extends Equatable {
   int id;
-  String roomAllocations;
+  String room;
 
-  AvailableRoomsModel({this.id, this.roomAllocations});
+  AvailableRoomsModel({this.id, this.room});
 
   // converts inivigilators details to a Map
   Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{'id': id, 'roomAllocations': roomAllocations};
+    var map = <String, dynamic>{'id': id, 'room': room};
 
     return map;
   }
@@ -17,9 +17,9 @@ class AvailableRoomsModel extends Equatable {
   // destruct map of inivigilators
   AvailableRoomsModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
-    roomAllocations = map['roomAllocations'];
+    room = map['room'];
   }
 
   @override
-  List<Object> get props => [id, roomAllocations];
+  List<Object> get props => [id, room];
 }
