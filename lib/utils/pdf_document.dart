@@ -5,9 +5,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/models/attendance_records_model.dart';
-import 'package:coe_attendance/service/database_service.dart';
+import '../locator.dart';
+import '../src/core/models/attendance_records_model.dart';
+import '../src/core/service/database_service.dart';
 
 Future<Uint8List> generatePDF() async {
   final doc = pw.Document(pageMode: PdfPageMode.outlines);
@@ -60,7 +60,8 @@ Future<Uint8List> generatePDF() async {
                   child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: <pw.Widget>[
-                        pw.Text('CoE Examination Attendance', textScaleFactor: 1.2),
+                        pw.Text('CoE Examination Attendance',
+                            textScaleFactor: 1.2),
                         pw.Text(
                           '${dateTimeLastYear.toString()}/${dateTimeNow.toString()} Academic Year',
                         ),
@@ -140,7 +141,9 @@ Future<Uint8List> generatePDF() async {
                   mainAxisAlignment: pw.MainAxisAlignment.end,
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Paragraph(text: 'KNUST- College of Engineering, Examination Office')
+                    pw.Paragraph(
+                        text:
+                            'KNUST- College of Engineering, Examination Office')
                   ])
             ]),
   );
