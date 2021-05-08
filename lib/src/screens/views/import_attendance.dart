@@ -1,6 +1,7 @@
-import 'package:coe_attendance/components/attendance_import_card.dart';
 import 'package:flutter/material.dart';
-import 'package:coe_attendance/components/drawer.dart';
+
+import '../components/attendance_import_card.dart';
+import '../components/drawer.dart';
 
 class ImportAttendance extends StatefulWidget {
   ImportAttendance({Key key}) : super(key: key);
@@ -17,7 +18,7 @@ class _ImportAttendanceState extends State<ImportAttendance> {
       key: _scaffoldKey,
       drawer: CustomDrawer(_scaffoldKey),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(253,192,41,1.0),
+        backgroundColor: Color.fromRGBO(253, 192, 41, 1.0),
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white),
           onPressed: () {

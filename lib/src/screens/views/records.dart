@@ -1,11 +1,12 @@
-import 'package:coe_attendance/components/invigilator_card.dart';
-import 'package:coe_attendance/components/loading.dart';
-import 'package:coe_attendance/components/toast_message.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/models/attendance_records_model.dart';
 import 'package:flutter/material.dart';
-import 'package:coe_attendance/components/drawer.dart';
-import 'package:coe_attendance/service/database_service.dart';
+
+import '../../../locator.dart';
+import '../../core/models/attendance_records_model.dart';
+import '../../core/service/database_service.dart';
+import '../components/drawer.dart';
+import '../components/invigilator_card.dart';
+import '../components/loading.dart';
+import '../components/toast_message.dart';
 
 class Records extends StatefulWidget {
   Records({Key key}) : super(key: key);
@@ -72,7 +73,7 @@ class _RecordsState extends State<Records> {
       key: _scaffoldKey,
       drawer: CustomDrawer(_scaffoldKey),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(253,192,41,1.0),
+        backgroundColor: Color.fromRGBO(253, 192, 41, 1.0),
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white),
           onPressed: () {

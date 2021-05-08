@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/models/available_rooms_model.dart';
-import 'package:coe_attendance/service/database_service.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../../locator.dart';
+import '../models/available_rooms_model.dart';
+import '../service/database_service.dart';
 
 part 'rooms_event.dart';
 part 'rooms_state.dart';

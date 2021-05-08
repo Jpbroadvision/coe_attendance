@@ -1,14 +1,15 @@
-import 'package:coe_attendance/components/toast_message.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/service/database_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../../../locator.dart';
+import '../../core/service/database_service.dart';
+import 'toast_message.dart';
 
 class AttendanceImportCard extends StatelessWidget {
   final String title;
   final String description;
   final String category;
-  
+
   final DatabaseService _databaseService = locator<DatabaseService>();
 
   AttendanceImportCard({this.title, this.description, this.category});
@@ -69,8 +70,7 @@ class AttendanceImportCard extends StatelessWidget {
             String csvFilePath = await getCSVFilePath();
 
             if (csvFilePath == "FAILED_TO_GET_FILE_PATH") {
-              toastMessage(context,
-                  "Failed to get CSV file.", Colors.red);
+              toastMessage(context, "Failed to get CSV file.", Colors.red);
 
               return;
             }
@@ -78,29 +78,29 @@ class AttendanceImportCard extends StatelessWidget {
             switch (category) {
               case "TEACHING_ASSISTANCE":
                 try {
-                  await _databaseService.insertTeachingAssistantsCSV(csvFilePath);
-                  toastMessage(context,
-                      "TAs CSV file import was a success");
+                  await _databaseService
+                      .insertTeachingAssistantsCSV(csvFilePath);
+                  toastMessage(context, "TAs CSV file import was a success");
                 } catch (e) {
-                  toastMessage(context,
-                      "Failed to get TAs CSV file.", Colors.red);
+                  toastMessage(
+                      context, "Failed to get TAs CSV file.", Colors.red);
                 }
                 break;
               case "ATTENDANTS":
                 try {
                   await _databaseService.insertAttendantCSV(csvFilePath);
-                  toastMessage(context,
-                      "Attendant CSV file import was a success");
+                  toastMessage(
+                      context, "Attendant CSV file import was a success");
                 } catch (e) {
-                  toastMessage(context,
-                      "Failed to get attendant CSV file.", Colors.red);
+                  toastMessage(
+                      context, "Failed to get attendant CSV file.", Colors.red);
                 }
                 break;
               case "INVIGILATORS":
                 try {
                   await _databaseService.insertInvigilatorsCSV(csvFilePath);
-                  toastMessage(context,
-                      "Invigilators CSV file import was a success");
+                  toastMessage(
+                      context, "Invigilators CSV file import was a success");
                 } catch (e) {
                   toastMessage(context,
                       "Failed to import invigilators CSV file.", Colors.red);
@@ -109,13 +109,13 @@ class AttendanceImportCard extends StatelessWidget {
               case "AVAILABLE_ROOMS":
                 try {
                   await _databaseService.insertAvailableRoomsCSV(csvFilePath);
-                  toastMessage(context,
-                      "Available Rooms CSV file import was a success");
+                  toastMessage(
+                      context, "Available Rooms CSV file import was a success");
                 } catch (e) {
                   toastMessage(context,
                       "Failed to import Available Rooms CSV file.", Colors.red);
                 }
-                break; 
+                break;
             }
           },
         )

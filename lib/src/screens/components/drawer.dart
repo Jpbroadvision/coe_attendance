@@ -1,13 +1,12 @@
-import 'dart:typed_data';
-
-import 'package:coe_attendance/components/toast_message.dart';
-import 'package:coe_attendance/screens/import_attendance.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/service/database_service.dart';
-import 'package:coe_attendance/utils/pdf_document.dart';
 import 'package:flutter/material.dart';
-import 'package:coe_attendance/main.dart';
-import 'package:coe_attendance/screens/records.dart';
+
+import '../../../locator.dart';
+import '../../../utils/pdf_document.dart';
+import '../../core/service/database_service.dart';
+import '../views/import_attendance.dart';
+import '../views/records.dart';
+import '../views/home.dart';
+import 'toast_message.dart';
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -25,7 +24,7 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Home"),
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => MyHomePage()));
+                  context, MaterialPageRoute(builder: (_) => HomePage()));
             },
           ),
           ListTile(
@@ -36,7 +35,7 @@ class CustomDrawer extends StatelessWidget {
                   context, MaterialPageRoute(builder: (_) => Records()));
             },
           ),
-           ListTile(
+          ListTile(
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Entries"),
             onTap: () async {
@@ -56,7 +55,8 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export All to CSV"),
             onTap: () async {
-              String path = await _databaseService.generateCSV();//generateCSVPerDay
+              String path =
+                  await _databaseService.generateCSV(); //generateCSVPerDay
 
               String message = "Failed to generate CSV file";
 

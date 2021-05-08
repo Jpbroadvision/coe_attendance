@@ -8,10 +8,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/attendance_records_model.dart';
-import 'package:coe_attendance/models/attendant_model.dart';
-import 'package:coe_attendance/models/available_rooms_model.dart';
-import 'package:coe_attendance/models/inivigilator_model.dart';
-import 'package:coe_attendance/models/teaching_assistant_model.dart';
+import '../models/attendant_model.dart';
+import '../models/available_rooms_model.dart';
+import '../models/inivigilator_model.dart';
+import '../models/teaching_assistant_model.dart';
 
 class DatabaseService {
   static Database _db;
@@ -488,9 +488,10 @@ class DatabaseService {
 
     String reportDate = DateTime.now().toString().split(" ")[0];
 
-    List<AttendanceRecordsModel> filterByDay = attendanceRecords.where(
-        (attendanceRecord) =>
-            attendanceRecord.dateTime.split(" ")[0] == reportDate).toList(); 
+    List<AttendanceRecordsModel> filterByDay = attendanceRecords
+        .where((attendanceRecord) =>
+            attendanceRecord.dateTime.split(" ")[0] == reportDate)
+        .toList();
 
     List<List<String>> csvData = [
       <String>[

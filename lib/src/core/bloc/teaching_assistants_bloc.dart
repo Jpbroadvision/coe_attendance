@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:coe_attendance/utils/teaching_assistant_allocation.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/models/teaching_assistant_model.dart';
-import 'package:coe_attendance/service/database_service.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../../locator.dart';
+import '../../../utils/teaching_assistant_allocation.dart';
+import '../models/teaching_assistant_model.dart';
+import '../service/database_service.dart';
 
 part 'teaching_assistants_event.dart';
 part 'teaching_assistants_state.dart';

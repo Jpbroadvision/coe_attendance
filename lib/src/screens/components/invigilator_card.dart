@@ -1,8 +1,7 @@
 import 'dart:io';
 
+import 'package:coe_attendance/src/core/models/attendance_records_model.dart';
 import 'package:flutter/material.dart';
-
-import 'package:coe_attendance/models/attendance_records_model.dart';
 
 class InvigilatorCard extends StatelessWidget {
   final AttendanceRecordsModel attendanceRecord;

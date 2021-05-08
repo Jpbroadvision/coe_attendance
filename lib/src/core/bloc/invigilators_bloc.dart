@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:coe_attendance/locator.dart';
-import 'package:coe_attendance/models/inivigilator_model.dart';
-import 'package:coe_attendance/service/database_service.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../../locator.dart';
+import '../models/inivigilator_model.dart';
+import '../service/database_service.dart';
 
 part 'invigilators_event.dart';
 part 'invigilators_state.dart';
