@@ -1,24 +1,26 @@
 import 'package:equatable/equatable.dart';
 
 // ignore: must_be_immutable
-class AttendanceRecordsModel extends Equatable {
+class AttendanceRecordModel extends Equatable {
   int id;
   String name;
   String session;
   String category;
   String duration;
   String room;
-  String dateTime;
+  String date;
+  int timestamp;
   String signImagePath;
 
-  AttendanceRecordsModel(
+  AttendanceRecordModel(
       {this.id,
       this.name,
       this.session,
       this.category,
       this.duration,
       this.room,
-      this.dateTime,
+      this.date,
+      this.timestamp,
       this.signImagePath});
 
   // converts inivigilators details to a Map
@@ -30,7 +32,8 @@ class AttendanceRecordsModel extends Equatable {
       'category': category,
       'duration': duration,
       'room': room,
-      'dateTime': dateTime,
+      'date': date,
+      'timestamp': timestamp,
       'signImagePath': signImagePath
     };
 
@@ -38,18 +41,19 @@ class AttendanceRecordsModel extends Equatable {
   }
 
   // destruct map of inivigilators
-  AttendanceRecordsModel.fromMap(Map<String, dynamic> map) {
+  AttendanceRecordModel.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     name = map['name'];
     session = map['session'];
     category = map['category'];
     duration = map['duration'];
     room = map['room'];
-    dateTime = map['dateTime'];
+    date = map['date'];
+    timestamp = map['timestamp'];
     signImagePath = map['signImagePath'];
   }
 
   @override
   List<Object> get props =>
-      [id, name, session, category, duration, dateTime, signImagePath];
+      [id, name, session, category, duration, date, timestamp, signImagePath];
 }
