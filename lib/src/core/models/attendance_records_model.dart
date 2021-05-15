@@ -9,7 +9,7 @@ class AttendanceRecordModel extends Equatable {
   String duration;
   String room;
   String date;
-  int timestamp;
+  String dateTime;
   String signImagePath;
 
   AttendanceRecordModel(
@@ -20,7 +20,7 @@ class AttendanceRecordModel extends Equatable {
       this.duration,
       this.room,
       this.date,
-      this.timestamp,
+      this.dateTime,
       this.signImagePath});
 
   // converts inivigilators details to a Map
@@ -33,7 +33,7 @@ class AttendanceRecordModel extends Equatable {
       'duration': duration,
       'room': room,
       'date': date,
-      'timestamp': timestamp,
+      'dateTime': dateTime,
       'signImagePath': signImagePath
     };
 
@@ -49,11 +49,11 @@ class AttendanceRecordModel extends Equatable {
     duration = map['duration'];
     room = map['room'];
     date = map['date'];
-    timestamp = map['timestamp'];
+    dateTime = map['dateTime'];
     signImagePath = map['signImagePath'];
   }
 
   @override
   List<Object> get props =>
-      [id, name, session, category, duration, date, timestamp, signImagePath];
+      [id, name, session, category, duration, date, dateTime, signImagePath];
 }
