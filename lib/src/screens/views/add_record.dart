@@ -36,7 +36,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   final DatabaseService _databaseService = locator<DatabaseService>();
 
   String _selectedCategory;
-  List<String> _categories = ['TAs', 'Proctors', 'Others'];
+  List<String> _categories = ['Teaching Assistant', 'Proctor', 'Other'];
   List<DropdownMenuItem<String>> _categoriesDropdownList;
 
   String _selectedSession;
@@ -61,18 +61,14 @@ class _AddRecordPageState extends State<AddRecordPage> {
   AvailableRoomsModel _selectedRoom;
   List<DropdownMenuItem<AvailableRoomsModel>> _roomsDropdownList;
 
-  ProctorModel _selectedProctor;
-  List<DropdownMenuItem<ProctorModel>> _proctorsDropdownList;
-
   TeachingAssistantModel _selectedTA;
   List<DropdownMenuItem<TeachingAssistantModel>> _tAsDropdownList;
 
-  // teaching assistants
-  List<TeachingAssistantModel> _tAsList;
-  TeachingAssistantModel _tA;
+  ProctorModel _selectedProctor;
+  TextEditingController _proctorCtrl;
+  List<ProctorModel> _proctorsList;
   GlobalKey _taAutoCompleteKey =
-      GlobalKey<AutoCompleteTextFieldState<TeachingAssistantModel>>();
-  TextEditingController _taCtrl;
+      GlobalKey<AutoCompleteTextFieldState<ProctorModel>>();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -87,7 +83,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     PermissionService.getPermission();
 
     _otherNameCtrl = TextEditingController(text: "");
-    _taCtrl = TextEditingController(text: "");
+    _proctorCtrl = TextEditingController(text: "");
 
     _categoriesDropdownList = _buildDropdownList(_categories);
     _selectedCategory = _categories[0];
@@ -173,17 +169,17 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       Text("Room"), SizedBox(height: 5.0),
                       _buildRoomsBloc(),
                       SizedBox(height: 20.0),
-                      if (_selectedCategory == "TAs") ...[
+                      if (_selectedCategory == "Teaching Assistant") ...[
                         Text("Teaching Assistant"),
                         SizedBox(height: 5.0),
                         _buildTABloc()
                       ],
-                      if (_selectedCategory == "Proctors") ...[
+                      if (_selectedCategory == "Proctor") ...[
                         Text("proctor"),
                         SizedBox(height: 5.0),
                         _buildProctorsBloc()
                       ],
-                      if (_selectedCategory == "Others") ...[
+                      if (_selectedCategory == "Other") ...[
                         Text("Enter name"),
                         SizedBox(height: 5.0),
                         _buildOtherTextField(context),
@@ -236,16 +232,19 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     String signImagePath = await _getImagePath();
+                    String tempCat =
+                        _selectedCategory; // temp holder for _selectedCategory
 
                     String name;
                     switch (_selectedCategory) {
-                      case "TAs":
+                      case "Teaching Assistant":
                         name = _selectedTA.name;
                         break;
-                      case "Proctors":
+                      case "Proctor":
                         name = _selectedProctor.name;
+                        _selectedCategory = _selectedProctor.category;
                         break;
-                      case "Others":
+                      case "Other":
                         name = _otherNameCtrl.text;
                         break;
                     }
@@ -258,14 +257,18 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     // set Proctors details to be save
                     AttendanceRecordModel attendanceRecords =
                         AttendanceRecordModel(
-                            name: name,
-                            session: _selectedSession,
-                            category: _selectedCategory,
-                            duration: _selectedDuration,
-                            room: _selectedRoom.room,
-                            date: dateTimeHelper.formattedDate,
-                            timestamp: dateTimeHelper.timestamp,
-                            signImagePath: signImagePath);
+                      name: name,
+                      session: _selectedSession,
+                      category: _selectedCategory,
+                      duration: _selectedDuration,
+                      room: _selectedRoom.room,
+                      date: dateTimeHelper.formattedDate,
+                      dateTime: DateTime.now().toString(),
+                      signImagePath: signImagePath,
+                    );
+
+                    // revert selected category
+                    _selectedCategory = tempCat;
 
                     // save details to database
                     try {
@@ -323,22 +326,10 @@ class _AddRecordPageState extends State<AddRecordPage> {
     return items;
   }
 
-  List<DropdownMenuItem<ProctorModel>> _buildProctorsDropdownList(
-      List<ProctorModel> proctors) {
-    List<DropdownMenuItem<ProctorModel>> items = [];
-    for (ProctorModel proctor in proctors) {
-      items.add(DropdownMenuItem(
-        value: proctor,
-        child: Text(proctor.name),
-      ));
-    }
-    return items;
-  }
-
   List<DropdownMenuItem<TeachingAssistantModel>> _buildTAsDropdownList(
-      List<TeachingAssistantModel> tAs) {
+      List<TeachingAssistantModel> taList) {
     List<DropdownMenuItem<TeachingAssistantModel>> items = [];
-    for (TeachingAssistantModel ta in tAs) {
+    for (TeachingAssistantModel ta in taList) {
       items.add(DropdownMenuItem(
         value: ta,
         child: Text(ta.name),
@@ -357,7 +348,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
     final String dirPath = (await getExternalStorageDirectory()).path;
     final String filePath =
-        "$dirPath/sign-image-${dateTimeHelper.timestamp}.png";
+        "$dirPath/sign-image-${DateTime.now().toString()}.png";
 
     var data = await image.toByteData(format: ui.ImageByteFormat.png);
 
@@ -406,8 +397,6 @@ class _AddRecordPageState extends State<AddRecordPage> {
           _selectedTA = state.teachingAssistants == null
               ? TeachingAssistantModel()
               : state.teachingAssistants[0];
-
-          _tA = _selectedTA;
         }
       },
       builder: (context, state) {
@@ -422,44 +411,9 @@ class _AddRecordPageState extends State<AddRecordPage> {
             return buildInfoMessage(
                 'No data available for teaching assistants. Import data at Settings screen.');
 
-          _tAsList = state.teachingAssistants;
           _tAsDropdownList = _buildTAsDropdownList(state.teachingAssistants);
           return Column(
             children: [
-              AutoCompleteTextField<TeachingAssistantModel>(
-                controller: _taCtrl,
-                clearOnSubmit: false,
-                decoration: InputDecoration(
-                  hintText: "Search proctor:",
-                  suffixIcon: Icon(Icons.search),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  enabledBorder: enabledBorder,
-                  focusedBorder: focusedBorder,
-                ),
-                itemSubmitted: (item) {
-                  setState(() {
-                    _tA = item;
-                  });
-                  _taCtrl.text = _tA.name;
-                },
-                key: _taAutoCompleteKey,
-                suggestions: _tAsList,
-                itemBuilder: (context, ta) => Padding(
-                    child: ListTile(
-                        title: Text(ta.name),
-                        trailing: Text("Room: ${ta.room}")),
-                    padding: EdgeInsets.all(8.0)),
-                itemSorter: (a, b) => a.id == b.id
-                    ? 0
-                    : a.id > b.id
-                        ? -1
-                        : 1,
-                itemFilter: (suggestion, input) => suggestion.name
-                    .toLowerCase()
-                    .startsWith(input.toLowerCase()),
-              ),
-              SizedBox(height: 20),
               CustomDropdown(
                 dropdownMenuItemList: _tAsDropdownList,
                 onChanged: (value) {
@@ -507,16 +461,37 @@ class _AddRecordPageState extends State<AddRecordPage> {
             return buildInfoMessage(
                 'No data for proctors. Import data at Settings screen.');
 
-          _proctorsDropdownList = _buildProctorsDropdownList(state.proctors);
-          return CustomDropdown(
-            dropdownMenuItemList: _proctorsDropdownList,
-            onChanged: (value) {
+          _proctorsList = state.proctors;
+          return AutoCompleteTextField<ProctorModel>(
+            controller: _proctorCtrl,
+            clearOnSubmit: false,
+            decoration: InputDecoration(
+              hintText: "Search proctor:",
+              suffixIcon: Icon(Icons.search),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              enabledBorder: enabledBorder,
+              focusedBorder: focusedBorder,
+            ),
+            itemSubmitted: (item) {
               setState(() {
-                _selectedProctor = value;
+                _selectedProctor = item;
               });
+              _proctorCtrl.text = _selectedProctor.name;
             },
-            value: _selectedProctor,
-            isEnabled: true,
+            key: _taAutoCompleteKey,
+            suggestions: _proctorsList,
+            itemBuilder: (context, proctor) => Padding(
+              child: Text(proctor.name),
+              padding: EdgeInsets.all(5.0),
+            ),
+            itemSorter: (a, b) => a.id == b.id
+                ? 0
+                : a.id > b.id
+                    ? -1
+                    : 1,
+            itemFilter: (suggestion, input) =>
+                suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
           );
         } else {
           return Loading();
@@ -532,7 +507,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
           _selectedRoom =
               state.rooms.isEmpty ? AvailableRoomsModel() : state.rooms?.first;
 
-          // get TAs with the selected room
+          // get Teaching Assistant with the selected room
           BlocProvider.of<TeachingAssistantsBloc>(context)
               .add(GetTeachingAssistants(room: _selectedRoom.room));
         }
@@ -556,7 +531,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 _selectedRoom = value;
               });
 
-              // get TAs with the selected room
+              // get Teaching Assistant with the selected room
               BlocProvider.of<TeachingAssistantsBloc>(context)
                   .add(GetTeachingAssistants(room: _selectedRoom.room));
             },
