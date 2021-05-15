@@ -1,7 +1,11 @@
+import 'dart:async';
+
+import 'package:coe_attendance/utils/date_time.dart';
 import 'package:flutter/material.dart';
 
 import '../../../locator.dart';
-import '../../../utils/date_time.dart';
+import '../../../utils/csv_generator.dart';
+import '../../../utils/flash_helper.dart';
 import '../../../utils/pdf_document.dart';
 import '../../core/service/database_service.dart';
 import 'toast_message.dart';
@@ -12,83 +16,99 @@ class CustomDrawer extends StatelessWidget {
 
   CustomDrawer(this.scaffoldKey);
 
+  final dateTimeHelper = DateTimeHelper();
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.close,
-                  color: Theme.of(context).primaryColor,
-                ),
-                onTap: () => Navigator.pop(context),
-              ),
-            ],
-          ),
           ListTile(
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(PDF)"),
             onTap: () async {
-              final dateTimeHelper = DateTimeHelper();
-              String path = await _databaseService
-                  .generateCSV(dateTimeHelper.formattedDate);
+              final attendanceRecords = await _databaseService
+                  .getAttendanceRecordByDate(dateTimeHelper.formattedDate);
 
-              String message = "Failed to export your daily entries";
+              final completer = Completer();
 
-              if (path == null)
-                toastMessage(scaffoldKey.currentContext, message, Colors.red);
-              else {
-                message = "File saved at $path";
-                toastMessage(scaffoldKey.currentContext, message);
-              }
+              generatePDF(attendanceRecords).then((filePath) {
+                completer.complete();
+
+                toastMessage(
+                    scaffoldKey.currentContext, "File saved at $filePath");
+              });
+
+              FlashHelper.blockDialog(
+                context,
+                dismissCompleter: completer,
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(CSV)"),
             onTap: () async {
-              final dateTimeHelper = DateTimeHelper();
-              String path = await _databaseService
-                  .generateCSV(dateTimeHelper.formattedDate);
+              final attendanceRecords =  await _databaseService
+                  .getAttendanceRecordByDate(dateTimeHelper.formattedDate);
 
-              String message = "Failed to export your daily entries";
+              final completer = Completer();
 
-              if (path == null)
-                toastMessage(scaffoldKey.currentContext, message, Colors.red);
-              else {
-                message = "File saved at $path";
-                toastMessage(scaffoldKey.currentContext, message);
-              }
+              generateCSV(attendanceRecords).then((filePath) {
+                completer.complete();
+
+                toastMessage(
+                    scaffoldKey.currentContext, "File saved at $filePath");
+              });
+
+              FlashHelper.blockDialog(
+                context,
+                dismissCompleter: completer,
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.file_download),
             title: Text("Export All(PDF)"),
             onTap: () async {
-              await generatePDF();
-              toastMessage(
-                  scaffoldKey.currentContext, "File saved successfully.");
+              final attendanceRecords =
+                  await _databaseService.getAttendanceRecords();
+
+              final completer = Completer();
+
+              generatePDF(attendanceRecords).then((filePath) {
+                completer.complete();
+
+                toastMessage(
+                    scaffoldKey.currentContext, "File saved at $filePath");
+              });
+
+              FlashHelper.blockDialog(
+                context,
+                dismissCompleter: completer,
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.file_download),
             title: Text("Export All(CSV)"),
             onTap: () async {
-              String path =
-                  await _databaseService.generateCSV(); //generateCSVPerDay
+              final attendanceRecords =
+                  await _databaseService.getAttendanceRecords();
 
-              String message = "Failed to generate CSV file";
+              final completer = Completer();
 
-              if (path == null)
-                toastMessage(scaffoldKey.currentContext, message, Colors.red);
-              else {
-                message = "File saved at $path";
-                toastMessage(scaffoldKey.currentContext, message);
-              }
+              generateCSV(attendanceRecords).then((filePath) {
+                completer.complete();
+
+                toastMessage(
+                    scaffoldKey.currentContext, "File saved at $filePath");
+              });
+
+              FlashHelper.blockDialog(
+                context,
+                dismissCompleter: completer,
+              );
             },
           ),
         ],
