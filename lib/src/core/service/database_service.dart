@@ -40,7 +40,7 @@ class DatabaseService {
   static const String SESSION = 'session';
   static const String DURATION = 'duration';
   static const String DATE = 'date';
-  static const String TIMESTAMP = 'timestamp';
+  static const String DATE_TIME = 'dateTime';
   static const String SIGN_IMAGE_PATH = 'signImagePath';
 
   /// get database
@@ -66,7 +66,7 @@ class DatabaseService {
   _onCreate(Database db, int version) async {
     // create attendance records table
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS $ATTENDANCE_RECORDS_TABLE($ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATE TEXT, $TIMESTAMP TEXT, $SIGN_IMAGE_PATH TEXT )");
+        "CREATE TABLE IF NOT EXISTS $ATTENDANCE_RECORDS_TABLE($ID INTEGER PRIMARY KEY, $NAME TEXT, $SESSION TEXT, $CATEGORY TEXT, $DURATION TEXT, $ROOM TEXT, $DATE TEXT, $DATE_TIME TEXT, $SIGN_IMAGE_PATH TEXT )");
     // create proctors table
     await db.execute(
         "CREATE TABLE IF NOT EXISTS $PROCTORS_TABLE($ID INTEGER PRIMARY KEY, $NAME TEXT, $CATEGORY TEXT )");
@@ -187,7 +187,7 @@ class DatabaseService {
           DURATION,
           ROOM,
           DATE,
-          TIMESTAMP,
+          DATE_TIME,
           SIGN_IMAGE_PATH
         ],
         orderBy: "$NAME ASC");
@@ -216,10 +216,10 @@ class DatabaseService {
           DURATION,
           ROOM,
           DATE,
-          TIMESTAMP,
+          DATE_TIME,
           SIGN_IMAGE_PATH
         ],
-        where: '$DATE',
+        where: '$DATE = ?',
         whereArgs: [date],
         orderBy: "$NAME ASC");
 
@@ -352,7 +352,7 @@ class DatabaseService {
           DURATION,
           ROOM,
           DATE,
-          TIMESTAMP,
+          DATE_TIME,
           SIGN_IMAGE_PATH
         ],
         where: '$ID = ?',
@@ -378,10 +378,10 @@ class DatabaseService {
           DURATION,
           ROOM,
           DATE,
-          TIMESTAMP,
+          DATE_TIME,
           SIGN_IMAGE_PATH
         ],
-        where: '$DATE',
+        where: '$DATE = ?',
         whereArgs: [date],
         orderBy: "$NAME ASC");
 
@@ -408,22 +408,70 @@ class DatabaseService {
     }
 
     // delete image file
-    await deleteImageFile(result.signImagePath);
+    await deleteFile(result.signImagePath);
 
     return await dbClient
         .delete(ATTENDANCE_RECORDS_TABLE, where: '$ID = ?', whereArgs: [id]);
   }
 
-  /// delete image file associated with Attendance Record
-  Future<int> deleteImageFile(String imagePath) async {
+  /// delete file with filePath
+  Future<int> deleteFile(String filePath) async {
     try {
-      final file = File(imagePath);
+      final file = File(filePath);
 
       await file.delete();
       return 1;
     } catch (e) {
       return 0;
     }
+  }
+
+  Future<int> countAttendanceRecords() async {
+    final result = await getAttendanceRecords();
+
+    return result.length;
+  }
+
+  Future<int> countInvigilatorRecords() async {
+    final result = await getAttendanceRecords();
+
+    return result
+        .where((record) => record.category == 'Invigilator')
+        .toList()
+        .length;
+  }
+
+  Future<int> countAttendantRecords() async {
+    final result = await getAttendanceRecords();
+
+    return result
+        .where((record) => record.category == 'Attendant')
+        .toList()
+        .length;
+  }
+
+  Future<int> countTARecords() async {
+    final result = await getAttendanceRecords();
+
+    return result
+        .where((record) => record.category == 'Teaching Assistant')
+        .toList()
+        .length;
+  }
+
+  Future<int> countOtherRecords() async {
+    final result = await getAttendanceRecords();
+
+    return result
+        .where((record) => record.category == 'Other')
+        .toList()
+        .length;
+  }
+
+  Future<int> countRooms() async {
+    final result = await getAvailableRooms();
+
+    return result.length;
   }
 
   /// update attendance record by id
@@ -434,56 +482,6 @@ class DatabaseService {
     return await dbClient.update(
         ATTENDANCE_RECORDS_TABLE, attendanceRecord.toMap(),
         where: '$ID = ?', whereArgs: [id]);
-  }
-
-  /// generate csv file from attendance record table
-  Future<String> generateCSV([String date]) async {
-    List<AttendanceRecordModel> attendanceRecords;
-
-    if (date == null) {
-      await getAttendanceRecords().then((result) => attendanceRecords = result);
-    } else {
-      await getAttendanceRecordsByDate(date)
-          .then((result) => attendanceRecords = result);
-    }
-
-    if (attendanceRecords.isEmpty) return null;
-
-    List<List<String>> csvData = [
-      <String>[
-        "ID #",
-        "NAME",
-        "SESSION",
-        "CATEGORY",
-        "DURATION",
-        "ROOM",
-        "DATE"
-      ],
-      ...attendanceRecords.map((attendantRecord) => [
-            "${attendantRecord.id}",
-            attendantRecord.name,
-            attendantRecord.session,
-            attendantRecord.category,
-            attendantRecord.duration,
-            attendantRecord.room,
-            attendantRecord.date
-          ])
-    ];
-
-    String csv = const ListToCsvConverter().convert(csvData);
-
-    String reportDate = DateTime.now().toString();
-
-    final String dirPath = (await getExternalStorageDirectory()).path;
-    final String filePath = "$dirPath/Proctors-$reportDate.csv";
-
-    // create file
-    final File file = File(filePath);
-
-    // save csv file
-    await file.writeAsString(csv);
-
-    return filePath;
   }
 
   /// close database
