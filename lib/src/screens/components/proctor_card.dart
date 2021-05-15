@@ -96,9 +96,7 @@ class ProctorCard extends StatelessWidget {
       ),
       trailing: IconButton(
         icon: Icon(Icons.delete, color: Colors.red),
-        onPressed: () {
-          deleteFunction(attendanceRecord.id);
-        },
+        onPressed: deleteFunction,
       ),
     );
   }
