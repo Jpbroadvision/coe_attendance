@@ -316,7 +316,7 @@ class FlashHelper {
           ),
         );
       },
-      persistent: false,
+      persistent: true,
       onWillPop: () => Future.value(false),
     );
     dismissCompleter.future.then((value) => controller.dismiss(value));
