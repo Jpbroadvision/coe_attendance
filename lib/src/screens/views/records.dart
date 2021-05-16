@@ -45,7 +45,7 @@ class _RecordsState extends State<Records> {
   List<DropdownMenuItem<String>> _categoriesDropdownList;
 
   String _selectedSession;
-  List<String> _sessions = ['Select session','All', '1', '2', '3'];
+  List<String> _sessions = ['Select session','All', '1', '2', '3','4', '5', '6','7'];
   List<DropdownMenuItem<String>> _sessionsDropdownList;
 
   String _selectedDate;
