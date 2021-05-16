@@ -40,11 +40,12 @@ class _AddRecordPageState extends State<AddRecordPage> {
   List<DropdownMenuItem<String>> _categoriesDropdownList;
 
   String _selectedSession;
-  List<String> _sessions = ['1', '2', '3'];
+  List<String> _sessions = ['1', '2', '3','4', '5', '6','7'];
   List<DropdownMenuItem<String>> _sessionsDropdownList;
 
   String _selectedDuration;
   List<String> _durations = [
+    '1:00',
     '1:15',
     '1:30',
     '1:45',
