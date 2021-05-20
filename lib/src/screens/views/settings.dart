@@ -41,11 +41,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Text(
                     'Import data',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
+                  Divider(),
                   SizedBox(height: 10),
-                  buildImportTile(
+                  _buildListTile(
                     title: "Teaching Assistants(TAs)",
+                    icon: Icon(
+                      Icons.file_upload,
+                      color: Theme.of(context).primaryColor,
+                    ),
                     onIconTap: () {
                       _showImportDialog(
                         title: 'Import Teaching Assistants',
@@ -67,9 +72,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 5),
-                  buildImportTile(
+                  SizedBox(height: 10),
+                  _buildListTile(
                     title: "Proctors",
+                    icon: Icon(
+                      Icons.file_upload,
+                      color: Theme.of(context).primaryColor,
+                    ),
                     onIconTap: () {
                       _showImportDialog(
                         title: 'Import Invigilators and Attendants',
@@ -93,9 +102,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 5),
-                  buildImportTile(
+                  SizedBox(height: 10),
+                  _buildListTile(
                     title: "Available Rooms",
+                    icon: Icon(
+                      Icons.file_upload,
+                      color: Theme.of(context).primaryColor,
+                    ),
                     onIconTap: () {
                       _showImportDialog(
                         title: 'Import Available Rooms',
@@ -114,6 +127,240 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                                 "Failed to import Available Rooms CSV file.",
                                 Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Delete data',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  Divider(),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Teaching Assistants(TAs)",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete Teaching Assistants(TAs) data',
+                        onTap: () async {
+                          try {
+                            await _databaseService
+                                .dropTeachingAssistantsTable();
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Proctors",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete Proctors data',
+                        onTap: () async {
+                          try {
+                            await _databaseService.dropProctorsTable();
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Available Rooms",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete Available Rooms data',
+                        onTap: () async {
+                          try {
+                            await _databaseService.dropRoomsTable();
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Delete Attendance records',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  Divider(),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: 'All',
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete all attendance records',
+                        onTap: () async {
+                          try {
+                            final result =
+                                await _databaseService.getAttendanceRecords();
+
+                            for (var attendanceRecord in result) {
+                              await _databaseService.deleteAttendanceRecordById(
+                                  attendanceRecord.id);
+                            }
+
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Invigilators only",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete invigilators attendance records',
+                        onTap: () async {
+                          try {
+                            final result = await _databaseService
+                                .getAttendanceRecordsByCategory('Invigilator');
+
+                            for (var attendanceRecord in result) {
+                              await _databaseService.deleteAttendanceRecordById(
+                                  attendanceRecord.id);
+                            }
+
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Attendants only",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete invigilators attendance records',
+                        onTap: () async {
+                          try {
+                            final result = await _databaseService
+                                .getAttendanceRecordsByCategory('Attendant');
+
+                            for (var attendanceRecord in result) {
+                              await _databaseService.deleteAttendanceRecordById(
+                                  attendanceRecord.id);
+                            }
+
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Teaching Assistants only",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description:
+                            'Delete traching assistants attendance records',
+                        onTap: () async {
+                          try {
+                            final result = await _databaseService
+                                .getAttendanceRecordsByCategory(
+                                    'Teaching Assistant');
+
+                            for (var attendanceRecord in result) {
+                              await _databaseService.deleteAttendanceRecordById(
+                                  attendanceRecord.id);
+                            }
+
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  _buildListTile(
+                    title: "Others only",
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onIconTap: () {
+                      _showImportDialog(
+                        title: 'DELETE?',
+                        description: 'Delete others attendance records',
+                        onTap: () async {
+                          try {
+                            final result = await _databaseService
+                                .getAttendanceRecordsByCategory('Other');
+
+                            for (var attendanceRecord in result) {
+                              await _databaseService.deleteAttendanceRecordById(
+                                  attendanceRecord.id);
+                            }
+
+                            toastMessage(
+                              context,
+                              "Operation was a success",
+                            );
+                          } catch (e) {
+                            toastMessage(
+                                context, "Failed delete data", Colors.red);
                           }
                         },
                       );
@@ -139,17 +386,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget buildImportTile({String title, Function onIconTap}) {
+  Widget _buildListTile({String title, Widget icon, Function onIconTap}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title),
         GestureDetector(
           onTap: onIconTap,
-          child: Icon(
-            Icons.file_upload,
-            color: Theme.of(context).primaryColor,
-          ),
+          child: icon,
         ),
       ],
     );
