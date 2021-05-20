@@ -223,6 +223,35 @@ class DatabaseService {
     return listOfRecords;
   }
 
+  /// get all attendance records from ATTENDANCE_RECORDS_TABLE by category
+  Future<List<AttendanceRecordModel>> getAttendanceRecordsByCategory(String category) async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
+        columns: [
+          ID,
+          NAME,
+          SESSION,
+          CATEGORY,
+          DURATION,
+          ROOM,
+          DATE,
+          DATE_TIME,
+          SIGN_IMAGE_PATH
+        ], where: '$CATEGORY = ?',
+        whereArgs: [category],
+        orderBy: "$NAME ASC");
+
+    List<AttendanceRecordModel> listOfRecords = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfRecords.add(AttendanceRecordModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfRecords;
+  }
+
   /// get all attendance records by date from ATTENDANCE_RECORDS_TABLE
   Future<List<AttendanceRecordModel>> getAttendanceRecordsByDate(
       String date) async {
@@ -417,11 +446,11 @@ class DatabaseService {
     return listOfTodaysRecords;
   }
 
-  /// delete PROCTOR from ATTENDANCE_RECORDS_TABLE
-  Future<int> deleteInivigilator(int id) async {
+  /// delete record from ATTENDANCE_RECORDS_TABLE by id
+  Future<int> deleteAttendanceRecordById(int id) async {
     var dbClient = await db;
 
-    // get rattendant record with id
+    // get attendant record with id
     final result = await getAttendantRecordById(id);
 
     if (result == null) {
