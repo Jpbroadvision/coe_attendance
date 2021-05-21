@@ -94,7 +94,7 @@ class _RecordsState extends State<Records> {
                 attendanceRecord: attendanceRecord,
                 deleteFunction: () async {
                   await _databaseService
-                      .deleteInivigilator(attendanceRecord.id);
+                      .deleteAttendanceRecordById(attendanceRecord.id);
 
                   //refresh list of Proctors
                   refreshRecords(context);

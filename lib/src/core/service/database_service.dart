@@ -101,7 +101,7 @@ class DatabaseService {
     List<TeachingAssistantModel> listOfTAs = [];
 
     // delete entries in teaching assistant table
-    await dbClient.delete(TEACHING_ASSISTANTS_TABLE);
+    await dropTeachingAssistantsTable();
 
     for (var item in csvData) {
       final teachingAssistant =
@@ -125,7 +125,7 @@ class DatabaseService {
     List<ProctorModel> listOfProctors = [];
 
     // delete entries in Proctors table
-    await dbClient.delete(PROCTORS_TABLE);
+    await dropProctorsTable();
 
     for (var item in csvData) {
       final proctor = ProctorModel(name: "${item[0]}", category: "${item[1]}");
@@ -148,7 +148,7 @@ class DatabaseService {
     List<AvailableRoomsModel> listOfAvailableRooms = [];
 
     // delete entries in available rooms table
-    await dbClient.delete(AVAILABLE_ROOMS_TABLE);
+    await dropRoomsTable();
 
     for (var item in csvData) {
       final availableRooms = AvailableRoomsModel(room: "${item[0]}");
@@ -174,6 +174,27 @@ class DatabaseService {
     return csvData;
   }
 
+  /// delete entries in teaching assistant table
+  Future<int> dropTeachingAssistantsTable() async {
+    var dbClient = await db;
+
+    return await dbClient.delete(TEACHING_ASSISTANTS_TABLE);
+  }
+
+  /// delete entries in Proctors table
+  Future<int> dropProctorsTable() async {
+    var dbClient = await db;
+
+    return await dbClient.delete(PROCTORS_TABLE);
+  }
+
+  /// delete entries in available rooms table
+  Future<int> dropRoomsTable() async {
+    var dbClient = await db;
+
+    return await dbClient.delete(AVAILABLE_ROOMS_TABLE);
+  }
+
   /// get all attendance records from ATTENDANCE_RECORDS_TABLE
   Future<List<AttendanceRecordModel>> getAttendanceRecords() async {
     var dbClient = await db;
@@ -190,6 +211,35 @@ class DatabaseService {
           DATE_TIME,
           SIGN_IMAGE_PATH
         ],
+        orderBy: "$NAME ASC");
+
+    List<AttendanceRecordModel> listOfRecords = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        listOfRecords.add(AttendanceRecordModel.fromMap(maps[i]));
+      }
+    }
+
+    return listOfRecords;
+  }
+
+  /// get all attendance records from ATTENDANCE_RECORDS_TABLE by category
+  Future<List<AttendanceRecordModel>> getAttendanceRecordsByCategory(String category) async {
+    var dbClient = await db;
+
+    List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
+        columns: [
+          ID,
+          NAME,
+          SESSION,
+          CATEGORY,
+          DURATION,
+          ROOM,
+          DATE,
+          DATE_TIME,
+          SIGN_IMAGE_PATH
+        ], where: '$CATEGORY = ?',
+        whereArgs: [category],
         orderBy: "$NAME ASC");
 
     List<AttendanceRecordModel> listOfRecords = [];
@@ -396,11 +446,11 @@ class DatabaseService {
     return listOfTodaysRecords;
   }
 
-  /// delete PROCTOR from ATTENDANCE_RECORDS_TABLE
-  Future<int> deleteInivigilator(int id) async {
+  /// delete record from ATTENDANCE_RECORDS_TABLE by id
+  Future<int> deleteAttendanceRecordById(int id) async {
     var dbClient = await db;
 
-    // get rattendant record with id
+    // get attendant record with id
     final result = await getAttendantRecordById(id);
 
     if (result == null) {
@@ -462,10 +512,7 @@ class DatabaseService {
   Future<int> countOtherRecords() async {
     final result = await getAttendanceRecords();
 
-    return result
-        .where((record) => record.category == 'Other')
-        .toList()
-        .length;
+    return result.where((record) => record.category == 'Other').toList().length;
   }
 
   Future<int> countRooms() async {
