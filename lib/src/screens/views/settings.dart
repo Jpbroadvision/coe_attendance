@@ -55,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showImportDialog(
                         title: 'Import Teaching Assistants',
                         description:
-                            'NB: The file you are going to import must be a CSV file.\nIt must have two columns with the first column names and second classrooms assigned',
+                            'NB: The file you are going to import must be a CSV file.\nIt must have two columns with the first column classrooms and second TA names assigned\nDO NOT add any headings to the columns',
                         onTap: () async {
                           String csvFilePath = await getCSVFilePath();
 
@@ -83,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showImportDialog(
                         title: 'Import Invigilators and Attendants',
                         description:
-                            'NB: The file you are going to import must be a CSV file. It must have two columns with the first column consists names and second column consists categories',
+                            'NB: The file you are going to import must be a CSV file. It must have two columns with the first column consists names and second column consists categories(Invigilators or Attendant).\nDO NOT add any headings to the columns',
                         onTap: () async {
                           String csvFilePath = await getCSVFilePath();
 
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showImportDialog(
                         title: 'Import Available Rooms',
                         description:
-                            'NB: The file you are going to import must be a CSV file. It must have only one column with their room numbers or names.',
+                            'NB: The file you are going to import must be a CSV file. It must have only one column with their room numbers or names.\nDO NOT add any headings to the column',
                         onTap: () async {
                           String csvFilePath = await getCSVFilePath();
 
