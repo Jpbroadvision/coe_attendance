@@ -1,0 +1,14 @@
+import 'package:coe_attendance/utils/date_time.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/service/database_service.dart';
+import '../../core/service/permission_service.dart';
+
+final permissionProvider =
+    Provider.autoDispose<PermissionService>((ref) => PermissionService());
+
+final dbServiceProvider =
+    Provider.autoDispose<DatabaseService>((ref) => DatabaseService());
+
+final datetimeHelperProvider =
+    Provider.autoDispose<DateTimeHelper>((ref) => DateTimeHelper());
