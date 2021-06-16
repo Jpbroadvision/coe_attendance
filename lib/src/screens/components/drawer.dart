@@ -1,25 +1,26 @@
 import 'dart:async';
 
-import 'package:coe_attendance/utils/date_time.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../locator.dart';
 import '../../../utils/csv_generator.dart';
 import '../../../utils/flash_helper.dart';
 import '../../../utils/pdf_document.dart';
-import '../../core/service/database_service.dart';
+import '../providers/service_providers.dart';
 import 'toast_message.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends ConsumerWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
-  final DatabaseService _databaseService = locator<DatabaseService>();
 
   CustomDrawer(this.scaffoldKey);
 
-  final dateTimeHelper = DateTimeHelper();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+
+    final dbService = watch (dbServiceProvider);
+    final datetimeHelper = watch (datetimeHelperProvider);
+    
     return Drawer(
       child: ListView(
         children: [
@@ -27,8 +28,8 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(PDF)"),
             onTap: () async {
-              final attendanceRecords = await _databaseService
-                  .getAttendanceRecordByDate(dateTimeHelper.formattedDate);
+              final attendanceRecords = await dbService
+                  .getAttendanceRecordByDate(datetimeHelper.formattedDate);
 
               final completer = Completer();
 
@@ -49,8 +50,8 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(CSV)"),
             onTap: () async {
-              final attendanceRecords =  await _databaseService
-                  .getAttendanceRecordByDate(dateTimeHelper.formattedDate);
+              final attendanceRecords =  await dbService
+                  .getAttendanceRecordByDate(datetimeHelper.formattedDate);
 
               final completer = Completer();
 
@@ -72,7 +73,7 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Export All(PDF)"),
             onTap: () async {
               final attendanceRecords =
-                  await _databaseService.getAttendanceRecords();
+                  await dbService.getAttendanceRecords();
 
               final completer = Completer();
 
@@ -94,7 +95,7 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Export All(CSV)"),
             onTap: () async {
               final attendanceRecords =
-                  await _databaseService.getAttendanceRecords();
+                  await dbService.getAttendanceRecords();
 
               final completer = Completer();
 
