@@ -1,6 +1,6 @@
 # coe_attendance
 
-A new Flutter project.
+For taking the attendance of invigilators during KNUST College of Engineering Examination
 
 ## Getting Started
 
