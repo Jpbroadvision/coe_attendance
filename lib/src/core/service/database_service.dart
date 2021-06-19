@@ -16,7 +16,7 @@ class DatabaseService {
   static Database _db;
 
   /// database name
-  static const String DB_NAME = 'coe_attendance_database.db';
+  static const String DB_NAME = 'coe_proctors_attendance_database.db';
 
   // All tables
   static const String ATTENDANCE_RECORDS_TABLE = 'attendance_records';
@@ -224,7 +224,8 @@ class DatabaseService {
   }
 
   /// get all attendance records from ATTENDANCE_RECORDS_TABLE by category
-  Future<List<AttendanceRecordModel>> getAttendanceRecordsByCategory(String category) async {
+  Future<List<AttendanceRecordModel>> getAttendanceRecordsByCategory(
+      String category) async {
     var dbClient = await db;
 
     List<Map> maps = await dbClient.query(ATTENDANCE_RECORDS_TABLE,
@@ -238,7 +239,8 @@ class DatabaseService {
           DATE,
           DATE_TIME,
           SIGN_IMAGE_PATH
-        ], where: '$CATEGORY = ?',
+        ],
+        where: '$CATEGORY = ?',
         whereArgs: [category],
         orderBy: "$NAME ASC");
 

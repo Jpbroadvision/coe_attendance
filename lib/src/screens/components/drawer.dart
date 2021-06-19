@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:coe_attendance/utils/date_time.dart';
+import 'package:coe_proctors_attendance/utils/date_time.dart';
 import 'package:flutter/material.dart';
 
 import '../../../locator.dart';
@@ -49,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(CSV)"),
             onTap: () async {
-              final attendanceRecords =  await _databaseService
+              final attendanceRecords = await _databaseService
                   .getAttendanceRecordByDate(dateTimeHelper.formattedDate);
 
               final completer = Completer();

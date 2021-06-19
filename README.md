@@ -1,4 +1,4 @@
-# coe_attendance
+# coe_proctors_attendance
 
 For taking the attendance of invigilators during KNUST College of Engineering Examination
 

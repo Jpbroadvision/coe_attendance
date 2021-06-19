@@ -6,7 +6,8 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../src/core/models/attendance_records_model.dart';
 
-Future<String> generatePDF(List<AttendanceRecordModel> attendanceRecords) async {
+Future<String> generatePDF(
+    List<AttendanceRecordModel> attendanceRecords) async {
   final doc = pw.Document(pageMode: PdfPageMode.outlines);
   final dateTimeNow = DateTime.now().year;
   final dateTimeLastYear = (dateTimeNow - 1);
@@ -143,7 +144,8 @@ Future<String> generatePDF(List<AttendanceRecordModel> attendanceRecords) async 
   );
 
   String dirPath = (await getExternalStorageDirectory()).path;
-  final String filePath = "$dirPath/coe-attendance-${DateTime.now().toString()}.pdf";
+  final String filePath =
+      "$dirPath/coe-attendance-${DateTime.now().toString()}.pdf";
 
   File file = File(filePath);
 
