@@ -372,45 +372,6 @@ class AddRecordPage extends ConsumerWidget {
     );
   }
 
-  buildProctorWidget(
-      StateController<List<ProctorModel>> proctors,
-      StateController<ProctorModel> selectedProctor,
-      StateController<TextEditingController> searchProctor) {
-    if (proctors.state.isEmpty)
-      return InfoMessage(
-          message: 'No data for proctors. Import data at Settings screen.');
-
-    return AutoCompleteTextField<ProctorModel>(
-      controller: searchProctor.state,
-      clearOnSubmit: false,
-      decoration: InputDecoration(
-        hintText: "Search proctor:",
-        suffixIcon: Icon(Icons.search),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-      ),
-      itemSubmitted: (item) {
-        selectedProctor.state = item;
-
-        searchProctor.state.text = selectedProctor.state.name;
-      },
-      key: _taAutoCompleteKey,
-      suggestions: proctors.state,
-      itemBuilder: (context, proctor) => Padding(
-        child: Text(proctor.name),
-        padding: EdgeInsets.all(5.0),
-      ),
-      itemSorter: (a, b) => a.id == b.id
-          ? 0
-          : a.id > b.id
-              ? -1
-              : 1,
-      itemFilter: (suggestion, input) =>
-          suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
-    );
-  }
-
   buildTasWidget(StateController<List<TeachingAssistantModel>> tAs,
       StateController<TeachingAssistantModel> selectedTA) {
     if (tAs.state.isEmpty)
@@ -490,25 +451,7 @@ class AddRecordPage extends ConsumerWidget {
     return filePath;
   }
 
-  /*  TextField _buildOtherTextField(BuildContext context) {
-    return TextField(
-      onChanged: (value) {
-        final otherName = context.read(otherNameProvider);
-        otherName.state = value;
-      },
-      decoration: InputDecoration(
-        hintText: "Other",
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        hintStyle: TextStyle(fontSize: 15.0, color: Colors.black),
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-      ),
-    );
-  }
- */
-  saveRecord(BuildContext context) async {
+ saveRecord(BuildContext context) async {
     final selectedProctor = context.read(selectedProctorProvider);
     final selectedTA = context.read(selectedTAProvider);
     final otherName = context.read(otherNameProvider);
