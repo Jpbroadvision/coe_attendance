@@ -49,7 +49,13 @@ final durationsProvider = Provider<List<String>>((ref) =>
     ['1:00', '1:15', '1:30', '1:45', '2:00', '2:15', '2:30', '2:45', '3:00']);
 
 final selectedRoomProvider =
-    StateProvider<AvailableRoomsModel>((ref) => AvailableRoomsModel());
+    StateProvider.autoDispose<AvailableRoomsModel>((ref) {
+  final availableRooms = ref.watch(availableRoomsProvider);
+
+  return availableRooms.maybeWhen(
+      data: (rooms) => rooms.length > 0 ? rooms.first : AvailableRoomsModel(),
+      orElse: () => AvailableRoomsModel());
+});
 
 final availableRoomsProvider =
     FutureProvider.autoDispose<List<AvailableRoomsModel>>((ref) {
@@ -58,13 +64,22 @@ final availableRoomsProvider =
   return dbService.getAvailableRooms();
 });
 
+final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
+  final proctors = ref.watch(proctorsProvider);
+
+  return proctors.maybeWhen(
+      data: (proctorList) =>
+          proctorList.length > 0 ? proctorList.first : ProctorModel(),
+      orElse: () => ProctorModel());
+});
+
 final proctorsProvider = FutureProvider.autoDispose<List<ProctorModel>>((ref) {
   final dbService = ref.watch(dbServiceProvider);
 
   return dbService.getProctors();
 });
 
-final roomPerTAsProvider =
+final roomPerTAListProvider =
     FutureProvider.autoDispose<Map<String, List<TeachingAssistantModel>>>(
         (ref) {
   final teachingAssistantAllocation =
@@ -73,24 +88,21 @@ final roomPerTAsProvider =
   return teachingAssistantAllocation.getAllocations();
 });
 
-final tAsProvider =
+final tAsOfSelectedRoomProvider =
     StateProvider.autoDispose<List<TeachingAssistantModel>>((ref) {
-  final roomPerTAs = ref.watch(roomPerTAsProvider);
+  final roomPerTAs = ref.watch(roomPerTAListProvider);
   final selectedRoom = ref.watch(selectedRoomProvider);
-  List<TeachingAssistantModel> result = [];
 
-  roomPerTAs.whenData((value) {
-    result = value[selectedRoom?.state?.room];
-  });
-
-  return result;
+  return roomPerTAs.maybeWhen(
+      data: (roomForTAs) => roomForTAs[selectedRoom.state.room],
+      orElse: () => []);
 });
 
 final selectedTAProvider =
-    StateProvider<TeachingAssistantModel>((ref) => TeachingAssistantModel());
-
-final selectedProctorProvider =
-    StateProvider<ProctorModel>((ref) => ProctorModel());
+    StateProvider.autoDispose<TeachingAssistantModel>((ref) {
+  final tAs = ref.watch(tAsOfSelectedRoomProvider);
+  return tAs.state.length > 0 ? tAs.state.first : TeachingAssistantModel();
+});
 
 final teachingAssistantAllocationProvider =
     Provider.autoDispose<TeachingAssistantAllocation>((ref) {
@@ -117,7 +129,7 @@ final focusedBorder = OutlineInputBorder(
   ),
 );
 
-class AddRecordPage extends StatelessWidget {
+class AddRecordPage extends ConsumerWidget {
   AddRecordPage({Key key}) : super(key: key);
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -127,7 +139,32 @@ class AddRecordPage extends StatelessWidget {
   final _sign = GlobalKey<SignatureState>();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    final categories = watch(categoriesProvider);
+    final selectedCategory = watch(selectedCategoryProvider);
+    List<DropdownMenuItem<String>> categoriesDropdownList =
+        _buildDropdownList(categories);
+
+    final sessions = watch(sessionsProvider);
+    final selectedSession = watch(selectedSessionProvider);
+    List<DropdownMenuItem<String>> sessionsDropdownList =
+        _buildDropdownList(sessions);
+
+    final durations = watch(durationsProvider);
+    final selectedDuration = watch(selectedDurationProvider);
+    List<DropdownMenuItem<String>> durationsDropdownList =
+        _buildDropdownList(durations);
+
+    final availableRooms = watch(availableRoomsProvider);
+    final selectedRoom = watch(selectedRoomProvider);
+    final tAsOfSelectedRoom = watch(tAsOfSelectedRoomProvider);
+    final selectedTA = watch(selectedTAProvider);
+
+    final proctors = watch(proctorsProvider);
+    final selectedProctor = watch(selectedProctorProvider);
+    final searchProctor = watch(searchProctorProvider);
+    final otherName = watch(otherNameProvider);
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: CustomDrawer(_scaffoldKey),
@@ -150,87 +187,121 @@ class AddRecordPage extends StatelessWidget {
               children: <Widget>[
                 SizedBox(height: 20.0),
                 Text("Category"), SizedBox(height: 5.0),
-                Consumer(
-                  builder: (context, watch, child) {
-                    final categories = watch(categoriesProvider);
-                    final selectedCategory = watch(selectedCategoryProvider);
-                    List<DropdownMenuItem<String>> categoriesDropdownList =
-                        _buildDropdownList(categories);
-
-                    return CustomDropdown(
-                      dropdownMenuItemList: categoriesDropdownList,
-                      onChanged: (value) => selectedCategory.state = value,
-                      value: selectedCategory.state,
-                    );
-                  },
+                CustomDropdown(
+                  dropdownMenuItemList: categoriesDropdownList,
+                  onChanged: (value) => selectedCategory.state = value,
+                  value: selectedCategory.state,
                 ),
                 SizedBox(height: 20.0),
 
                 Text("Session"), SizedBox(height: 5.0),
-                Consumer(
-                  builder: (context, watch, child) {
-                    final sessions = watch(sessionsProvider);
-                    final selectedSession = watch(selectedSessionProvider);
-                    List<DropdownMenuItem<String>> sessionsDropdownList =
-                        _buildDropdownList(sessions);
-
-                    return CustomDropdown(
-                      dropdownMenuItemList: sessionsDropdownList,
-                      onChanged: (value) => selectedSession.state = value,
-                      value: selectedSession.state,
-                    );
-                  },
+                CustomDropdown(
+                  dropdownMenuItemList: sessionsDropdownList,
+                  onChanged: (value) => selectedSession.state = value,
+                  value: selectedSession.state,
                 ),
                 SizedBox(height: 20.0),
 
                 Text("Duration"), SizedBox(height: 5.0),
-                Consumer(
-                  builder: (context, watch, child) {
-                    final durations = watch(durationsProvider);
-                    final selectedDuration = watch(selectedDurationProvider);
-
-                    List<DropdownMenuItem<String>> durationsDropdownList =
-                        _buildDropdownList(durations);
-
-                    return CustomDropdown(
-                      dropdownMenuItemList: durationsDropdownList,
-                      onChanged: (value) => selectedDuration.state = value,
-                      value: selectedDuration.state,
-                    );
-                  },
+                CustomDropdown(
+                  dropdownMenuItemList: durationsDropdownList,
+                  onChanged: (value) => selectedDuration.state = value,
+                  value: selectedDuration.state,
                 ),
                 SizedBox(height: 20.0),
                 Text("Room"), SizedBox(height: 5.0),
-                buildRoomsWidget(context),
-                SizedBox(height: 20.0),
-                Consumer(
-                  builder: (context, watch, child) {
-                    final selectedCategory = watch(selectedCategoryProvider);
+                // shows available rooms
+                availableRooms.map(
+                  data: (data) {
+                    // show import message if no data exist
+                    if (data.value.isEmpty)
+                      return InfoMessage(
+                          message:
+                              'No data for available rooms. Import data at Settings screen.');
 
-                    return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (selectedCategory.state ==
-                              "Teaching Assistant") ...[
-                            Text("Teaching Assistant"),
-                            SizedBox(height: 5.0),
-                            buildTasWidget(context),
-                          ],
-                          if (selectedCategory.state == "Proctor") ...[
-                            Text("proctor"),
-                            SizedBox(height: 5.0),
-                            buildProctorWidget(context),
-                          ],
-                          if (selectedCategory.state == "Other") ...[
-                            Text("Enter name"),
-                            SizedBox(height: 5.0),
-                            _buildOtherTextField(context),
-                          ]
-                        ]);
+                    List<DropdownMenuItem<AvailableRoomsModel>>
+                        roomsDropdownList = _buildRoomsDropdownList(data.value);
+
+                    return CustomDropdown(
+                      dropdownMenuItemList: roomsDropdownList,
+                      onChanged: (value) {
+                        selectedRoom.state = value;
+                      },
+                      value: selectedRoom.state,
+                    );
                   },
+                  error: (error) => Text('oops an Error occured'),
+                  loading: (_) => Loading(),
                 ),
+                SizedBox(height: 20.0),
+                if (selectedCategory.state == "Teaching Assistant") ...[
+                  Text("Teaching Assistant"),
+                  SizedBox(height: 5.0),
+                  buildTasWidget(tAsOfSelectedRoom, selectedTA)
+                ],
+                if (selectedCategory.state == "Proctor") ...[
+                  Text("proctor"),
+                  SizedBox(height: 5.0),
+                  proctors.map(
+                    data: (proctorsList) {
+                      if (proctorsList.value.isEmpty)
+                        return InfoMessage(
+                            message:
+                                'No data for proctors. Import data at Settings screen.');
+
+                      return AutoCompleteTextField<ProctorModel>(
+                        controller: searchProctor.state,
+                        clearOnSubmit: false,
+                        decoration: InputDecoration(
+                          hintText: "Search proctor:",
+                          suffixIcon: Icon(Icons.search),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 16),
+                          enabledBorder: enabledBorder,
+                          focusedBorder: focusedBorder,
+                        ),
+                        itemSubmitted: (item) {
+                          selectedProctor.state = item;
+
+                          searchProctor.state.text = selectedProctor.state.name;
+                        },
+                        key: _taAutoCompleteKey,
+                        suggestions: proctorsList.value,
+                        itemBuilder: (context, proctor) => Padding(
+                          child: Text(proctor.name),
+                          padding: EdgeInsets.all(5.0),
+                        ),
+                        itemSorter: (a, b) => a.id == b.id
+                            ? 0
+                            : a.id > b.id
+                                ? -1
+                                : 1,
+                        itemFilter: (suggestion, input) => suggestion.name
+                            .toLowerCase()
+                            .startsWith(input.toLowerCase()),
+                      );
+                    },
+                    error: (error) => Text('oops an Error occured'),
+                    loading: (_) => Loading(),
+                  )
+                ],
+                if (selectedCategory.state == "Other") ...[
+                  Text("Enter name"),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    onChanged: (value) => otherName.state = value,
+                    decoration: InputDecoration(
+                      hintText: "Other",
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      hintStyle: TextStyle(fontSize: 15.0, color: Colors.black),
+                      enabledBorder: enabledBorder,
+                      focusedBorder: focusedBorder,
+                    ),
+                  ),
+                ],
                 SizedBox(height: 20.0),
                 Text("Signature"),
                 SizedBox(height: 5.0),
@@ -301,99 +372,51 @@ class AddRecordPage extends StatelessWidget {
     );
   }
 
-  buildRoomsWidget(BuildContext context) {
-    final availableRooms = context.read(availableRoomsProvider);
-    final selectedRoom = context.read(selectedRoomProvider);
-
-    if (selectedRoom.state == AvailableRoomsModel())
-      return InfoMessage(
-          message:
-              'No data for available rooms. Import data at Settings screen.');
-
-    return availableRooms.map(
-        data: (data) {
-          selectedRoom.state =
-              data.value.isEmpty ? AvailableRoomsModel() : data.value?.first;
-
-          List<DropdownMenuItem<AvailableRoomsModel>> roomsDropdownList =
-              _buildRoomsDropdownList(data.value);
-
-          return CustomDropdown(
-            dropdownMenuItemList: roomsDropdownList,
-            onChanged: (value) {
-              selectedRoom.state = value;
-              //TODO: get Teaching Assistant with the selected room
-            },
-            value: selectedRoom.state,
-          );
-        },
-        loading: (loading) {
-          loading.whenData((value) => print(value));
-          return Loading();
-        },
-        error: (_) => Text('ERROR'));
-  }
-
-  buildProctorWidget(BuildContext context) {
-    final proctors = context.read(proctorsProvider);
-    final selectedProctor = context.read(selectedProctorProvider);
-    final searchProctor = context.read(searchProctorProvider);
-
-    if (selectedProctor.state == ProctorModel())
+  buildProctorWidget(
+      StateController<List<ProctorModel>> proctors,
+      StateController<ProctorModel> selectedProctor,
+      StateController<TextEditingController> searchProctor) {
+    if (proctors.state.isEmpty)
       return InfoMessage(
           message: 'No data for proctors. Import data at Settings screen.');
 
-    return proctors.map(
-        data: (data) {
-          selectedProctor.state =
-              data.value.isEmpty ? ProctorModel() : data.value?.first;
+    return AutoCompleteTextField<ProctorModel>(
+      controller: searchProctor.state,
+      clearOnSubmit: false,
+      decoration: InputDecoration(
+        hintText: "Search proctor:",
+        suffixIcon: Icon(Icons.search),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        enabledBorder: enabledBorder,
+        focusedBorder: focusedBorder,
+      ),
+      itemSubmitted: (item) {
+        selectedProctor.state = item;
 
-          return AutoCompleteTextField<ProctorModel>(
-            controller: searchProctor.state,
-            clearOnSubmit: false,
-            decoration: InputDecoration(
-              hintText: "Search proctor:",
-              suffixIcon: Icon(Icons.search),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              enabledBorder: enabledBorder,
-              focusedBorder: focusedBorder,
-            ),
-            itemSubmitted: (item) {
-              selectedProctor.state = item;
-
-              searchProctor.state.text = selectedProctor.state.name;
-            },
-            key: _taAutoCompleteKey,
-            suggestions: data.value,
-            itemBuilder: (context, proctor) => Padding(
-              child: Text(proctor.name),
-              padding: EdgeInsets.all(5.0),
-            ),
-            itemSorter: (a, b) => a.id == b.id
-                ? 0
-                : a.id > b.id
-                    ? -1
-                    : 1,
-            itemFilter: (suggestion, input) =>
-                suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
-          );
-        },
-        loading: (_) => Loading(),
-        error: (_) => Text('ERROR'));
+        searchProctor.state.text = selectedProctor.state.name;
+      },
+      key: _taAutoCompleteKey,
+      suggestions: proctors.state,
+      itemBuilder: (context, proctor) => Padding(
+        child: Text(proctor.name),
+        padding: EdgeInsets.all(5.0),
+      ),
+      itemSorter: (a, b) => a.id == b.id
+          ? 0
+          : a.id > b.id
+              ? -1
+              : 1,
+      itemFilter: (suggestion, input) =>
+          suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
+    );
   }
 
-  buildTasWidget(BuildContext context) {
-    final tAs = context.read(tAsProvider);
-    final selectedTA = context.read(selectedTAProvider);
-
-    if (selectedTA.state == TeachingAssistantModel())
+  buildTasWidget(StateController<List<TeachingAssistantModel>> tAs,
+      StateController<TeachingAssistantModel> selectedTA) {
+    if (tAs.state.isEmpty)
       return InfoMessage(
           message:
               'No data available for teaching assistants. Import data at Settings screen.');
-
-    selectedTA.state =
-        tAs.state.isEmpty ? TeachingAssistantModel() : tAs.state?.first;
 
     List<DropdownMenuItem<TeachingAssistantModel>> tAsDropdownList =
         _buildTAsDropdownList(tAs.state);
@@ -401,9 +424,7 @@ class AddRecordPage extends StatelessWidget {
       children: [
         CustomDropdown(
           dropdownMenuItemList: tAsDropdownList,
-          onChanged: (value) {
-            selectedTA.state = value;
-          },
+          onChanged: (value) => selectedTA.state = value,
           value: selectedTA.state,
         ),
       ],
@@ -469,7 +490,7 @@ class AddRecordPage extends StatelessWidget {
     return filePath;
   }
 
-  TextField _buildOtherTextField(BuildContext context) {
+  /*  TextField _buildOtherTextField(BuildContext context) {
     return TextField(
       onChanged: (value) {
         final otherName = context.read(otherNameProvider);
@@ -486,7 +507,7 @@ class AddRecordPage extends StatelessWidget {
       ),
     );
   }
-
+ */
   saveRecord(BuildContext context) async {
     final selectedProctor = context.read(selectedProctorProvider);
     final selectedTA = context.read(selectedTAProvider);
@@ -499,8 +520,8 @@ class AddRecordPage extends StatelessWidget {
     final selectedDuration = context.read(selectedDurationProvider);
 
     String signImagePath = await _getImagePath();
-    String tempCat =
-        selectedCategory.state; // temp holder for  selectedCategory.state
+    // temp holder for  selectedCategory.state
+    String tempCategory = selectedCategory.state;
 
     String name;
     switch (selectedCategory.state) {
@@ -509,15 +530,16 @@ class AddRecordPage extends StatelessWidget {
         break;
       case "Proctor":
         name = selectedProctor.state.name;
-        selectedCategory.state = selectedProctor.state.category;
+        tempCategory = selectedProctor.state.category;
         break;
       case "Other":
         name = otherName.state;
+        otherName.state = '';
         break;
     }
 
-    if (selectedRoom.state.room == null || name.isEmpty) {
-      toastMessage(context, "Import CSV data.", Colors.red);
+    if (selectedRoom.state == null || name.isEmpty) {
+      toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
 
@@ -525,16 +547,13 @@ class AddRecordPage extends StatelessWidget {
     AttendanceRecordModel attendanceRecords = AttendanceRecordModel(
       name: name,
       session: selectedSession.state,
-      category: selectedCategory.state,
+      category: tempCategory,
       duration: selectedDuration.state,
       room: selectedRoom.state.room,
       date: datetimeHelper.formattedDate,
       dateTime: DateTime.now().toString(),
       signImagePath: signImagePath,
     );
-
-    // revert selected category
-    selectedCategory.state = tempCat;
 
     // save details to database
     try {
