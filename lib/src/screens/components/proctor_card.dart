@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:coe_proctors_attendance/src/core/models/attendance_records_model.dart';
 import 'package:flutter/material.dart';
+
+import '../../core/models/attendance_records_model.dart';
 
 class ProctorCard extends StatelessWidget {
   final AttendanceRecordModel attendanceRecord;
