@@ -14,13 +14,11 @@ class CustomDrawer extends ConsumerWidget {
 
   CustomDrawer(this.scaffoldKey);
 
-
   @override
   Widget build(BuildContext context, ScopedReader watch) {
+    final dbService = watch(dbServiceProvider);
+    final datetimeHelper = watch(datetimeHelperProvider);
 
-    final dbService = watch (dbServiceProvider);
-    final datetimeHelper = watch (datetimeHelperProvider);
-    
     return Drawer(
       child: ListView(
         children: [
@@ -50,7 +48,7 @@ class CustomDrawer extends ConsumerWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export Today's Record(CSV)"),
             onTap: () async {
-              final attendanceRecords =  await dbService
+              final attendanceRecords = await dbService
                   .getAttendanceRecordByDate(datetimeHelper.formattedDate);
 
               final completer = Completer();
@@ -72,8 +70,7 @@ class CustomDrawer extends ConsumerWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export All(PDF)"),
             onTap: () async {
-              final attendanceRecords =
-                  await dbService.getAttendanceRecords();
+              final attendanceRecords = await dbService.getAttendanceRecords();
 
               final completer = Completer();
 
@@ -94,8 +91,7 @@ class CustomDrawer extends ConsumerWidget {
             leading: Icon(Icons.file_download),
             title: Text("Export All(CSV)"),
             onTap: () async {
-              final attendanceRecords =
-                  await dbService.getAttendanceRecords();
+              final attendanceRecords = await dbService.getAttendanceRecords();
 
               final completer = Completer();
 
