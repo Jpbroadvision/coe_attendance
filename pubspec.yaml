@@ -1,4 +1,4 @@
-name: coe_proctors_attendance
+name: coe_attendance
 description: For taking the attendance of invigilators during KNUST College of Engineering Examination.
 
 # The following line prevents the package from being accidentally published to
