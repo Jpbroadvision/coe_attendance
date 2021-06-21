@@ -42,8 +42,6 @@ dependencies:
   permission_handler: ^6.1.1
   file_picker: ^3.0.0
   csv: ^4.0.3
-  bloc: ^7.0.0
-  flutter_bloc: ^7.0.0
   get_it: ^6.0.0
   pdf: ^3.1.0
   flash: ^1.5.1
@@ -52,6 +50,7 @@ dependencies:
   autocomplete_textfield: ^1.7.3
   share: ^2.0.1
   flutter_native_splash: ^1.1.8+4
+  flutter_riverpod: ^0.14.0+3
 
 dev_dependencies:
   flutter_test:

@@ -14,11 +14,11 @@ class TeachingAssistantAllocation {
 
     Map<String, List<TeachingAssistantModel>> allocations = {};
 
-    for (var taRoom in listOfTeachingAssistants) {
-      if (allocations.containsKey(taRoom.room)) {
-        allocations[taRoom.room].add(taRoom);
+    for (var teachingAssistant in listOfTeachingAssistants) {
+      if (allocations.containsKey(teachingAssistant.room)) {
+        allocations[teachingAssistant.room].add(teachingAssistant);
       } else {
-        allocations[taRoom.room] = [taRoom];
+        allocations[teachingAssistant.room] = [teachingAssistant];
       }
     }
     return allocations;
