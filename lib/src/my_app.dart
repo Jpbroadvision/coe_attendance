@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'screens/views/bottom_navigation.dart';
 
@@ -20,13 +21,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CoE INVIGILTORS ATTENDANCE',
-      theme: ThemeData(
-        primarySwatch: customColor,
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'CoE INVIGILTORS ATTENDANCE',
+        theme: ThemeData(
+          primarySwatch: customColor,
+        ),
+        home: BottomNavigationPage(),
+        debugShowCheckedModeBanner: false,
       ),
-      home: BottomNavigationPage(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

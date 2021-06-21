@@ -1,26 +1,20 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../locator.dart';
 import '../../../utils/flash_helper.dart';
-import '../../core/service/database_service.dart';
 import '../components/custom_appbar.dart';
 import '../components/drawer.dart';
 import '../components/toast_message.dart';
+import '../providers/service_providers.dart';
 
-class SettingsScreen extends StatefulWidget {
-  SettingsScreen({Key key}) : super(key: key);
-  @override
-  _SettingsScreenState createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  final DatabaseService _databaseService = locator<DatabaseService>();
-
+class SettingsScreen extends ConsumerWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    final databaseService = watch(dbServiceProvider);
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: CustomDrawer(_scaffoldKey),
@@ -53,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'Import Teaching Assistants',
                         description:
                             'NB: The file you are going to import must be a CSV file.\nIt must have two columns with the first column classrooms and second TA names assigned\nDO NOT add any headings to the columns',
@@ -60,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           String csvFilePath = await getCSVFilePath();
 
                           try {
-                            await _databaseService
+                            await databaseService
                                 .insertTeachingAssistantsCSV(csvFilePath);
                             toastMessage(
                                 context, "TAs CSV file import was a success");
@@ -81,6 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'Import Invigilators and Attendants',
                         description:
                             'NB: The file you are going to import must be a CSV file. It must have two columns with the first column consists names and second column consists categories(Invigilators or Attendant).\nDO NOT add any headings to the columns',
@@ -88,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           String csvFilePath = await getCSVFilePath();
 
                           try {
-                            await _databaseService
+                            await databaseService
                                 .insertProctorsCSV(csvFilePath);
                             toastMessage(context,
                                 "Proctors CSV file import was a success");
@@ -111,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'Import Available Rooms',
                         description:
                             'NB: The file you are going to import must be a CSV file. It must have only one column with their room numbers or names.\nDO NOT add any headings to the column',
@@ -118,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           String csvFilePath = await getCSVFilePath();
 
                           try {
-                            await _databaseService
+                            await databaseService
                                 .insertAvailableRoomsCSV(csvFilePath);
                             toastMessage(context,
                                 "Available Rooms CSV file import was a success");
@@ -144,12 +141,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete Teaching Assistants(TAs) data',
                         onTap: () async {
                           try {
-                            await _databaseService
-                                .dropTeachingAssistantsTable();
+                            await databaseService.dropTeachingAssistantsTable();
                             toastMessage(
                               context,
                               "Operation was a success",
@@ -168,11 +165,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete Proctors data',
                         onTap: () async {
                           try {
-                            await _databaseService.dropProctorsTable();
+                            await databaseService.dropProctorsTable();
                             toastMessage(
                               context,
                               "Operation was a success",
@@ -191,11 +189,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete Available Rooms data',
                         onTap: () async {
                           try {
-                            await _databaseService.dropRoomsTable();
+                            await databaseService.dropRoomsTable();
                             toastMessage(
                               context,
                               "Operation was a success",
@@ -220,15 +219,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete all attendance records',
                         onTap: () async {
                           try {
                             final result =
-                                await _databaseService.getAttendanceRecords();
+                                await databaseService.getAttendanceRecords();
 
                             for (var attendanceRecord in result) {
-                              await _databaseService.deleteAttendanceRecordById(
+                              await databaseService.deleteAttendanceRecordById(
                                   attendanceRecord.id);
                             }
 
@@ -250,15 +250,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete invigilators attendance records',
                         onTap: () async {
                           try {
-                            final result = await _databaseService
+                            final result = await databaseService
                                 .getAttendanceRecordsByCategory('Invigilator');
 
                             for (var attendanceRecord in result) {
-                              await _databaseService.deleteAttendanceRecordById(
+                              await databaseService.deleteAttendanceRecordById(
                                   attendanceRecord.id);
                             }
 
@@ -280,15 +281,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete invigilators attendance records',
                         onTap: () async {
                           try {
-                            final result = await _databaseService
+                            final result = await databaseService
                                 .getAttendanceRecordsByCategory('Attendant');
 
                             for (var attendanceRecord in result) {
-                              await _databaseService.deleteAttendanceRecordById(
+                              await databaseService.deleteAttendanceRecordById(
                                   attendanceRecord.id);
                             }
 
@@ -310,17 +312,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description:
                             'Delete traching assistants attendance records',
                         onTap: () async {
                           try {
-                            final result = await _databaseService
+                            final result = await databaseService
                                 .getAttendanceRecordsByCategory(
                                     'Teaching Assistant');
 
                             for (var attendanceRecord in result) {
-                              await _databaseService.deleteAttendanceRecordById(
+                              await databaseService.deleteAttendanceRecordById(
                                   attendanceRecord.id);
                             }
 
@@ -342,15 +345,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icon(Icons.delete, color: Colors.red),
                     onIconTap: () {
                       _showImportDialog(
+                        context,
                         title: 'DELETE?',
                         description: 'Delete others attendance records',
                         onTap: () async {
                           try {
-                            final result = await _databaseService
+                            final result = await databaseService
                                 .getAttendanceRecordsByCategory('Other');
 
                             for (var attendanceRecord in result) {
-                              await _databaseService.deleteAttendanceRecordById(
+                              await databaseService.deleteAttendanceRecordById(
                                   attendanceRecord.id);
                             }
 
@@ -424,7 +428,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showImportDialog({String title, String description, Function onTap}) {
+  void _showImportDialog(BuildContext context,
+      {String title, String description, Function onTap}) {
     FlashHelper.customDialog(
       context,
       titleBuilder: (context, controller, setState) {

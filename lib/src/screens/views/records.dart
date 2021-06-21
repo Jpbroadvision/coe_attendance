@@ -1,75 +1,122 @@
 import 'dart:async';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share/share.dart';
 
-import '../../../locator.dart';
 import '../../../utils/csv_generator.dart';
-import '../../../utils/date_time.dart';
 import '../../../utils/flash_helper.dart';
 import '../../../utils/pdf_document.dart';
-import '../../core/bloc/records_bloc.dart';
 import '../../core/models/attendance_records_model.dart';
-import '../../core/service/database_service.dart';
 import '../components/custom_appbar.dart';
 import '../components/custom_dropdown.dart';
 import '../components/drawer.dart';
-import '../components/loading.dart';
 import '../components/proctor_card.dart';
 import '../components/toast_message.dart';
+import '../providers/service_providers.dart';
 
-class Records extends StatefulWidget {
-  Records({Key key}) : super(key: key);
+final selectedDateProvider = StateProvider.autoDispose<String>((ref) {
+  final datetimeHelper = ref.watch(datetimeHelperProvider);
+
+  return datetimeHelper.formattedDate;
+});
+
+final categoriesProvider = Provider.autoDispose<List<String>>((ref) => [
+      'Select category',
+      'All',
+      'Teaching Assistant',
+      'Invigilator',
+      'Attendant',
+      'Other'
+    ]);
+
+final selectedCategoryProvider = StateProvider.autoDispose<String>((ref) {
+  final categories = ref.watch(categoriesProvider);
+
+  return categories.first;
+});
+
+final sessionsProvider = Provider.autoDispose<List<String>>(
+    (ref) => ['Select session', 'All', '1', '2', '3', '4', '5', '6', '7']);
+
+final selectedSessionProvider = StateProvider.autoDispose<String>((ref) {
+  final sessions = ref.watch(sessionsProvider);
+
+  return sessions.first;
+});
+
+final toggleFilterProvider = StateProvider.autoDispose<bool>((ref) => false);
+
+final attendanceRecordFilterProvider =
+    StateProvider.autoDispose<AttendanceRecordFilter>((ref) {
+  final session = ref.watch(selectedSessionProvider);
+  final category = ref.watch(selectedCategoryProvider);
+  final datetime = ref.watch(selectedDateProvider);
+
+  return AttendanceRecordFilter(
+      category: category.state, session: session.state, date: datetime.state);
+});
+
+final attendanceRecordsProvider =
+    FutureProvider.autoDispose<List<AttendanceRecordModel>>((ref) {
+  final dbService = ref.watch(dbServiceProvider);
+  return dbService.getAttendanceRecords();
+});
+
+final filteredAttendanceRecordsProvider =
+    Provider.autoDispose<List<AttendanceRecordModel>>((ref) {
+  final attendanceRecords = ref.watch(attendanceRecordsProvider);
+
+  final attendanceRecordFilter = ref.watch(attendanceRecordFilterProvider);
+  List<AttendanceRecordModel> result = [];
+
+  attendanceRecords.whenData((value) {
+    if (attendanceRecordFilter.state.session == 'All' &&
+        attendanceRecordFilter.state.category == 'All') {
+      result = value
+          .where((record) => record.date == attendanceRecordFilter.state.date)
+          .toList();
+    } else if (attendanceRecordFilter.state.session == 'All') {
+      result = value
+          .where((record) =>
+              record.category == attendanceRecordFilter.state.category &&
+              record.date == attendanceRecordFilter.state.date)
+          .toList();
+    } else if (attendanceRecordFilter.state.category == 'All') {
+      result = value
+          .where((record) =>
+              record.session == attendanceRecordFilter.state.session &&
+              record.date == attendanceRecordFilter.state.date)
+          .toList();
+    } else {
+      result = value
+          .where((record) =>
+              record.category == attendanceRecordFilter.state.category &&
+              record.session == attendanceRecordFilter.state.session &&
+              record.date == attendanceRecordFilter.state.date)
+          .toList();
+    }
+  });
+
+  return result;
+});
+
+class AttendanceRecordFilter extends Equatable {
+  final String category;
+  final String date;
+  final String session;
+
+  AttendanceRecordFilter(
+      {@required this.category, @required this.session, @required this.date});
+
   @override
-  _RecordsState createState() => _RecordsState();
+  List<Object> get props => [category, session, date];
 }
 
-class _RecordsState extends State<Records> {
-  final DatabaseService _databaseService = locator<DatabaseService>();
-
+class Records extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  DateTimeHelper dateTimeHelper;
-
-  String _selectedCategory;
-  List<String> _categories = [
-    'Select category',
-    'All',
-    'Teaching Assistant',
-    'Invigilator',
-    'Attendant',
-    'Other'
-  ];
-  List<DropdownMenuItem<String>> _categoriesDropdownList;
-
-  String _selectedSession;
-  List<String> _sessions = ['Select session','All', '1', '2', '3','4', '5', '6','7'];
-  List<DropdownMenuItem<String>> _sessionsDropdownList;
-
-  String _selectedDate;
-
-  BuildContext _recordsContext;
-
-  List<AttendanceRecordModel> _attendanceRecords;
-
-  bool _toggleFilters = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _categoriesDropdownList = _buildDropdownList(_categories);
-    _selectedCategory = _categories[0];
-
-    _sessionsDropdownList = _buildDropdownList(_sessions);
-    _selectedSession = _sessions[0];
-
-    // set date
-    dateTimeHelper = DateTimeHelper();
-    setState(() => _selectedDate = dateTimeHelper.formattedDate);
-  }
 
   List<DropdownMenuItem<String>> _buildDropdownList(List pItems) {
     List<DropdownMenuItem<String>> items = [];
@@ -82,298 +129,288 @@ class _RecordsState extends State<Records> {
     return items;
   }
 
-  Column buildProctorsCard(
-      BuildContext context, List<AttendanceRecordModel> attendanceRecords) {
-    if (attendanceRecords.isEmpty)
-      return Column(children: [Text("No record saved.")]);
-
-    return Column(
-        children: attendanceRecords
-            .map(
-              (attendanceRecord) => ProctorCard(
-                attendanceRecord: attendanceRecord,
-                deleteFunction: () async {
-                  await _databaseService
-                      .deleteAttendanceRecordById(attendanceRecord.id);
-
-                  //refresh list of Proctors
-                  refreshRecords(context);
-
-                  toastMessage(
-                      _scaffoldKey.currentContext, "Delete successful");
-                },
-              ),
-            )
-            .toList());
-  }
-
-  @override
-  void dispose() {
-    FlashHelper.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     FlashHelper.init(context);
 
-    return BlocProvider(
-      create: (context) => RecordsBloc(),
-      child: Scaffold(
-        key: _scaffoldKey,
-        drawer: CustomDrawer(_scaffoldKey),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              CustomAppBar(
-                title: 'Attendance Records',
-                scaffoldKey: _scaffoldKey,
-                trailing: PopupMenuButton(
-                    itemBuilder: (_) => <PopupMenuItem<String>>[
-                          PopupMenuItem<String>(
-                              child: const Text('Share'), value: 'Share'),
-                          PopupMenuItem<String>(
-                              child: const Text('Export'), value: 'Export'),
-                        ],
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'Share':
-                          _showShareExportDialog(
-                            title: 'Share as',
-                            onTapCSV: () {
-                              final completer = Completer();
-
-                              createCSVFile().then((filePath) {
-                                completer.complete();
-
-                                Share.shareFiles(
-                                  ['$filePath'],
-                                  text: 'CoE Examination Attendance',
-                                );
-                              });
-
-                              FlashHelper.blockDialog(
-                                context,
-                                dismissCompleter: completer,
-                              );
-                            },
-                            onTapPDF: () {
-                              final completer = Completer();
-
-                              createPdfFile().then((filePath) {
-                                completer.complete();
-
-                                Share.shareFiles(
-                                  ['$filePath'],
-                                  text: 'CoE Examination Attendance',
-                                );
-                              });
-
-                              FlashHelper.blockDialog(
-                                context,
-                                dismissCompleter: completer,
-                              );
-                            },
-                          );
-                          break;
-                        case 'Export':
-                          _showShareExportDialog(
-                            title: 'Export as',
-                            onTapCSV: () {
-                              final completer = Completer();
-
-                              createCSVFile().then((filePath) {
-                                completer.complete();
-
-                                toastMessage(_scaffoldKey.currentContext,
-                                    "File saved at $filePath");
-                              });
-
-                              FlashHelper.blockDialog(
-                                context,
-                                dismissCompleter: completer,
-                              );
-                            },
-                            onTapPDF: () {
-                              final completer = Completer();
-
-                              createPdfFile().then((filePath) {
-                                completer.complete();
-
-                                toastMessage(_scaffoldKey.currentContext,
-                                    "File saved at $filePath");
-                              });
-
-                              FlashHelper.blockDialog(
-                                context,
-                                dismissCompleter: completer,
-                              );
-                            },
-                          );
-                          break;
-                      }
-                    }),
-              ),
-              SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Filters",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        IconButton(
-                            icon: Icon(
-                              _toggleFilters
-                                  ? Icons.remove_circle
-                                  : Icons.add_circle,
-                              color: Theme.of(context).primaryColor,
-                              size: 30,
-                            ),
-                            onPressed: () {
-                              setState(() => _toggleFilters = !_toggleFilters);
-                            }),
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: CustomDrawer(_scaffoldKey),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            CustomAppBar(
+              title: 'Attendance Records',
+              scaffoldKey: _scaffoldKey,
+              trailing: PopupMenuButton(
+                  itemBuilder: (_) => <PopupMenuItem<String>>[
+                        PopupMenuItem<String>(
+                            child: const Text('Share'), value: 'Share'),
+                        PopupMenuItem<String>(
+                            child: const Text('Export'), value: 'Export'),
                       ],
-                    ),
-                    if (_toggleFilters) ...[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Category"),
-                          SizedBox(height: 5.0),
-                          CustomDropdown(
-                            dropdownMenuItemList: _categoriesDropdownList,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value;
-                              });
-                              refreshRecords(_recordsContext);
-                            },
-                            value: _selectedCategory,
-                            isEnabled: true,
-                          ),
-                          SizedBox(height: 15),
-                          Text("Session"),
-                          SizedBox(height: 5.0),
-                          CustomDropdown(
-                            dropdownMenuItemList: _sessionsDropdownList,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedSession = value;
-                              });
-                              refreshRecords(_recordsContext);
-                            },
-                            value: _selectedSession,
-                            isEnabled: true,
-                          ),
-                          SizedBox(height: 15),
-                          Text("Date"),
-                          SizedBox(height: 5.0),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              elevation: 4.0,
-                            ),
-                            onPressed: () {
-                              DatePicker.showDatePicker(context,
-                                  theme: DatePickerTheme(
-                                    containerHeight: 210.0,
-                                  ),
-                                  showTitleActions: true,
-                                  minTime: DateTime(2020, 1, 1),
-                                  maxTime: DateTime(2030, 12, 31),
-                                  onConfirm: (date) {
-                                String dateToStr = date.toString();
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'Share':
+                        _showShareExportDialog(
+                          context,
+                          title: 'Share as',
+                          onTapCSV: () {
+                            final completer = Completer();
 
-                                setState(() {
-                                  _selectedDate = dateToStr.split(' ')[0];
-                                });
+                            createCSVFile(context).then((filePath) {
+                              completer.complete();
 
-                                refreshRecords(_recordsContext);
-                              },
-                                  currentTime: DateTime.now(),
-                                  locale: LocaleType.en);
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: 50.0,
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.date_range,
-                                    size: 18.0,
-                                    color: Color(0xff244e98),
-                                  ),
-                                  Text(
-                                    " $_selectedDate",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17.0),
-                                  ),
-                                ],
+                              Share.shareFiles(
+                                ['$filePath'],
+                                text: 'CoE Examination Attendance',
+                              );
+                            });
+
+                            FlashHelper.blockDialog(
+                              context,
+                              dismissCompleter: completer,
+                            );
+                          },
+                          onTapPDF: () {
+                            final completer = Completer();
+
+                            createPdfFile(context).then((filePath) {
+                              completer.complete();
+
+                              Share.shareFiles(
+                                ['$filePath'],
+                                text: 'CoE Examination Attendance',
+                              );
+                            });
+
+                            FlashHelper.blockDialog(
+                              context,
+                              dismissCompleter: completer,
+                            );
+                          },
+                        );
+                        break;
+                      case 'Export':
+                        _showShareExportDialog(
+                          context,
+                          title: 'Export as',
+                          onTapCSV: () {
+                            final completer = Completer();
+
+                            createCSVFile(context).then((filePath) {
+                              completer.complete();
+
+                              toastMessage(_scaffoldKey.currentContext,
+                                  "File saved at $filePath");
+                            });
+
+                            FlashHelper.blockDialog(
+                              context,
+                              dismissCompleter: completer,
+                            );
+                          },
+                          onTapPDF: () {
+                            final completer = Completer();
+
+                            createPdfFile(context).then((filePath) {
+                              completer.complete();
+
+                              toastMessage(_scaffoldKey.currentContext,
+                                  "File saved at $filePath");
+                            });
+
+                            FlashHelper.blockDialog(
+                              context,
+                              dismissCompleter: completer,
+                            );
+                          },
+                        );
+                        break;
+                    }
+                  }),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Filters",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Consumer(
+                        builder: (contex, watch, child) {
+                          final toggleFilter = watch(toggleFilterProvider);
+
+                          return IconButton(
+                              icon: Icon(
+                                toggleFilter.state
+                                    ? Icons.remove_circle
+                                    : Icons.add_circle,
+                                color: Theme.of(context).primaryColor,
+                                size: 30,
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 20.0),
-                        ],
+                              onPressed: () {
+                                toggleFilter.state = !toggleFilter.state;
+                              });
+                        },
                       ),
                     ],
-                    Text(
-                      "Filter result",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    SizedBox(height: 10),
-                    _buildFilterResult()
-                  ],
-                ),
+                  ),
+                  buildFilterWidget(context),
+                  Text(
+                    "Filter result",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SizedBox(height: 10),
+                  _buildFilterResult(context)
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  BlocConsumer<RecordsBloc, RecordsState> _buildFilterResult() {
-    return BlocConsumer<RecordsBloc, RecordsState>(
-      listener: (context, state) {
-        if (state is RecordsLoaded) {}
-      },
-      builder: (context, state) {
-        if (state is RecordsInitial) {
-          _recordsContext = context;
-          refreshRecords(_recordsContext);
-          return Loading();
-        } else if (state is RecordsLoading) {
-          return Loading();
-        } else if (state is RecordsLoaded) {
-          _attendanceRecords = state.attendanceRecords;
-          return SingleChildScrollView(
-            child: buildProctorsCard(context, _attendanceRecords),
-          );
-        } else {
-          return Loading();
-        }
+  Widget buildFilterWidget(BuildContext context) {
+    return Consumer(
+      builder: (context, watch, child) {
+        final selectedDate = watch(selectedDateProvider);
+        final selectedCategory = watch(selectedCategoryProvider);
+        final selectedSession = watch(selectedSessionProvider);
+        final categories = watch(categoriesProvider);
+        final sessions = watch(sessionsProvider);
+        final toggleFilter = watch(toggleFilterProvider);
+
+        List<DropdownMenuItem<String>> categoriesDropdownList =
+            _buildDropdownList(categories);
+
+        List<DropdownMenuItem<String>> sessionsDropdownList =
+            _buildDropdownList(sessions);
+
+        return toggleFilter.state
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Category"),
+                  SizedBox(height: 5.0),
+                  CustomDropdown(
+                    dropdownMenuItemList: categoriesDropdownList,
+                    onChanged: (value) {
+                      selectedCategory.state = value;
+
+                      /* refreshRecords(_recordsContext); */
+                    },
+                    value: selectedCategory.state,
+                    isEnabled: true,
+                  ),
+                  SizedBox(height: 15),
+                  Text("Session"),
+                  SizedBox(height: 5.0),
+                  CustomDropdown(
+                    dropdownMenuItemList: sessionsDropdownList,
+                    onChanged: (value) {
+                      selectedSession.state = value;
+
+                      // refreshRecords(_recordsContext);
+                    },
+                    value: selectedSession.state,
+                    isEnabled: true,
+                  ),
+                  SizedBox(height: 15),
+                  Text("Date"),
+                  SizedBox(height: 5.0),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
+                      elevation: 4.0,
+                    ),
+                    onPressed: () {
+                      DatePicker.showDatePicker(context,
+                          theme: DatePickerTheme(
+                            containerHeight: 210.0,
+                          ),
+                          showTitleActions: true,
+                          minTime: DateTime(2020, 1, 1),
+                          maxTime: DateTime(2030, 12, 31), onConfirm: (date) {
+                        String dateToStr = date.toString();
+
+                        selectedDate.state = dateToStr.split(' ')[0];
+
+                        // refreshRecords(_recordsContext);
+                      }, currentTime: DateTime.now(), locale: LocaleType.en);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 50.0,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.date_range,
+                            size: 18.0,
+                            color: Color(0xff244e98),
+                          ),
+                          Text(
+                            " ${selectedDate.state}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 17.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                ],
+              )
+            : SizedBox();
       },
     );
   }
 
-  refreshRecords(BuildContext context) =>
-      BlocProvider.of<RecordsBloc>(context).add(GetRecords(
-          category: _selectedCategory,
-          session: _selectedSession,
-          date: _selectedDate));
+  _buildFilterResult(BuildContext context) {
 
-  void _showShareExportDialog(
+    return SingleChildScrollView(
+      child: Consumer(
+        builder: (context, watch, child) {
+          final dbService = watch(dbServiceProvider);
+          final filteredAttendanceRecords =
+              watch(filteredAttendanceRecordsProvider);
+
+          return Column(
+              children: filteredAttendanceRecords.isEmpty
+                  ? [Text("No record saved.")]
+                  : filteredAttendanceRecords
+                      .map(
+                        (attendanceRecord) => ProctorCard(
+                          attendanceRecord: attendanceRecord,
+                          deleteFunction: () async {
+                            await dbService.deleteAttendanceRecordById(
+                                attendanceRecord.id);
+
+                            //refresh list of Proctors
+
+                            toastMessage(_scaffoldKey.currentContext,
+                                "Delete successful");
+                          },
+                        ),
+                      )
+                      .toList());
+        },
+      ),
+    );
+  }
+
+  void _showShareExportDialog(BuildContext context,
       {String title, Function onTapCSV, Function onTapPDF}) {
     FlashHelper.customDialog(
       context,
@@ -416,11 +453,13 @@ class _RecordsState extends State<Records> {
     );
   }
 
-  createPdfFile() async {
-    return await generatePDF(_attendanceRecords);
+  createPdfFile(BuildContext context) async {
+    final attendanceRecords = context.read(filteredAttendanceRecordsProvider);
+    return await generatePDF(attendanceRecords);
   }
 
-  createCSVFile() async {
-    return await generateCSV(_attendanceRecords);
+  createCSVFile(BuildContext context) async {
+    final attendanceRecords = context.read(filteredAttendanceRecordsProvider);
+    return await generateCSV(attendanceRecords);
   }
 }

@@ -1,20 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../locator.dart';
-import '../../core/service/database_service.dart';
 import '../components/custom_appbar.dart';
 import '../components/drawer.dart';
 import '../components/loading.dart';
+import '../providers/service_providers.dart';
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
+final attendanceRecordsCountProvider = FutureProvider.autoDispose<int>((ref) {
+  final databaseService = ref.watch(dbServiceProvider);
 
-@override
-class _HomePageState extends State<HomePage> {
-  final DatabaseService _databaseService = locator<DatabaseService>();
+  return databaseService.countAttendanceRecords();
+});
 
+final invigilatorRecordsCountProvider = FutureProvider.autoDispose<int>((ref) {
+  final databaseService = ref.watch(dbServiceProvider);
+
+  return databaseService.countInvigilatorRecords();
+});
+
+final attendantRecordsCountProvider = FutureProvider.autoDispose<int>((ref) {
+  final databaseService = ref.watch(dbServiceProvider);
+
+  return databaseService.countAttendantRecords();
+});
+
+final tARecordsCountProvider = FutureProvider.autoDispose<int>((ref) {
+  final databaseService = ref.watch(dbServiceProvider);
+
+  return databaseService.countTARecords();
+});
+
+final otherRecordsCountProvider = FutureProvider.autoDispose<int>((ref) {
+  final databaseService = ref.watch(dbServiceProvider);
+
+  return databaseService.countOtherRecords();
+});
+
+class HomePage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Widget build(BuildContext context) {
@@ -92,71 +114,38 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            FutureBuilder(
-                              future: _databaseService.countAttendanceRecords(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                if (snapshot.hasData) {
-                                  return buildCustomCard(
-                                    number: snapshot.data,
-                                    category: 'Attendance Records',
-                                    icon: Image.asset('assets/images/attendance-record.png'),
-                                  );
-                                }
+                            Consumer(
+                              builder: (context, watch, child) {
+                                final aRecords =
+                                    watch(attendanceRecordsCountProvider);
 
-                                return Loading();
+                                return aRecords.map(
+                                    data: (data) => buildCustomCard(
+                                          context,
+                                          number: data.value,
+                                          category: 'Attendance Records',
+                                          icon: Image.asset(
+                                              'assets/images/attendance-record.png'),
+                                        ),
+                                    loading: (_) => Loading(),
+                                    error: (_) => Text('ERROR'));
                               },
                             ),
-                            FutureBuilder(
-                              future:
-                                  _databaseService.countInvigilatorRecords(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                if (snapshot.hasData) {
-                                  return buildCustomCard(
-                                    number: snapshot.data,
-                                    category: 'Invigilators',
-                                    icon: Image.asset('assets/images/invigilator.png'),
-                                  );
-                                }
+                            Consumer(
+                              builder: (context, watch, child) {
+                                final iRecords =
+                                    watch(invigilatorRecordsCountProvider);
 
-                                return Loading();
-                              },
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FutureBuilder(
-                              future: _databaseService.countAttendantRecords(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                if (snapshot.hasData) {
-                                  return buildCustomCard(
-                                    number: snapshot.data,
-                                    category: 'Attendants',
-                                    icon: Image.asset('assets/images/attendant.png'),
-                                  );
-                                }
-
-                                return Loading();
-                              },
-                            ),
-                            FutureBuilder(
-                              future: _databaseService.countTARecords(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                if (snapshot.hasData) {
-                                  return buildCustomCard(
-                                    number: snapshot.data,
-                                    category: 'Teaching Assistants',
-                                    icon: Image.asset('assets/images/teaching-assistant.png'),
-                                  );
-                                }
-
-                                return Loading();
+                                return iRecords.map(
+                                    data: (data) => buildCustomCard(
+                                          context,
+                                          number: data.value,
+                                          category: 'Invigilators',
+                                          icon: Image.asset(
+                                              'assets/images/invigilator.png'),
+                                        ),
+                                    loading: (_) => Loading(),
+                                    error: (_) => Text('ERROR'));
                               },
                             ),
                           ],
@@ -165,19 +154,60 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            FutureBuilder(
-                              future: _databaseService.countOtherRecords(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<dynamic> snapshot) {
-                                if (snapshot.hasData) {
-                                  return buildCustomCard(
-                                    number: snapshot.data,
-                                    category: 'Others',
-                                    icon: Image.asset('assets/images/other.png'),
-                                  );
-                                }
+                            Consumer(
+                              builder: (context, watch, child) {
+                                final atRecords =
+                                    watch(attendantRecordsCountProvider);
 
-                                return Loading();
+                                return atRecords.map(
+                                    data: (data) => buildCustomCard(
+                                          context,
+                                          number: data.value,
+                                          category: 'Attendants',
+                                          icon: Image.asset(
+                                              'assets/images/attendant.png'),
+                                        ),
+                                    loading: (_) => Loading(),
+                                    error: (_) => Text('ERROR'));
+                              },
+                            ),
+                            Consumer(
+                              builder: (context, watch, child) {
+                                final tARecords = watch(tARecordsCountProvider);
+
+                                return tARecords.map(
+                                    data: (data) => buildCustomCard(
+                                          context,
+                                          number: data.value,
+                                          category: 'Teaching Assistants',
+                                          icon: Image.asset(
+                                              'assets/images/teaching-assistant.png'),
+                                        ),
+                                    loading: (_) => Loading(),
+                                    error: (_) => Text('ERROR'));
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Consumer(
+                              builder: (context, watch, child) {
+                                final otherRecords =
+                                    watch(otherRecordsCountProvider);
+
+                                return otherRecords.map(
+                                    data: (data) => buildCustomCard(
+                                          context,
+                                          number: data.value,
+                                          category: 'Others',
+                                          icon: Image.asset(
+                                              'assets/images/other.png'),
+                                        ),
+                                    loading: (_) => Loading(),
+                                    error: (_) => Text('ERROR'));
                               },
                             ),
                             /* FutureBuilder(
@@ -209,7 +239,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  buildCustomCard({int number, String category, Widget icon}) {
+  Widget buildCustomCard(BuildContext context,
+      {int number, String category, Widget icon}) {
     return Container(
       width: MediaQuery.of(context).size.width / 2 - 25,
       height: MediaQuery.of(context).size.width / 3.2,
