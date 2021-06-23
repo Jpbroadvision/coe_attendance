@@ -1,4 +1,4 @@
-import 'package:coe_attendance/utils/date_time.dart';
+import 'package:coe_proctors_attendance/utils/date_time.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/service/database_service.dart';
