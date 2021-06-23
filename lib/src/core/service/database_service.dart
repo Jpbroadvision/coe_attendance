@@ -16,7 +16,7 @@ class DatabaseService {
   static Database _db;
 
   /// database name
-  static const String DB_NAME = 'coe_proctors_attendance_database.db';
+  static const String DB_NAME = 'coe_attendance_database.db';
 
   // All tables
   static const String ATTENDANCE_RECORDS_TABLE = 'attendance_records';

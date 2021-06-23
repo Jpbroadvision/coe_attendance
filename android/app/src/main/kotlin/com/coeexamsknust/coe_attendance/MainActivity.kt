@@ -1,4 +1,4 @@
-package com.coe-exams-knust.coe_proctors_attendance
+package com.coeexamsknust.coe_attendance
 
 import io.flutter.embedding.android.FlutterActivity
 
