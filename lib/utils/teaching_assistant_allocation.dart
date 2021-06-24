@@ -14,6 +14,8 @@ class TeachingAssistantAllocation {
 
     Map<String, List<TeachingAssistantModel>> allocations = {};
 
+    if (listOfTeachingAssistants.length < 0) return allocations;
+
     for (var teachingAssistant in listOfTeachingAssistants) {
       if (allocations.containsKey(teachingAssistant.room)) {
         allocations[teachingAssistant.room].add(teachingAssistant);
