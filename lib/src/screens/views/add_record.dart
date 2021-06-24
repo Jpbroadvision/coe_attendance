@@ -94,13 +94,15 @@ final tAsOfSelectedRoomProvider =
   final selectedRoom = ref.watch(selectedRoomProvider);
 
   return roomPerTAs.maybeWhen(
-      data: (roomForTAs) => roomForTAs[selectedRoom.state.room],
+      data: (roomForTAs) =>
+          roomForTAs.isEmpty ? [] : roomForTAs[selectedRoom.state.room],
       orElse: () => []);
 });
 
 final selectedTAProvider =
     StateProvider.autoDispose<TeachingAssistantModel>((ref) {
   final tAs = ref.watch(tAsOfSelectedRoomProvider);
+  // if (tAs.state == null) return TeachingAssistantModel();
   return tAs.state.length > 0 ? tAs.state.first : TeachingAssistantModel();
 });
 
@@ -451,7 +453,7 @@ class AddRecordPage extends ConsumerWidget {
     return filePath;
   }
 
- saveRecord(BuildContext context) async {
+  saveRecord(BuildContext context) async {
     final selectedProctor = context.read(selectedProctorProvider);
     final selectedTA = context.read(selectedTAProvider);
     final otherName = context.read(otherNameProvider);
