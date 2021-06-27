@@ -254,11 +254,14 @@ class AddRecordPage extends ConsumerWidget {
                       return AutoCompleteTextField<ProctorModel>(
                         controller: searchProctor.state,
                         clearOnSubmit: false,
+                        suggestionsAmount: 10,
                         decoration: InputDecoration(
                           hintText: "Search proctor:",
                           suffixIcon: Icon(Icons.search),
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 16),
+                            horizontal: 12,
+                            vertical: 16,
+                          ),
                           enabledBorder: enabledBorder,
                           focusedBorder: focusedBorder,
                         ),
@@ -280,7 +283,7 @@ class AddRecordPage extends ConsumerWidget {
                                 : 1,
                         itemFilter: (suggestion, input) => suggestion.name
                             .toLowerCase()
-                            .startsWith(input.toLowerCase()),
+                            .contains(input.toLowerCase()),
                       );
                     },
                     error: (error) => Text('oops an Error occured'),
