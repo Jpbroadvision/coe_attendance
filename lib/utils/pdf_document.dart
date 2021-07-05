@@ -117,7 +117,7 @@ Future<String> generatePDF(
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(2),
-                      child: pw.Text(attendantRecord.date,
+                      child: pw.Text(attendantRecord.dateTime,
                           style: pw.TextStyle(fontSize: 10.0)),
                     ),
                     pw.Padding(
