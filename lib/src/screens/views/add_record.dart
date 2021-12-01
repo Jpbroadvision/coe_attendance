@@ -166,6 +166,9 @@ class AddRecordPage extends ConsumerWidget {
     final selectedProctor = watch(selectedProctorProvider);
     final searchProctor = watch(searchProctorProvider);
     final otherName = watch(otherNameProvider);
+    void clearFields() {
+      searchProctor.state.clear();
+    }
 
     return Scaffold(
       key: _scaffoldKey,
@@ -354,7 +357,10 @@ class AddRecordPage extends ConsumerWidget {
               width: 150,
             ),
             child: ElevatedButton(
-              onPressed: () => saveRecord(context),
+              onPressed: () {
+                saveRecord(context);
+                clearFields();
+              },
               child: Text("SAVE",
                   style: TextStyle(
                     fontSize: 20,
@@ -485,8 +491,8 @@ class AddRecordPage extends ConsumerWidget {
         otherName.state = '';
         break;
     }
-
-    if (selectedRoom.state == null || name.isEmpty) {
+    print("namessssssssss " + name);
+    if (selectedRoom.state == null && name.isEmpty) {
       toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
@@ -505,11 +511,36 @@ class AddRecordPage extends ConsumerWidget {
 
     // save details to database
     try {
+      print("name: --------------------------------------------");
+      print(attendanceRecords.name);
+      print("session: --------------------------------------------");
+
+      print(attendanceRecords.session);
+      print("category: --------------------------------------------");
+
+      print(attendanceRecords.category);
+      print("duration: --------------------------------------------");
+
+      print(attendanceRecords.duration);
+      print("room: --------------------------------------------");
+
+      print(attendanceRecords.room);
+      print("date: --------------------------------------------");
+
+      print(attendanceRecords.date);
+      print("dateTime: --------------------------------------------");
+
+      print(attendanceRecords.dateTime);
+      print("signImagePath: --------------------------------------------");
+
+      print(attendanceRecords.signImagePath);
       await databaseService.addAttendanceRecord(attendanceRecords);
 
       toastMessage(context, "Successfully saved data.");
+      return "Done";
     } catch (e) {
       toastMessage(context, "Error occured while saving data.", Colors.red);
+      return "Failed";
     }
   }
 }
