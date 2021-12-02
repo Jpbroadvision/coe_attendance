@@ -473,7 +473,6 @@ class AddRecordPage extends ConsumerWidget {
     final selectedSession = context.read(selectedSessionProvider);
     final selectedDuration = context.read(selectedDurationProvider);
 
-    String signImagePath = await _getImagePath();
     // temp holder for  selectedCategory.state
     String tempCategory = selectedCategory.state;
 
@@ -491,11 +490,13 @@ class AddRecordPage extends ConsumerWidget {
         otherName.state = '';
         break;
     }
-    print("namessssssssss " + name);
-    if (selectedRoom.state == null && name.isEmpty) {
+
+    if (selectedRoom.state == null || name == null || name.isEmpty) {
       toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
+
+    String signImagePath = await _getImagePath();
 
     // set Proctors details to be save
     AttendanceRecordModel attendanceRecords = AttendanceRecordModel(
@@ -511,32 +512,21 @@ class AddRecordPage extends ConsumerWidget {
 
     // save details to database
     try {
-      print("name: --------------------------------------------");
-      print(attendanceRecords.name);
-      print("session: --------------------------------------------");
+      await databaseService
+          .addAttendanceRecord(attendanceRecords)
+          .then((value) {
+        context.refresh(selectedProctorProvider);
+        context.refresh(selectedTAProvider);
+        context.refresh(otherNameProvider);
+        context.refresh(selectedRoomProvider);
+        context.refresh(datetimeHelperProvider);
+        context.refresh(selectedCategoryProvider);
+        context.refresh(selectedSessionProvider);
+        context.refresh(selectedDurationProvider);
 
-      print(attendanceRecords.session);
-      print("category: --------------------------------------------");
+        toastMessage(context, "Successfully saved data.");
+      });
 
-      print(attendanceRecords.category);
-      print("duration: --------------------------------------------");
-
-      print(attendanceRecords.duration);
-      print("room: --------------------------------------------");
-
-      print(attendanceRecords.room);
-      print("date: --------------------------------------------");
-
-      print(attendanceRecords.date);
-      print("dateTime: --------------------------------------------");
-
-      print(attendanceRecords.dateTime);
-      print("signImagePath: --------------------------------------------");
-
-      print(attendanceRecords.signImagePath);
-      await databaseService.addAttendanceRecord(attendanceRecords);
-
-      toastMessage(context, "Successfully saved data.");
       return "Done";
     } catch (e) {
       toastMessage(context, "Error occured while saving data.", Colors.red);
