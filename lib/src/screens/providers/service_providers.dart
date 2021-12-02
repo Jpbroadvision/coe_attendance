@@ -7,8 +7,7 @@ import '../../core/service/permission_service.dart';
 final permissionProvider =
     Provider.autoDispose<PermissionService>((ref) => PermissionService());
 
-final dbServiceProvider =
-    Provider.autoDispose<DatabaseService>((ref) => DatabaseService());
+final dbServiceProvider = Provider<DatabaseService>((ref) => DatabaseService());
 
 final datetimeHelperProvider =
     Provider.autoDispose<DateTimeHelper>((ref) => DateTimeHelper());

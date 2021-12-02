@@ -64,7 +64,7 @@ final availableRoomsProvider =
   return dbService.getAvailableRooms();
 });
 
-final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
+final selectedProctorProvider = StateProvider<ProctorModel>((ref) {
   final proctors = ref.watch(proctorsProvider);
 
   return proctors.maybeWhen(
@@ -73,7 +73,7 @@ final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
       orElse: () => ProctorModel());
 });
 
-final proctorsProvider = FutureProvider.autoDispose<List<ProctorModel>>((ref) {
+final proctorsProvider = FutureProvider<List<ProctorModel>>((ref) {
   final dbService = ref.watch(dbServiceProvider);
 
   return dbService.getProctors();
@@ -472,6 +472,7 @@ class AddRecordPage extends ConsumerWidget {
     final selectedCategory = context.read(selectedCategoryProvider);
     final selectedSession = context.read(selectedSessionProvider);
     final selectedDuration = context.read(selectedDurationProvider);
+    final searchProctor = context.read(searchProctorProvider).state;
 
     // temp holder for  selectedCategory.state
     String tempCategory = selectedCategory.state;
@@ -491,7 +492,10 @@ class AddRecordPage extends ConsumerWidget {
         break;
     }
 
-    if (selectedRoom.state == null || name == null || name.isEmpty) {
+    if (selectedRoom.state == null ||
+        name == null ||
+        name.isEmpty ||
+        searchProctor.text.isEmpty) {
       toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
@@ -515,8 +519,8 @@ class AddRecordPage extends ConsumerWidget {
       await databaseService
           .addAttendanceRecord(attendanceRecords)
           .then((value) {
-        context.refresh(searchProctorProvider);
-        context.refresh(selectedProctorProvider);
+        // context.refresh(searchProctorProvider);
+        // context.refresh(selectedProctorProvider);
         context.refresh(selectedTAProvider);
         context.refresh(otherNameProvider);
         // context.refresh(selectedRoomProvider);
