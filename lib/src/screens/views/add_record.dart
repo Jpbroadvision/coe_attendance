@@ -515,14 +515,15 @@ class AddRecordPage extends ConsumerWidget {
       await databaseService
           .addAttendanceRecord(attendanceRecords)
           .then((value) {
+        context.refresh(searchProctorProvider);
         context.refresh(selectedProctorProvider);
         context.refresh(selectedTAProvider);
         context.refresh(otherNameProvider);
-        context.refresh(selectedRoomProvider);
+        // context.refresh(selectedRoomProvider);
         context.refresh(datetimeHelperProvider);
-        context.refresh(selectedCategoryProvider);
-        context.refresh(selectedSessionProvider);
-        context.refresh(selectedDurationProvider);
+        // context.refresh(selectedCategoryProvider);
+        // context.refresh(selectedSessionProvider);
+        // context.refresh(selectedDurationProvider);
 
         toastMessage(context, "Successfully saved data.");
       });
