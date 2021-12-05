@@ -378,7 +378,6 @@ class Records extends StatelessWidget {
   }
 
   _buildFilterResult(BuildContext context) {
-
     return SingleChildScrollView(
       child: Consumer(
         builder: (context, watch, child) {
@@ -394,13 +393,14 @@ class Records extends StatelessWidget {
                         (attendanceRecord) => ProctorCard(
                           attendanceRecord: attendanceRecord,
                           deleteFunction: () async {
-                            await dbService.deleteAttendanceRecordById(
-                                attendanceRecord.id);
-
-                            //refresh list of Proctors
-
-                            toastMessage(_scaffoldKey.currentContext,
-                                "Delete successful");
+                            await dbService
+                                .deleteAttendanceRecordById(attendanceRecord.id)
+                                .then((value) {
+                              //refresh list of Proctors
+                              context.refresh(dbServiceProvider);
+                              toastMessage(_scaffoldKey.currentContext,
+                                  "Delete successful");
+                            });
                           },
                         ),
                       )

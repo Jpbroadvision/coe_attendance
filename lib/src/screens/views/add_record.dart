@@ -64,7 +64,7 @@ final availableRoomsProvider =
   return dbService.getAvailableRooms();
 });
 
-final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
+final selectedProctorProvider = StateProvider<ProctorModel>((ref) {
   final proctors = ref.watch(proctorsProvider);
 
   return proctors.maybeWhen(
@@ -73,7 +73,7 @@ final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
       orElse: () => ProctorModel());
 });
 
-final proctorsProvider = FutureProvider.autoDispose<List<ProctorModel>>((ref) {
+final proctorsProvider = FutureProvider<List<ProctorModel>>((ref) {
   final dbService = ref.watch(dbServiceProvider);
 
   return dbService.getProctors();
@@ -166,6 +166,9 @@ class AddRecordPage extends ConsumerWidget {
     final selectedProctor = watch(selectedProctorProvider);
     final searchProctor = watch(searchProctorProvider);
     final otherName = watch(otherNameProvider);
+    void clearFields() {
+      searchProctor.state.clear();
+    }
 
     return Scaffold(
       key: _scaffoldKey,
@@ -354,7 +357,10 @@ class AddRecordPage extends ConsumerWidget {
               width: 150,
             ),
             child: ElevatedButton(
-              onPressed: () => saveRecord(context),
+              onPressed: () {
+                saveRecord(context);
+                clearFields();
+              },
               child: Text("SAVE",
                   style: TextStyle(
                     fontSize: 20,
@@ -466,8 +472,8 @@ class AddRecordPage extends ConsumerWidget {
     final selectedCategory = context.read(selectedCategoryProvider);
     final selectedSession = context.read(selectedSessionProvider);
     final selectedDuration = context.read(selectedDurationProvider);
+    final searchProctor = context.read(searchProctorProvider).state;
 
-    String signImagePath = await _getImagePath();
     // temp holder for  selectedCategory.state
     String tempCategory = selectedCategory.state;
 
@@ -486,10 +492,15 @@ class AddRecordPage extends ConsumerWidget {
         break;
     }
 
-    if (selectedRoom.state == null || name.isEmpty) {
+    if (selectedRoom.state == null ||
+        name == null ||
+        name.isEmpty ||
+        searchProctor.text.isEmpty) {
       toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
+
+    String signImagePath = await _getImagePath();
 
     // set Proctors details to be save
     AttendanceRecordModel attendanceRecords = AttendanceRecordModel(
@@ -505,11 +516,26 @@ class AddRecordPage extends ConsumerWidget {
 
     // save details to database
     try {
-      await databaseService.addAttendanceRecord(attendanceRecords);
+      await databaseService
+          .addAttendanceRecord(attendanceRecords)
+          .then((value) {
+        // context.refresh(searchProctorProvider);
+        // context.refresh(selectedProctorProvider);
+        context.refresh(selectedTAProvider);
+        context.refresh(otherNameProvider);
+        // context.refresh(selectedRoomProvider);
+        context.refresh(datetimeHelperProvider);
+        // context.refresh(selectedCategoryProvider);
+        // context.refresh(selectedSessionProvider);
+        // context.refresh(selectedDurationProvider);
 
-      toastMessage(context, "Successfully saved data.");
+        toastMessage(context, "Successfully saved data.");
+      });
+
+      return "Done";
     } catch (e) {
       toastMessage(context, "Error occured while saving data.", Colors.red);
+      return "Failed";
     }
   }
 }

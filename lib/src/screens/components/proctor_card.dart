@@ -86,7 +86,7 @@ class ProctorCard extends StatelessWidget {
         ),
       ),
       title: Text(
-        attendanceRecord.name,
+        "${attendanceRecord.name}",
         overflow: TextOverflow.clip,
         maxLines: 1,
         style: TextStyle(fontSize: 15),
