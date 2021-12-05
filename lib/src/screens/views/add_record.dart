@@ -64,7 +64,7 @@ final availableRoomsProvider =
   return dbService.getAvailableRooms();
 });
 
-final selectedProctorProvider = StateProvider<ProctorModel>((ref) {
+final selectedProctorProvider = StateProvider.autoDispose<ProctorModel>((ref) {
   final proctors = ref.watch(proctorsProvider);
 
   return proctors.maybeWhen(
@@ -73,7 +73,7 @@ final selectedProctorProvider = StateProvider<ProctorModel>((ref) {
       orElse: () => ProctorModel());
 });
 
-final proctorsProvider = FutureProvider<List<ProctorModel>>((ref) {
+final proctorsProvider = FutureProvider.autoDispose<List<ProctorModel>>((ref) {
   final dbService = ref.watch(dbServiceProvider);
 
   return dbService.getProctors();
@@ -134,8 +134,8 @@ final focusedBorder = OutlineInputBorder(
 class AddRecordPage extends ConsumerWidget {
   AddRecordPage({Key key}) : super(key: key);
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey _taAutoCompleteKey =
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _taAutoCompleteKey =
       GlobalKey<AutoCompleteTextFieldState<ProctorModel>>();
 
   final _sign = GlobalKey<SignatureState>();
