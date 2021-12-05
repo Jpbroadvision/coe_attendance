@@ -492,10 +492,12 @@ class AddRecordPage extends ConsumerWidget {
         break;
     }
 
-    if (selectedRoom.state == null ||
-        name == null ||
-        name.isEmpty ||
-        searchProctor.text.isEmpty) {
+    if (selectedRoom.state == null || name == null || name.isEmpty) {
+      toastMessage(context, "Kindly provide all inputs.", Colors.red);
+      return;
+    }
+
+    if (selectedCategory.state == "Proctor" && searchProctor.text.isEmpty) {
       toastMessage(context, "Kindly provide all inputs.", Colors.red);
       return;
     }
